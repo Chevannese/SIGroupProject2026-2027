@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:text="Flow"
+        android:textSize="50sp"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textStyle="bold"
+        android:id="@+id/FlowName"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="95dp"
+        />
+
+    <TextView
+        android:text="Real Time Scheduling System"
+        android:textColor="@android:color/holo_blue_light"
+        android:textStyle="bold"
+        android:id="@+id/rtss"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+    <TextView
+        android:text="Welcome Back!"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        android:id="@+id/wb"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="35dp"
+        />
+
+    <TextView
+        android:text="Sign in to continue."
+        android:textColor="@android:color/darker_gray"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:id="@+id/signToContinue"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="35dp"
+        />
+
+    <EditText
+        android:hint="Enter TRN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:ems="10"
+        />
+
+    <EditText
+        android:hint="Password"
+        android:id="@+id/editTextTextPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:ems="10"
+        android:inputType="textPassword" />
+
+    <TextView
+        android:id="@+id/forgetBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="- Forget Password?- "
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="15dp"
+        />
+
+    <Button
+        android:text="Login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="@color/white"
+        android:id="@+id/loginBtn"
+        android:ems="11"
+        android:background="@android:color/holo_blue_dark"
+        android:layout_marginBottom="15dp"
+        />
+
+    <TextView
+        android:id="@+id/orToRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="___________________   OR   ___________________"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="15dp"
+        />
+
+    <TextView
+        android:id="@+id/registerBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Don't have an account? Register Here"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="15dp"
+        />
+
+
+
+
+
+
+
+</LinearLayout>
