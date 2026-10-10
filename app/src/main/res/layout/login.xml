@@ -7,7 +7,7 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:text="Flow"
+        android:text="@string/flow_name"
         android:textSize="50sp"
         android:textColor="@android:color/holo_blue_dark"
         android:textStyle="bold"
@@ -19,7 +19,7 @@
         />
 
     <TextView
-        android:text="Real Time Scheduling System"
+        android:text="@string/real_time"
         android:textColor="@android:color/holo_blue_light"
         android:textStyle="bold"
         android:id="@+id/rtss"
@@ -29,9 +29,9 @@
         />
 
     <TextView
-        android:text="Welcome Back!"
+        android:text="@string/welcome"
         android:textColor="@android:color/holo_blue_dark"
-        android:textSize="18dp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:id="@+id/wb"
         android:layout_gravity="center"
@@ -41,9 +41,9 @@
         />
 
     <TextView
-        android:text="Sign in to continue."
+        android:text="@string/signToContinue"
         android:textColor="@android:color/darker_gray"
-        android:textSize="10sp"
+        android:textSize="14sp"
         android:textStyle="bold"
         android:id="@+id/signToContinue"
         android:layout_gravity="center"
@@ -53,36 +53,43 @@
         />
 
     <EditText
-        android:hint="Enter TRN"
+        android:hint="@string/inputTRN"
+        android:id="@+id/loginTRN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:ems="10"
+        android:minHeight="48dp"
+        android:inputType="number"
+        android:autofillHints="username"
         />
 
     <EditText
-        android:hint="Password"
-        android:id="@+id/editTextTextPassword"
+        android:hint="@string/password"
+        android:id="@+id/loginPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:ems="10"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:minHeight="48dp"
+        android:autofillHints="password"
+        />
 
     <TextView
         android:id="@+id/forgetBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="- Forget Password?- "
+        android:text="@string/forget_pass"
         android:textColor="@android:color/holo_blue_dark"
-        android:textSize="10sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         android:layout_marginBottom="15dp"
         />
 
     <Button
-        android:text="Login"
+        android:text="@string/login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -98,9 +105,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="___________________   OR   ___________________"
+        android:text="@string/orOption"
         android:textColor="@android:color/holo_blue_dark"
-        android:textSize="10sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         android:layout_marginBottom="15dp"
         />
@@ -110,17 +117,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Don't have an account? Register Here"
+        android:text="@string/noAccount"
         android:textColor="@android:color/holo_blue_dark"
-        android:textSize="10sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         android:layout_marginBottom="15dp"
         />
-
-
-
-
-
-
 
 </LinearLayout>

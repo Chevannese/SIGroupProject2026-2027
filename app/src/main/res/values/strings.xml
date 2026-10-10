@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Flow App</string>
+    <string name="flow_name">Flow</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="password">Password</string>
+    <string name="signToContinue">Sign in to continue</string>
+    <string name="real_time">Real Time Scheduling System</string>
+    <string name="welcome">Welcome Back!</string>
+    <string name="inputTRN">Enter TRN</string>
+    <string name="orOption">___________________   OR   ___________________</string>
+    <string name="noAccount">Don\'t have an account? Register Here</string>
+    <string name="forget_pass">- Forget Password?- </string>
 </resources>
