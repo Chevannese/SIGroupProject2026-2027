@@ -9,7 +9,7 @@
     <TextView
         android:text="@string/flow_name"
         android:textSize="50sp"
-        android:textColor="@color/sonic"
+        android:textColor="@color/blue"
         android:textStyle="bold"
         android:id="@+id/FlowName"
         android:layout_gravity="center"
@@ -20,7 +20,7 @@
 
     <TextView
         android:text="@string/real_time"
-        android:textColor="@color/sonic"
+        android:textColor="@color/blue"
         android:textStyle="bold"
         android:id="@+id/rtss"
         android:layout_gravity="center"
@@ -74,6 +74,8 @@
         android:inputType="textPassword"
         android:minHeight="48dp"
         android:autofillHints="password"
+        android:layout_marginBottom="10dp"
+
         />
 
     <TextView
@@ -85,7 +87,7 @@
         android:textColor="@color/dark_blue"
         android:textSize="12sp"
         android:textStyle="bold"
-        android:layout_marginBottom="15dp"
+        android:layout_marginBottom="25dp"
         />
 
     <Button
@@ -94,10 +96,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textColor="@color/white"
+        android:textStyle="bold"
         android:id="@+id/loginBtn"
         android:ems="11"
-        android:background="@color/sonic"
-        android:layout_marginBottom="15dp"
+        android:background="@color/blue"
+        android:layout_marginBottom="25dp"
         />
 
     <TextView
@@ -113,11 +116,11 @@
         />
 
     <TextView
+        android:text="@string/noAccount"
         android:id="@+id/registerBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/noAccount"
         android:textColor="@color/dark_blue"
         android:textSize="12sp"
         android:textStyle="bold"

@@ -11,4 +11,13 @@
     <string name="orOption">___________________   OR   ___________________</string>
     <string name="noAccount">Don\'t have an account? Register Here</string>
     <string name="forget_pass">- Forget Password?- </string>
+    <string name="createAcc">Create Your Account</string>
+    <string name="quickReg">Quick and Easy Registration</string>
+    <string name="firstName">First Name</string>
+    <string name="lastName">Last Name</string>
+    <string name="fullName">Full Name</string>
+    <string name="phone">Phone</string>
+    <string name="confirmPass">Confirm Password</string>
+    <string name="email">Email</string>
+    <string name="accExist">Already have an account? Login Here</string>
 </resources>

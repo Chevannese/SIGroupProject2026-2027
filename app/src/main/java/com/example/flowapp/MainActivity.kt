@@ -29,6 +29,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         setContentView(R.layout.login)
+        var button = findViewById(R.id.registerBtn)
     }
 }
 
