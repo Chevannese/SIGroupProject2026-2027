@@ -9,7 +9,7 @@
     <TextView
         android:text="@string/flow_name"
         android:textSize="50sp"
-        android:textColor="@android:color/holo_blue_dark"
+        android:textColor="@color/sonic"
         android:textStyle="bold"
         android:id="@+id/FlowName"
         android:layout_gravity="center"
@@ -20,7 +20,7 @@
 
     <TextView
         android:text="@string/real_time"
-        android:textColor="@android:color/holo_blue_light"
+        android:textColor="@color/sonic"
         android:textStyle="bold"
         android:id="@+id/rtss"
         android:layout_gravity="center"
@@ -30,7 +30,7 @@
 
     <TextView
         android:text="@string/welcome"
-        android:textColor="@android:color/holo_blue_dark"
+        android:textColor="@color/dark_blue"
         android:textSize="20sp"
         android:textStyle="bold"
         android:id="@+id/wb"
@@ -42,7 +42,7 @@
 
     <TextView
         android:text="@string/signToContinue"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@color/dark_gray"
         android:textSize="14sp"
         android:textStyle="bold"
         android:id="@+id/signToContinue"
@@ -82,7 +82,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/forget_pass"
-        android:textColor="@android:color/holo_blue_dark"
+        android:textColor="@color/dark_blue"
         android:textSize="12sp"
         android:textStyle="bold"
         android:layout_marginBottom="15dp"
@@ -96,7 +96,7 @@
         android:textColor="@color/white"
         android:id="@+id/loginBtn"
         android:ems="11"
-        android:background="@android:color/holo_blue_dark"
+        android:background="@color/sonic"
         android:layout_marginBottom="15dp"
         />
 
@@ -106,7 +106,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/orOption"
-        android:textColor="@android:color/holo_blue_dark"
+        android:textColor="@color/dark_blue"
         android:textSize="12sp"
         android:textStyle="bold"
         android:layout_marginBottom="15dp"
@@ -118,7 +118,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/noAccount"
-        android:textColor="@android:color/holo_blue_dark"
+        android:textColor="@color/dark_blue"
         android:textSize="12sp"
         android:textStyle="bold"
         android:layout_marginBottom="15dp"
