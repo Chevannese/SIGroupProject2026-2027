@@ -23,10 +23,19 @@ class MainActivity : ComponentActivity() {
 
         // yoink register link button
         val register: TextView = findViewById(R.id.registerBtn)
+        val login: Button = findViewById(R.id.loginBtn)
+
+        login.setOnClickListener {
+            val trn: EditText = findViewById(R.id.loginTRN)
+            val password: EditText = findViewById(R.id.loginPassword)
+            val client = Client(applicationContext)
+
+            setContent { Main() }
+        }
 
         // add event listener to the button
         register.setOnClickListener {
-            showRegister()
+            setContentView(R.layout.register)
         }
     }
 
