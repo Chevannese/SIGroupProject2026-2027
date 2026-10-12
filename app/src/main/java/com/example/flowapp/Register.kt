@@ -25,7 +25,7 @@ fun Register(
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    val blue = colorResource(id = R.color.blue)
+    val blue = colorResource(id = R.color.dark_blue)
     val darkBlue = colorResource(id = R.color.dark_blue)
     val darkGray = colorResource(id = R.color.dark_gray)
     val white = colorResource(id = R.color.white)

@@ -7,6 +7,8 @@ import androidx.activity.compose.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import com.example.flowapp.ui.theme.FlowAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +32,11 @@ class MainActivity : ComponentActivity() {
             val password: EditText = findViewById(R.id.loginPassword)
             val client = Client(applicationContext)
 
-            setContent { Main() }
+            setContent {
+                FlowAppTheme {
+                    Main()
+                }
+            }
         }
 
         // add event listener to the button
