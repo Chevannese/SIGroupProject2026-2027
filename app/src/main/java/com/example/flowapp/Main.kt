@@ -74,7 +74,15 @@ fun Main(onProfileClick: () -> Unit = {}, onLogoutClick: () -> Unit) {
         }
 
         if (showProfile) {
-            Profile({}, sheetState)
+            ModalBottomSheet(onDismissRequest = {showProfile = false}, sheetState = sheetState) {
+                Column {
+                    Icon(imageVector = Icons.Default.Person, contentDescription = "icon")
+                    Text("Jonathan Blackwood")
+                    Button(onClick = {}) {
+                        Text("Logout")
+                    }
+                }
+            }
         }
     }
 }
