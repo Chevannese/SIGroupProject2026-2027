@@ -4,10 +4,6 @@ import android.os.Bundle
 import android.widget.*
 import androidx.activity.*
 import androidx.activity.compose.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import com.example.flowapp.ui.theme.FlowAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,8 +20,12 @@ class MainActivity : ComponentActivity() {
         setContentView(R.layout.login)
 
         // yoink register link button
-        val register: TextView = findViewById(R.id.registerBtn)
+        val toRegister: TextView = findViewById(R.id.orToRegister)
         val login: Button = findViewById(R.id.loginBtn)
+
+        toRegister.setOnClickListener {
+            showRegister()
+        }
 
         login.setOnClickListener {
             val trn: EditText = findViewById(R.id.loginTRN)
@@ -33,30 +33,38 @@ class MainActivity : ComponentActivity() {
             val client = Client(applicationContext)
 
             setContent {
-                FlowAppTheme {
-                    Main()
+                FlowAppTheme() {
+                    Main(
+                        onProfileClick = { setContent { Profile(onBack = { setContent { Main(onLogoutClick = { showLogin() }) }}) } },
+                        onLogoutClick = { showLogin() }
+                    )
                 }
             }
-        }
-
-        // add event listener to the button
-        register.setOnClickListener {
-            setContentView(R.layout.register)
         }
     }
 
     private fun showRegister() {
-        setContent {
-            MaterialTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    // switch to register page
-                    Register(
-                        modifier = Modifier.padding(innerPadding),
-                        // switches back to login page
-                        showLogin = { showLogin() }
-                    )
-                }
-            }
+        setContentView(R.layout.register)
+
+        val toLogin: TextView = findViewById(R.id.accExist)
+        val register: Button = findViewById(R.id.registerBtn)
+
+        toLogin.setOnClickListener {
+            showLogin()
+        }
+
+        register.setOnClickListener {
+            register.isEnabled = false;
+
+            val firstName: EditText = findViewById(R.id.reg_firstName)
+            val lastName: EditText = findViewById(R.id.reg_lastName)
+            val email: EditText = findViewById(R.id.reg_email)
+            val phone: EditText = findViewById(R.id.reg_phone)
+            val password: EditText = findViewById(R.id.reg_password)
+
+            val client = Client(applicationContext)
+            val response = client.register(firstName.text.toString(), lastName.text.toString(), password.text.toString(), email.text.toString(), phone.text.toString(), password.text.toString())
+            register.isEnabled = true;
         }
     }
 }
