@@ -8,17 +8,12 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 
 class Client(private val context: Context) {
-    public suspend fun login(trn: String, password: String): Int? {
-        try {
+    public fun login(trn: String, password: String): Int? {
+        return null
+    }
 
-        } catch (e: Exception) {
-            e.printStackTrace()
-            print("ERROR: ${e.localizedMessage ?: "Connection failed"}")
-            return null
-        }
-
-
-        return 0
+    public fun register(firstName: String, lastName: String, password: String, email: String, phone: String, name: String): Int? {
+        return null
     }
 }
 
