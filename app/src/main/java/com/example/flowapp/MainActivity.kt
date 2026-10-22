@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         setContentView(R.layout.login)
 
         // yoink register link button
-        val toRegister: TextView = findViewById(R.id.orToRegister)
+        val toRegister: TextView = findViewById(R.id.registerBtn)
         val login: Button = findViewById(R.id.loginBtn)
 
         toRegister.setOnClickListener {
@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
             setContent {
                 FlowAppTheme() {
                     Main(
-                        onProfileClick = { setContent { Profile(onBack = { setContent { Main(onLogoutClick = { showLogin() }) }}) } },
+                        onProfileClick = { setContent { Personal(onBack = { setContent { Main(onLogoutClick = { showLogin() }) }}) } },
                         onLogoutClick = { showLogin() }
                     )
                 }

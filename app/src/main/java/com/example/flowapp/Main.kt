@@ -14,6 +14,8 @@ import com.example.flowapp.ui.theme.FlowAppTheme
 @Composable
 fun Main(onProfileClick: () -> Unit = {}, onLogoutClick: () -> Unit) {
     var tab by remember { mutableIntStateOf(0) }
+    var showProfile by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
 
     Scaffold(
         topBar = {
@@ -22,7 +24,7 @@ fun Main(onProfileClick: () -> Unit = {}, onLogoutClick: () -> Unit) {
                     Text("Flow App")
                 },
                 actions = {
-                    IconButton(onClick = { onProfileClick() }) {
+                    IconButton(onClick = { showProfile = true }) {
                         Icon(
                             imageVector = Icons.Default.AccountCircle,
                             contentDescription = "Profile",
@@ -72,6 +74,10 @@ fun Main(onProfileClick: () -> Unit = {}, onLogoutClick: () -> Unit) {
                 4 -> Payments()
             }
         }
+    }
+
+    if (showProfile) {
+        Profile({}, sheetState)
     }
 }
 

@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.*
 fun Register(
     modifier: Modifier = Modifier,
     register: () -> Unit = {},
-    showLogin: () -> Unit = {}
+    showLogin: () -> Unit = {},
 ) {
     // variables to store user input
     // the UI autoupdates these with the parts that say onValueChange
@@ -25,138 +25,161 @@ fun Register(
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    val blue = colorResource(id = R.color.dark_blue)
+    val blue = colorResource(id = R.color.blue)
     val darkBlue = colorResource(id = R.color.dark_blue)
-    val darkGray = colorResource(id = R.color.dark_gray)
     val white = colorResource(id = R.color.white)
 
-    // this is basicallt the same as LinearLayout from the login.xml
-    Column(
-        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(95.dp))
+    val passwordVisualTransformation = remember { PasswordVisualTransformation() }
+    val scrollState = rememberScrollState()
 
-        // App title & system subtitle
-        Text(
-            text = "Flow",
-            fontSize = 50.sp,
-            color = blue,
-            fontWeight = FontWeight.Bold
-        )
+    Scaffold(
+        modifier = modifier,
+        contentWindowInsets = WindowInsets.safeDrawing,
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
+                .verticalScroll(scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(40.dp))
 
-        Text(
-            text = "Real Time Scheduling System",
-            color = blue,
-            fontWeight = FontWeight.Bold
-        )
-
-        // Screen header
-        Spacer(modifier = Modifier.height(35.dp))
-        Text(
-            text = "Create Account",
-            color = darkBlue,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // First Name
-        OutlinedTextField(
-            value = name,
-            onValueChange = { text: String -> name = text },
-            placeholder = { Text(text = "Name") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-        )
-
-        Spacer(modifier = Modifier.height(15.dp))
-
-        // Email
-        OutlinedTextField(
-            value = email,
-            onValueChange = { text -> email = text },
-            placeholder = { Text(text = "Email") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next
-            ),
-        )
-
-        Spacer(modifier = Modifier.height(15.dp))
-
-        // Phone
-        OutlinedTextField(
-            value = phone,
-            onValueChange = { text -> phone = text },
-            placeholder = { Text(text = "Phone Number") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Phone,
-                imeAction = ImeAction.Next
-            ),
-        )
-
-        Spacer(modifier = Modifier.height(15.dp))
-
-        // Password
-        OutlinedTextField(
-            value = password,
-            onValueChange = { text -> password = text },
-            placeholder = { Text(text = "Password") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Next
-            ),
-        )
-
-        Spacer(modifier = Modifier.height(15.dp))
-
-        // Confirm Password
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { text -> confirmPassword = text },
-            placeholder = { Text(text = "Confirm Password") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
-            ),
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        // Register Button
-        // runs register function when clicked
-        Button(onClick = register) {
+            // App title & system subtitle
             Text(
-                text = "Register",
-                color = white,
-                fontWeight = FontWeight.Bold
+                text = "Flow",
+                fontSize = 50.sp,
+                color = blue,
+                fontWeight = FontWeight.Bold,
             )
-        }
 
-        Spacer(modifier = Modifier.height(25.dp))
-
-        Text(text = "______________   OR   ______________")
-
-        Spacer(modifier = Modifier.height(15.dp))
-
-        // Already have an account? Login Link
-        TextButton(onClick = showLogin) {
             Text(
-                text = "Don't Have an Account? Login Here",
+                text = "Real Time Scheduling System",
+                color = blue,
+                fontWeight = FontWeight.Bold,
+            )
+
+            // Screen header
+            Spacer(modifier = Modifier.height(35.dp))
+            Text(
+                text = "Create Account",
                 color = darkBlue,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
             )
-        }
 
-        Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // First Name
+            RegisterInputField(
+                value = name,
+                onValueChange = { name = it },
+                placeholderText = "Name",
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            )
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            // Email
+            RegisterInputField(
+                value = email,
+                onValueChange = { email = it },
+                placeholderText = "Email",
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next,
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            // Phone
+            RegisterInputField(
+                value = phone,
+                onValueChange = { phone = it },
+                placeholderText = "Phone Number",
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Phone,
+                    imeAction = ImeAction.Next,
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            // Password
+            RegisterInputField(
+                value = password,
+                onValueChange = { password = it },
+                placeholderText = "Password",
+                visualTransformation = passwordVisualTransformation,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Next,
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            // Confirm Password
+            RegisterInputField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                placeholderText = "Confirm Password",
+                visualTransformation = passwordVisualTransformation,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done,
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Register Button
+            // runs register function when clicked
+            Button(onClick = register) {
+                Text(
+                    text = "Register",
+                    color = white,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            Text(text = "______________   OR   ______________")
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            // Already have an account? Login Link
+            TextButton(onClick = showLogin) {
+                Text(
+                    text = "Don't Have an Account? Login Here",
+                    color = darkBlue,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
     }
+}
+
+@Composable
+private fun RegisterInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholderText: String,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = { Text(text = placeholderText) },
+        singleLine = true,
+        visualTransformation = visualTransformation,
+        keyboardOptions = keyboardOptions,
+    )
 }
