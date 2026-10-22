@@ -29,9 +29,7 @@ fun Main(onProfileClick: () -> Unit = {}, onLogoutClick: () -> Unit) {
                             modifier = Modifier.size(32.dp)
                         )
                     }
-                    Button(onClick = { }) {
-                        Text("Logout")
-                    }
+
                 }
             )
         },
