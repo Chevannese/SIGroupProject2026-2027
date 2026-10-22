@@ -2,7 +2,10 @@ package com.example.flowapp
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -12,8 +15,10 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,7 +32,7 @@ import kotlinx.coroutines.launch
 fun SheetPreview() {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
-    var showBottomSheet = false
+    var showBottomSheet = true
 
     Scaffold(
         floatingActionButton = {
@@ -51,14 +56,12 @@ fun SheetPreview() {
                 sheetState = sheetState
             ) {
                 // Sheet content
-                Button(onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            showBottomSheet = false
-                        }
+                Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(imageVector = Icons.Default.Person, modifier = Modifier.size(100.dp), contentDescription = "icon")
+                    Text("Jonathan Blackwood")
+                    Button(onClick = {}) {
+                        Text("Logout")
                     }
-                }) {
-                    Text("Hide bottom sheet")
                 }
             }
         }
