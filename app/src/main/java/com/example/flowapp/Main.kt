@@ -1,121 +1,103 @@
 package com.example.flowapp
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
-
-enum class FlowTab(val title: String, val icon: ImageVector) {
-    HOME("Home", Icons.Default.Home),
-    QUEUES("Queues", Icons.Default.List),
-    APPOINTMENTS("Appointments", Icons.Default.DateRange),
-    PAYMENTS("Payments", Icons.Default.ShoppingCart)
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Main() {
-    var selectedTabItem by remember { mutableIntStateOf(0) }
-    val tabs = FlowTab.entries
+fun Main(onProfileClick: () -> Unit = {}, onLogoutClick: () -> Unit) {
+    var tab by remember { mutableIntStateOf(0) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
                 title = {
                     Text("Flow App")
                 },
                 actions = {
+                    IconButton(onClick = { onProfileClick() }) {
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = "Profile",
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
                     Button(onClick = { }) {
                         Text("Logout")
                     }
-                })
+                }
+            )
         },
         bottomBar = {
             NavigationBar {
-                tabs.forEachIndexed { index, tab ->
-                    NavigationBarItem(
-                        selected = selectedTabItem == index,
-                        onClick = { selectedTabItem = index },
-                        icon = {
-                            Icon(
-                                imageVector = tab.icon,
-                                contentDescription = tab.title
-                            )
-                        },
-                        label = { Text(tab.title) }
-                    )
-                }
+                NavigationBarItem(
+                    selected = tab == 0,
+                    onClick = { tab = 0 },
+                    icon = { Icon( imageVector = Icons.Default.Home, contentDescription = "Appointments") },
+                    label = { Text("Home") }
+                )
+                NavigationBarItem(
+                    selected = tab == 1,
+                    onClick = { tab = 1 },
+                    icon = { Icon( imageVector = Icons.Default.Queue, contentDescription = "Appointments") },
+                    label = { Text("Queue") }
+                )
+                NavigationBarItem(
+                    selected = tab == 2,
+                    onClick = { tab = 2 },
+                    icon = { Icon( imageVector = Icons.Default.CalendarMonth, contentDescription = "Appointments") },
+                    label = { Text("Appointment") }
+                )
+                NavigationBarItem(
+                    selected = tab == 3,
+                    onClick = { tab = 3 },
+                    icon = { Icon( imageVector = Icons.Default.Wallet, contentDescription = "Payments") },
+                    label = { Text("Payments") }
+                )
             }
         }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center
-        ) {
-            when (tabs[selectedTabItem]) {
-                FlowTab.HOME -> HomeScreen()
-                FlowTab.QUEUES -> QueuesScreen()
-                FlowTab.APPOINTMENTS -> AppointmentsScreen()
-                FlowTab.PAYMENTS -> PaymentsScreen()
+        Box (modifier = Modifier.padding(innerPadding)) {
+            when (tab) {
+                1 -> Home()
+                2 -> Queues()
+                3 -> Appointments()
+                4 -> Payments()
             }
         }
     }
 }
 
 @Composable
-fun HomeScreen() {
+fun Home() {
     Text(text = "Home Screen", style = MaterialTheme.typography.headlineMedium)
 }
 
 @Composable
-fun QueuesScreen() {
+fun Queues() {
     Text(text = "Queues Screen", style = MaterialTheme.typography.headlineMedium)
 }
 
 @Composable
-fun AppointmentsScreen() {
+fun Appointments() {
     Text(text = "Appointments Screen", style = MaterialTheme.typography.headlineMedium)
 }
 
 @Composable
-fun PaymentsScreen() {
+fun Payments() {
     Text(text = "Payments Screen", style = MaterialTheme.typography.headlineMedium)
 }
 
-@Preview(showBackground = true)
-@Composable
-fun MainPreview() {
-    FlowAppTheme {
-        Main()
+@Preview
+@Composable fun MainPreview() {
+    FlowAppTheme()  {
+        Main({}, {})
     }
 }
