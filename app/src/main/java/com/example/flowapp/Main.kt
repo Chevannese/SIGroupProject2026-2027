@@ -72,10 +72,10 @@ fun Main(onProfileClick: () -> Unit = {}, onLogoutClick: () -> Unit) {
                 4 -> Payments()
             }
         }
-    }
 
-    if (showProfile) {
-        Profile({}, sheetState)
+        if (showProfile) {
+            Profile({}, sheetState)
+        }
     }
 }
 
