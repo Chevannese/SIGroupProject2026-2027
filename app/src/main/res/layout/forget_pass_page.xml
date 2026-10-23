@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:text="@string/forget_password1"
+        android:textSize="50sp"
+        android:textColor="@color/blue"
+        android:textStyle="bold"
+        android:id="@+id/FlowName"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="30dp"
+        />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="166dp"
+        android:layout_height="166dp"
+        android:layout_gravity="center"
+        app:srcCompat="@drawable/unlock"
+        android:layout_marginLeft="20dp"
+        tools:layout_editor_absoluteX="141dp"
+        tools:layout_editor_absoluteY="102dp"
+        />
+    <TextView
+        android:text="@string/sen1"
+        android:textSize="20sp"
+        android:textColor="@color/dark_gray"
+        android:textStyle="bold"
+        android:id="@+id/sen1"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        />
+    <TextView
+        android:text="@string/sen2"
+        android:textSize="20sp"
+        android:textColor="@color/dark_gray"
+        android:textStyle="bold"
+        android:id="@+id/sen2"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        />
+
+</LinearLayout>
