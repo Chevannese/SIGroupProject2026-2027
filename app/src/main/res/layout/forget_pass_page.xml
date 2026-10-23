@@ -8,30 +8,32 @@
 
     <TextView
         android:text="@string/forget_password1"
-        android:textSize="50sp"
+        android:textSize="35sp"
         android:textColor="@color/blue"
         android:textStyle="bold"
         android:id="@+id/FlowName"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="30dp"
+        android:layout_marginTop="90dp"
+        android:contentDescription="@null"
+        android:layout_marginBottom="20dp"
         />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="166dp"
-        android:layout_height="166dp"
-        android:layout_gravity="center"
-        app:srcCompat="@drawable/unlock"
-        android:layout_marginLeft="20dp"
-        tools:layout_editor_absoluteX="141dp"
-        tools:layout_editor_absoluteY="102dp"
-        />
+
+        <ImageView
+            android:id="@+id/unlockIcon"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/unlock"
+            android:contentDescription="@string/Unlock_Icon"
+            android:layout_gravity="center"
+            android:layout_marginStart="10dp"
+            />
+
     <TextView
         android:text="@string/sen1"
-        android:textSize="20sp"
+        android:textSize="14sp"
         android:textColor="@color/dark_gray"
         android:textStyle="bold"
         android:id="@+id/sen1"
@@ -39,17 +41,84 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
+
         />
     <TextView
         android:text="@string/sen2"
-        android:textSize="20sp"
+        android:textSize="14sp"
         android:textColor="@color/dark_gray"
         android:textStyle="bold"
         android:id="@+id/sen2"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        />
+
+    <TextView
+        android:text="@string/sen3"
+        android:textSize="14sp"
+        android:textColor="@color/dark_gray"
+        android:textStyle="bold"
+        android:id="@+id/sen3"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+    <TextView
+        android:text="@string/accTrn"
+        android:textSize="20sp"
+        android:textColor="@color/dark_blue"
+        android:textStyle="bold"
+        android:id="@+id/accTrn"
+        android:layout_gravity="center"
+        android:layout_marginEnd="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         />
+
+    <EditText
+        android:hint="@string/inputTRN"
+        android:id="@+id/inputTrn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginEnd="30dp"
+        android:ems="10"
+        android:autofillHints="username"
+        android:inputType="number"
+        android:minHeight="48dp"
+        android:layout_marginBottom="20dp"
+        />
+
+    <Button
+        android:text="@string/sendCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginEnd="80dp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:id="@+id/sendCodeBtn"
+        android:ems="7"
+        android:background="@color/blue"
+        android:layout_marginBottom="25dp"
+        />
+
+    <Button
+        android:text="@string/backToLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginEnd="80dp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:id="@+id/backToLoginBtn"
+        android:ems="7"
+        android:background="@color/blue"
+        android:layout_marginBottom="25dp"
+        />
+
 
 </LinearLayout>

@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.widget.*
 import androidx.activity.*
 import androidx.activity.compose.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.painterResource
 import com.example.flowapp.ui.theme.FlowAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,9 +24,14 @@ class MainActivity : ComponentActivity() {
         // yoink register link button
         val toRegister: TextView = findViewById(R.id.registerBtn)
         val login: Button = findViewById(R.id.loginBtn)
+        val toForgetPass: TextView = findViewById(R.id.forgetPassBtn)
 
         toRegister.setOnClickListener {
             showRegister()
+        }
+
+        toForgetPass.setOnClickListener {
+            showForgetPassPage()
         }
 
         login.setOnClickListener {
@@ -67,4 +74,19 @@ class MainActivity : ComponentActivity() {
             register.isEnabled = true;
         }
     }
+
+
+    private fun showForgetPassPage()
+    {
+        setContentView(R.layout.forget_pass_page)
+
+        val sendCode: Button = findViewById(R.id.sendCodeBtn)
+        val toLogin: Button = findViewById(R.id.backToLoginBtn)
+
+
+        toLogin.setOnClickListener {
+            showLogin()
+        }
+    }
+
 }
