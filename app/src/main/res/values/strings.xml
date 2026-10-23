@@ -37,4 +37,5 @@
     <string name="sendCode">Send Reset Code</string>
     <string name="backToLogin">Back to Login</string>
     <string name="Unlock_Icon">Unlock Icon</string>
+    <string name="enterCode">Enter Code Here</string>
 </resources>
