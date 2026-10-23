@@ -29,13 +29,11 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="forget_password1">Forget Password</string>
-    <string name="sen1">No worries! Enter your account</string>
-    <string name="sen2">details below and we\'ll send you a</string>
-    <string name="sen3">code to reset your password</string>
+    <string name="sen1">No worries! Enter your account\ndetails below and we\'ll send you a\ncode to reset your password</string>
     <string name="accTrn">Account Number (TRN)</string>
     <string name="emailAddr">Email Address</string>
-    <string name="sendCode">Send Reset Code</string>
-    <string name="backToLogin">Back to Login</string>
+    <string name="sendCode">Send Reset\nCode</string>
+    <string name="backToLogin">Back to\nLogin</string>
     <string name="Unlock_Icon">Unlock Icon</string>
-    <string name="enterCode">Enter Code Here</string>
+    <string name="enterCode">Enter Code\nHere</string>
 </resources>

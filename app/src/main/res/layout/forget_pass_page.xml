@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -9,13 +7,14 @@
     <TextView
         android:text="@string/forget_password1"
         android:textSize="35sp"
-        android:textColor="@color/blue"
+        android:textColor="@color/dark_blue"
         android:textStyle="bold"
         android:id="@+id/FlowName"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="90dp"
+        android:background="@drawable/title_of_page_design"
         android:contentDescription="@null"
         android:layout_marginBottom="20dp"
         />
@@ -41,28 +40,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-
-        />
-    <TextView
-        android:text="@string/sen2"
-        android:textSize="14sp"
-        android:textColor="@color/dark_gray"
-        android:textStyle="bold"
-        android:id="@+id/sen2"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
-
-    <TextView
-        android:text="@string/sen3"
-        android:textSize="14sp"
-        android:textColor="@color/dark_gray"
-        android:textStyle="bold"
-        android:id="@+id/sen3"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         />
 
     <TextView
@@ -76,6 +53,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
         />
 
     <EditText
@@ -89,6 +67,7 @@
         android:autofillHints="username"
         android:inputType="number"
         android:minHeight="48dp"
+        android:background="@drawable/input_fields_design"
         android:layout_marginBottom="20dp"
         />
 
@@ -101,8 +80,7 @@
         android:textColor="@color/white"
         android:textStyle="bold"
         android:id="@+id/sendCodeBtn"
-        android:ems="7"
-        android:background="@color/blue"
+        android:background="@drawable/slightly_round_corner_button"
         android:layout_marginBottom="25dp"
         />
 
@@ -115,24 +93,21 @@
         android:textColor="@color/white"
         android:textStyle="bold"
         android:id="@+id/enterCodeBtn"
-        android:ems="7"
-        android:background="@color/blue"
+        android:background="@drawable/slightly_round_corner_button"
         android:layout_marginBottom="25dp"
         />
 
     <Button
-        android:text="@string/backToLogin"
+        android:id="@+id/backToLoginBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginEnd="80dp"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        android:id="@+id/backToLoginBtn"
-        android:ems="7"
-        android:background="@color/blue"
         android:layout_marginBottom="25dp"
-        />
+        android:background="@drawable/slightly_round_corner_button"
+        android:text="@string/backToLogin"
+        android:textColor="@color/white"
+        android:textStyle="bold" />
 
 
 </LinearLayout>
