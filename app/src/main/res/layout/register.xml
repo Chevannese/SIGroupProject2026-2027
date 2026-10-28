@@ -6,6 +6,7 @@
 
     <TextView
         android:text="@string/flow_name"
+        android:fontFamily="@font/strategysidefont"
         android:textSize="50sp"
         android:textColor="@color/blue"
         android:textStyle="bold"

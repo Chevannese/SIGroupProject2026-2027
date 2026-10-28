@@ -7,7 +7,8 @@
 
     <TextView
         android:text="@string/flow_name"
-        android:textSize="50sp"
+        android:fontFamily="@font/strategysidefont"
+        android:textSize="60sp"
         android:textColor="@color/blue"
         android:textStyle="bold"
         android:id="@+id/FlowName"
