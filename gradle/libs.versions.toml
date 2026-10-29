@@ -21,7 +21,12 @@ firebaseAnnotations = "18.0.0"
 room3Common = "3.0.3"
 room3Runtime = "3.0.3"
 navigationCompose = "2.10.2"
+<<<<<<< Updated upstream
 legacySupportV4 = "1.0.0"
+=======
+foundationLayout = "1.12.1"
+material3 = "1.4.0"
+>>>>>>> Stashed changes
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -52,7 +57,12 @@ androidx-room3-common = { group = "androidx.room3", name = "room3-common", versi
 androidx-room3-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "room3Runtime" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+<<<<<<< Updated upstream
 androidx-legacy-support-v4 = { group = "androidx.legacy", name = "legacy-support-v4", version.ref = "legacySupportV4" }
+=======
+androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+>>>>>>> Stashed changes
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

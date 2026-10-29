@@ -44,10 +44,7 @@ class MainActivity : ComponentActivity() {
             if (response == "OK") {
                 setContent {
                     FlowAppTheme() {
-                        Main(
-                            onProfileClick = { setContent { Personal(onBack = { setContent { Main(onLogoutClick = { showLogin() }) }}) } },
-                            onLogoutClick = { showLogin() }
-                        )
+                        Main(onLogoutClick = { showLogin() })
                     }
                 }
             }
