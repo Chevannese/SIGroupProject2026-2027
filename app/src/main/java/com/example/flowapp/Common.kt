@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BackBar(title: String, onBack: () -> Unit, content: @Composable (innerPadding: PaddingValues) -> Unit) {
+fun BackBar(title: String, onBack: () -> Unit, content: @Composable (innerPadding: PaddingValues) -> Unit = {}) {
     BackHandler(enabled = true) {
         onBack()
     }
@@ -41,7 +41,8 @@ fun BackBar(title: String, onBack: () -> Unit, content: @Composable (innerPaddin
                     }
                 }
             )
-        },
-        content = content
-    )
+        }
+    ) { innerPadding ->
+        content(innerPadding)
+    }
 }

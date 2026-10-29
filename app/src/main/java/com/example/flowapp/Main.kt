@@ -1,18 +1,21 @@
 package com.example.flowapp
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Main(onProfileClick: () -> Unit = {}, onLogoutClick: () -> Unit) {
+fun Main(onLogoutClick: () -> Unit) {
     var tab by remember { mutableIntStateOf(0) }
     var showProfile by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
@@ -31,7 +34,6 @@ fun Main(onProfileClick: () -> Unit = {}, onLogoutClick: () -> Unit) {
                             modifier = Modifier.size(32.dp)
                         )
                     }
-
                 }
             )
         },
@@ -64,7 +66,7 @@ fun Main(onProfileClick: () -> Unit = {}, onLogoutClick: () -> Unit) {
             }
         }
     ) { innerPadding ->
-        Box (modifier = Modifier.padding(innerPadding)) {
+        Box(modifier = Modifier.padding(innerPadding)) {
             when (tab) {
                 1 -> Home()
                 2 -> Queues()
@@ -74,11 +76,11 @@ fun Main(onProfileClick: () -> Unit = {}, onLogoutClick: () -> Unit) {
         }
 
         if (showProfile) {
-            ModalBottomSheet(onDismissRequest = {showProfile = false}, sheetState = sheetState) {
+            ModalBottomSheet(onDismissRequest = { showProfile = false }, sheetState = sheetState) {
                 Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(imageVector = Icons.Default.Person, modifier = Modifier.size(100.dp), contentDescription = "icon")
                     Text("Jonathan Blackwood")
-                    Button(onClick = {}) {
+                    Button(onClick = onLogoutClick) {
                         Text("Logout")
                     }
                 }
@@ -110,6 +112,6 @@ fun Payments() {
 @Preview
 @Composable fun MainPreview() {
     FlowAppTheme()  {
-        Main({}, {})
+        Main({})
     }
 }
