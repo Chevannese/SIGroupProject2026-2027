@@ -39,13 +39,20 @@ class MainActivity : ComponentActivity() {
             val password: EditText = findViewById(R.id.loginPassword)
             val client = Client(applicationContext)
 
-            setContent {
-                FlowAppTheme() {
-                    Main(
-                        onProfileClick = { setContent { Personal(onBack = { setContent { Main(onLogoutClick = { showLogin() }) }}) } },
-                        onLogoutClick = { showLogin() }
-                    )
+            val response = client.login(trn.text.toString(), password.text.toString())
+
+            if (response == "OK") {
+                setContent {
+                    FlowAppTheme() {
+                        Main(
+                            onProfileClick = { setContent { Personal(onBack = { setContent { Main(onLogoutClick = { showLogin() }) }}) } },
+                            onLogoutClick = { showLogin() }
+                        )
+                    }
                 }
+            }
+            else {
+                Toast.makeText(applicationContext, "TRN or password is incorrect", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -70,7 +77,12 @@ class MainActivity : ComponentActivity() {
             val password: EditText = findViewById(R.id.reg_password)
 
             val client = Client(applicationContext)
-            val response = client.register(firstName.text.toString(), lastName.text.toString(), password.text.toString(), email.text.toString(), phone.text.toString(), password.text.toString())
+            val response = client.register(firstName.text.toString(), lastName.text.toString(), password.text.toString(), email.text.toString(), phone.text.toString())
+
+            if (response != "OK") {
+                Toast.makeText(applicationContext, "Failed to register", Toast.LENGTH_SHORT).show()
+            }
+
             register.isEnabled = true;
         }
     }
@@ -82,7 +94,6 @@ class MainActivity : ComponentActivity() {
 
         val sendCode: Button = findViewById(R.id.sendCodeBtn)
         val toLogin: Button = findViewById(R.id.backToLoginBtn)
-
 
         toLogin.setOnClickListener {
             showLogin()

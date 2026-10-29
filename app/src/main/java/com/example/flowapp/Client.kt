@@ -1,6 +1,9 @@
 package com.example.flowapp
 
 import android.content.Context
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
 import java.security.SecureRandom
 import java.security.spec.KeySpec
 import javax.crypto.SecretKey
@@ -8,12 +11,29 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 
 class Client(private val context: Context) {
-    public fun login(trn: String, password: String): Int? {
+    public fun login(id: String, password: String): String? {
+        val file = File(context.filesDir, "users.txt")
+        val users = file.readLines()
+
+        for (user in users) {
+            val split = user.split(",")
+            if (split[3] == id && split[2] == generateHash(password)) {
+                return "OK"
+            }
+            else {
+                return null
+            }
+        }
+
         return null
     }
 
-    public fun register(firstName: String, lastName: String, password: String, email: String, phone: String, name: String): Int? {
-        return null
+    public fun register(firstName: String, lastName: String, password: String, email: String, phone: String): String? {
+        File(context.filesDir, "users.txt").printWriter().use { file ->
+            val user = String.format("%s,%s,%s,%s,%s", firstName, lastName, generateHash(password), email, phone)
+            file.println(user)
+            return "OK"
+        }
     }
 }
 
