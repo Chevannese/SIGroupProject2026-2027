@@ -69,6 +69,20 @@
         android:layout_marginBottom="20dp"
         />
 
+    <EditText
+        android:hint="@string/verifyCode"
+        android:id="@+id/verifyCode"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:autofillHints="username"
+        android:inputType="number"
+        android:minHeight="48dp"
+        android:background="@drawable/input_fields_design"
+        android:layout_marginBottom="20dp"
+        />
+
     <Button
         android:text="@string/sendCode"
         android:layout_width="wrap_content"

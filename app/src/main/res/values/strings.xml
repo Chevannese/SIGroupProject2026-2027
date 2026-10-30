@@ -36,4 +36,11 @@
     <string name="backToLogin">Back to\nLogin</string>
     <string name="Unlock_Icon">Unlock Icon</string>
     <string name="enterCode">Enter Code\nHere</string>
+    <string name="verifyCode">Verification Code</string>
+    <string name="reset">Reset\nPassword</string>
+    <string name="changePassword">Change Password</string>
+    <string name="currentPassword">Current Password</string>
+    <string name="newPassword">New Password</string>
+    <string name="instrPassword">Create a new Password for your account.</string>
+    <string name="updatePassword">Update\nPassword</string>
 </resources>
