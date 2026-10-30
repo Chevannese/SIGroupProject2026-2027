@@ -7,6 +7,7 @@ import androidx.activity.*
 import androidx.activity.compose.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
+import androidx.core.widget.doAfterTextChanged
 import com.example.flowapp.ui.theme.FlowAppTheme
 import java.io.File
 
@@ -61,8 +62,36 @@ class MainActivity : ComponentActivity() {
     private fun showRegister() {
         setContentView(R.layout.register)
 
+        val name: EditText = findViewById(R.id.name)
+        val trn: EditText = findViewById(R.id.trn)
+        val email: EditText = findViewById(R.id.reg_email)
+        val phone: EditText = findViewById(R.id.reg_phone)
+        val password: EditText = findViewById(R.id.reg_password)
+        val confirmPassword: EditText = findViewById(R.id.reg_confirmPass)
         val toLogin: TextView = findViewById(R.id.accExist)
         val register: Button = findViewById(R.id.registerBtn)
+        var formatPhone = false
+
+        phone.doAfterTextChanged { s ->
+            try {
+                if (!formatPhone && s != null) {
+                    val digits = s.filter { it.isDigit() }.take(10)
+                    val formatted = buildString {
+                        digits.forEachIndexed { i, c ->
+                            if (i == 3 || i == 6) append('-')
+                            append(c)
+                        }
+                    }
+                    s.replace(0, s.length, formatted)
+                }
+            }
+            catch (e: Exception) {
+                Log.e("ERROR", e.toString())
+            }
+            finally {
+                formatPhone = false
+            }
+        }
 
         toLogin.setOnClickListener {
             showLogin()
@@ -70,13 +99,6 @@ class MainActivity : ComponentActivity() {
 
         register.setOnClickListener {
             register.isEnabled = false;
-
-            val name: EditText = findViewById(R.id.name)
-            val trn: EditText = findViewById(R.id.trn)
-            val email: EditText = findViewById(R.id.reg_email)
-            val phone: EditText = findViewById(R.id.reg_phone)
-            val password: EditText = findViewById(R.id.reg_password)
-            val confirmPassword: EditText = findViewById(R.id.reg_confirmPass)
 
             val client = Client(applicationContext)
             val response = client.register(trn = trn.text.toString(), name = name.text.toString(), password = password.text.toString(), email = email.text.toString(), phone = phone.text.toString(), confirmPassword = confirmPassword.text.toString())
