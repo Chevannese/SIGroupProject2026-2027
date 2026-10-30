@@ -85,6 +85,7 @@ class MainActivity : ComponentActivity() {
             when (response) {
                 RegisterCode.EMPTY_FIELD ->Toast.makeText(applicationContext, "One of the fields is empty", Toast.LENGTH_SHORT).show()
                 RegisterCode.TRN_INVALID -> Toast.makeText(applicationContext, "TRN must be 9 digits", Toast.LENGTH_SHORT).show()
+                RegisterCode.NAME_INVALID -> Toast.makeText(applicationContext, "Name should not contain special symbols", Toast.LENGTH_SHORT).show()
                 RegisterCode.PHONE_INVALID -> Toast.makeText(applicationContext, "Phone should be in format: 87612345678", Toast.LENGTH_SHORT).show()
                 RegisterCode.PASSWORD_LONG -> Toast.makeText(applicationContext, "Password should not be greater than 30 characters", Toast.LENGTH_SHORT).show()
                 RegisterCode.PASSWORD_SHORT -> Toast.makeText(applicationContext, "Password should not be less than 8 characters", Toast.LENGTH_SHORT).show()
