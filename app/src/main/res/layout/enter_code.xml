@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
+<!--
     <EditText
         android:hint="@string/password"
         android:id="@+id/password"
@@ -30,8 +30,7 @@
         />
 
 
-
-
+-->
 
 
 

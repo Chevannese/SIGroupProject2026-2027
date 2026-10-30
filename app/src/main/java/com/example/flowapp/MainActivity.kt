@@ -67,14 +67,14 @@ class MainActivity : ComponentActivity() {
         register.setOnClickListener {
             register.isEnabled = false;
 
-            val firstName: EditText = findViewById(R.id.reg_firstName)
-            val lastName: EditText = findViewById(R.id.reg_lastName)
+            val name: EditText = findViewById(R.id.name)
+
             val email: EditText = findViewById(R.id.reg_email)
             val phone: EditText = findViewById(R.id.reg_phone)
             val password: EditText = findViewById(R.id.reg_password)
 
             val client = Client(applicationContext)
-            val response = client.register(firstName.text.toString(), lastName.text.toString(), password.text.toString(), email.text.toString(), phone.text.toString())
+            val response = client.register(name.text.toString(), password.text.toString(), email.text.toString(), phone.text.toString())
 
             if (response != "OK") {
                 Toast.makeText(applicationContext, "Failed to register", Toast.LENGTH_SHORT).show()

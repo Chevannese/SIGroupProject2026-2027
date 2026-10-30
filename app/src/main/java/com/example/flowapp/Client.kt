@@ -28,10 +28,10 @@ class Client(private val context: Context) {
         return null
     }
 
-    public fun register(firstName: String, lastName: String, password: String, email: String, phone: String): String? {
+    public fun register(fullName: String, password: String, email: String, phone: String): String? {
         try {
             val file = File(context.filesDir, "users.txt")
-            val user = String.format("%s,%s,%s,%s,%s\n", firstName, lastName, generateHash(password), email, phone)
+            val user = String.format("%s,%s,%s,%s,%s\n", fullName, generateHash(password), email, phone)
 
             file.writeText(user)
             return "OK"

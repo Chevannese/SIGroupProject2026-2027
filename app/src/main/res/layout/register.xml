@@ -14,7 +14,7 @@
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="70dp"
         />
 
     <TextView
@@ -51,14 +51,13 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         />
-
     <EditText
-        android:hint="@string/firstName"
+        android:hint="@string/inputTRN"
         android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:id="@+id/reg_firstName"
+        android:id="@+id/trn"
         android:ems="10"
         android:autofillHints="name"
         android:inputType="textPersonName"
@@ -68,12 +67,12 @@
         />
 
     <EditText
-        android:hint="@string/lastName"
+        android:hint="@string/fullName"
         android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:id="@+id/reg_lastName"
+        android:id="@+id/name"
         android:ems="10"
         android:autofillHints="name"
         android:inputType="textPersonName"
@@ -81,6 +80,8 @@
         android:background="@drawable/input_fields_design"
         android:layout_marginBottom="10dp"
         />
+
+
 
     <EditText
         android:hint="@string/email"
