@@ -41,15 +41,16 @@ class MainActivity : ComponentActivity() {
 
             val response = client.login(trn.text.toString(), password.text.toString())
 
-            if (response == "OK") {
-                setContent {
-                    FlowAppTheme() {
-                        Main(onLogoutClick = { showLogin() })
+            when (response) {
+                LoginCode.NOT_FOUND -> Toast.makeText(applicationContext, "TRN or password is incorrect", Toast.LENGTH_SHORT).show()
+                LoginCode.ERROR -> Toast.makeText(applicationContext, "Unknown error logging in", Toast.LENGTH_SHORT).show()
+                LoginCode.OK -> {
+                    setContent {
+                        FlowAppTheme() {
+                            Main(onLogoutClick = { showLogin() })
+                        }
                     }
                 }
-            }
-            else {
-                Toast.makeText(applicationContext, "TRN or password is incorrect", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -68,19 +69,29 @@ class MainActivity : ComponentActivity() {
             register.isEnabled = false;
 
             val name: EditText = findViewById(R.id.name)
-
+            val trn: EditText = findViewById(R.id.trn)
             val email: EditText = findViewById(R.id.reg_email)
             val phone: EditText = findViewById(R.id.reg_phone)
             val password: EditText = findViewById(R.id.reg_password)
 
             val client = Client(applicationContext)
-            val response = client.register(name.text.toString(), password.text.toString(), email.text.toString(), phone.text.toString())
-
-            if (response != "OK") {
-                Toast.makeText(applicationContext, "Failed to register", Toast.LENGTH_SHORT).show()
-            }
-
+            val response = client.register(trn = trn.text.toString(), name = name.text.toString(), password = password.text.toString(), email = email.text.toString(), phone = phone.text.toString())
             register.isEnabled = true;
+
+            when (response) {
+                RegisterCode.TRN_INVALID -> Toast.makeText(applicationContext, "TRN is invalid", Toast.LENGTH_SHORT).show()
+                RegisterCode.PHONE_INVALID -> Toast.makeText(applicationContext, "Phone is invalid", Toast.LENGTH_SHORT).show()
+                RegisterCode.PASSWORD_INVALID -> Toast.makeText(applicationContext, "Password is invalid", Toast.LENGTH_SHORT).show()
+                RegisterCode.EMAIL_INVALID -> Toast.makeText(applicationContext, "Email is invalid", Toast.LENGTH_SHORT).show()
+                RegisterCode.TRN_EXISTS -> Toast.makeText(applicationContext, "TRN already exists", Toast.LENGTH_SHORT).show()
+                RegisterCode.EMAIL_EXISTS -> Toast.makeText(applicationContext, "Email already exists", Toast.LENGTH_SHORT).show()
+                RegisterCode.PHONE_EXISTS -> Toast.makeText(applicationContext, "Phone already exists", Toast.LENGTH_SHORT).show()
+                RegisterCode.ERROR -> Toast.makeText(applicationContext, "Failed to register", Toast.LENGTH_SHORT).show()
+                RegisterCode.OK -> {
+                    Toast.makeText(applicationContext, "Successfully registered", Toast.LENGTH_SHORT).show()
+                    showLogin()
+                }
+            }
         }
     }
 

@@ -12,27 +12,45 @@ import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 
+enum class LoginCode {
+    OK,
+    NOT_FOUND,
+    ERROR
+}
+
+enum class RegisterCode {
+    OK,
+    TRN_INVALID,
+    PHONE_INVALID,
+    PASSWORD_INVALID,
+    EMAIL_INVALID,
+    TRN_EXISTS,
+    EMAIL_EXISTS,
+    PHONE_EXISTS,
+    ERROR
+}
+
 class Client(private val context: Context) {
-    public fun login(id: String, password: String): String? {
+    public fun login(trn: String, password: String): LoginCode {
         try {
             val file = File(context.filesDir, "users.txt")
             val users = file.readLines()
 
             for (user in users) {
                 val split = user.split(",")
-                if (split[3] == id && split[2] == generateHash(password)) {
-                    return "OK"
+                if (split[0] == trn && split[5] == generateHash(password)) {
+                    return LoginCode.OK
                 }
             }
 
-            return null
+            return "NOT_FOUND"
         }
         catch (e: IOException) {
             return "ERROR: " + e.message
         }
     }
 
-    public fun register(trn: String, name: String, password: String, email: String, phone: String): String {
+    public fun register(trn: String, name: String, password: String, email: String, phone: String): RegisterCode {
         try {
             val file = File(context.filesDir, "users.txt")
 
@@ -40,36 +58,36 @@ class Client(private val context: Context) {
                 val split = line.split(",")
 
                 if (trn.length != 9 || !trn.isDigitsOnly()) {
-                    return "TRN_INVALID"
+                    return RegisterCode.TRN_INVALID
                 }
                 else if (!phone.isDigitsOnly()) {
-                    return "PHONE_INVALID"
+                    return RegisterCode.PHONE_INVALID
                 }
                 else if (password.length !in 8..50) { // more checks required
-                    return "PASSWORD_INVALID"
+                    return RegisterCode.PASSWORD_INVALID
                 }
                 else if (!email.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$"))) {
-                    return "EMAIL_INVALID"
+                    return RegisterCode.EMAIL_INVALID
                 }
                 else if (split[0] == trn) {
-                    return "TRN_EXISTS"
+                    return RegisterCode.TRN_EXISTS
                 }
                 else if (split[1] == email) {
-                    return "EMAIL_EXISTS"
+                    return RegisterCode.EMAIL_EXISTS
                 }
                 else if (split[2] == phone) {
-                    return "PHONE_EXISTS"
+                    return RegisterCode.PHONE_EXISTS
                 }
             }
 
             // trn -> email -> phone -> name -> password
             val user = String.format("%s,%s,%s,%s,%s\n", trn, email, phone, name, generateHash(password))
             file.appendText(user)
-            return "OK"
+            return OK
         }
         catch (e: IOException) {
-            println(e)
-            return "ERROR: " + e.message
+            println("ERROR: " + e.message)
+            return ERROR
         }
     }
 }
