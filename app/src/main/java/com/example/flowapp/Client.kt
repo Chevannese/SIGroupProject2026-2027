@@ -12,6 +12,7 @@ import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import android.util.Log
+import java.security.MessageDigest
 import kotlin.io.path.createFile
 
 enum class LoginCode {
@@ -179,18 +180,9 @@ private const val ITERATIONS = 120_000
 private const val KEY_LENGTH = 256
 private const val SECRET = "SomeRandomSecret"
 
-fun generateHash(password: String,): String {
 
-    val random = SecureRandom()
-    val salt = ByteArray(16)
-    random.nextBytes(salt)
-    val finalsalt = salt.toHexString()
-    val combinedSalt = "${finalsalt}$SECRET".toByteArray()
-
-    val factory: SecretKeyFactory = SecretKeyFactory.getInstance(ALGORITHM)
-    val spec: KeySpec = PBEKeySpec(password.toCharArray(), combinedSalt, ITERATIONS, KEY_LENGTH)
-    val key: SecretKey = factory.generateSecret(spec)
-    val hash: ByteArray = key.encoded
-
-    return hash.toHexString()
+// you can hash it by calling this function
+// so like if you have a password variable, to get the hash you type password.hash256()
+fun String.hash256(): String {
+    return MessageDigest.getInstance("SHA-256").digest(this.toByteArray()).toHexString()
 }
