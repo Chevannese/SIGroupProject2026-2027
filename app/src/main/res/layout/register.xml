@@ -108,7 +108,6 @@
         android:id="@+id/reg_phone"
         android:ems="10"
         android:autofillHints="number"
-        android:maxLength="12"
         android:inputType="number"
         android:minHeight="48dp"
         android:background="@drawable/input_fields_design"
