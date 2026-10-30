@@ -1,12 +1,14 @@
 package com.example.flowapp
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
 import androidx.activity.*
 import androidx.activity.compose.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import com.example.flowapp.ui.theme.FlowAppTheme
+import java.io.File
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,6 +22,7 @@ class MainActivity : ComponentActivity() {
     private fun showLogin() {
         // switch to login page
         setContentView(R.layout.login)
+        val file = File(applicationContext.filesDir, "users.txt")
 
         // yoink register link button
         val toRegister: TextView = findViewById(R.id.registerBtn)

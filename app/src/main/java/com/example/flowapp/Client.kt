@@ -12,6 +12,7 @@ import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import android.util.Log
+import kotlin.io.path.createFile
 
 enum class LoginCode {
     OK,
@@ -35,12 +36,13 @@ class Client(private val context: Context) {
     public fun login(trn: String, password: String): LoginCode {
         try {
             val file = File(context.filesDir, "users.txt")
-            Log.d("INFO", "File opened: " + file.path.toString())
+            Log.d("FILE", "File opened: " + file.path.toString())
+            Log.d("FILE", "File contents: \n" + file.readText())
             val users = file.readLines()
 
             for (user in users) {
                 val split = user.split(",")
-                if (split[0] == trn && split[5] == generateHash(password)) {
+                if (split[0] == trn && split[4] == password) {
                     return LoginCode.OK
                 }
             }
@@ -51,13 +53,17 @@ class Client(private val context: Context) {
             Log.d("ERROR", e.message.toString())
             return LoginCode.ERROR
         }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+            return LoginCode.ERROR
+        }
     }
 
     public fun register(trn: String, name: String, password: String, email: String, phone: String): RegisterCode {
         try {
             val file = File(context.filesDir, "users.txt")
-            val filewriter = FileWriter(File(context.filesDir, "users.txt"), true)
-            Log.d("INFO", "File opened: " + file.path.toString())
+            //val filewriter = FileWriter(File(context.filesDir, "users.txt"), true)
+            Log.d("FILE", "File opened: " + file.path.toString())
 
             for (line in file.readLines()) {
                 val split = line.split(",")
@@ -68,7 +74,7 @@ class Client(private val context: Context) {
                 else if (!phone.isDigitsOnly()) {
                     return RegisterCode.PHONE_INVALID
                 }
-                else if (password.length !in 8..50) { // more checks required
+                else if (password.length < 9) { // more checks required
                     return RegisterCode.PASSWORD_INVALID
                 }
                 else if (!email.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$"))) {
@@ -86,14 +92,22 @@ class Client(private val context: Context) {
             }
 
             // trn -> email -> phone -> name -> password
-            val user = String.format("%s,%s,%s,%s,%s\n", trn, email, phone, name, generateHash(password))
-            file.parentFile?.mkdirs()
-            file.createNewFile()
+            val user = String.format("%s,%s,%s,%s,%s\n", trn, email, phone, name, password)
+            //if (!file.exists()) {
+                Log.d("FILE", "File does not exist: " + file.path.toString())
+                file.parentFile?.mkdirs()
+                file.createNewFile()
+                file.writeBytes(byteArrayOf())
+                FileWriter(file).write(0)
+                Log.d("FILE", "Created File: " + file.path.toString())
+                file.toPath().createFile()
+            //}
 
-            Log.d("INFO", "Created File: " + file.path.toString())
-            //file.appendText(user)
-            filewriter.append(user)
-            Log.d("INFO", "File written: " + file.path.toString())
+
+            file.printWriter().use {
+                it.println(user)
+            }
+            Log.d("FILE", "File written: " + file.path.toString())
             return RegisterCode.OK
         }
         catch (e: IOException) {
