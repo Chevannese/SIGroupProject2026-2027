@@ -95,11 +95,6 @@ fun Home() {
 }
 
 @Composable
-fun Queues() {
-    Text(text = "Queues Screen", style = MaterialTheme.typography.headlineMedium)
-}
-
-@Composable
 fun Appointments() {
     Text(text = "Appointments Screen", style = MaterialTheme.typography.headlineMedium)
 }
