@@ -97,7 +97,7 @@ class Client(private val context: Context) {
 
             // trn,email,phone,name,password  (commas stripped from name to protect the format)
             val safeName = name.replace(",", " ").replace("\n", " ")
-            val user = "$trn,$email,$phone,$safeName,$password.hash256()\n"
+            val user = "%s,%s,%s,%s,%s\n".format(trn, email, phone, safeName, password.hash256())
 
             // appendText creates the file if needed and appends otherwise
             file.appendText(user)
