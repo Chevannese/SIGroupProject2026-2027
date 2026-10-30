@@ -55,6 +55,7 @@
     <EditText
         android:hint="@string/inputTRN"
         android:id="@+id/loginTRN"
+        android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -68,6 +69,7 @@
 
     <EditText
         android:hint="@string/password"
+        android:gravity="center"
         android:id="@+id/loginPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
