@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
+    
     private fun showForgetPassPage()
     {
         setContentView(R.layout.forget_pass_page)

@@ -29,11 +29,18 @@ class Client(private val context: Context) {
     }
 
     public fun register(firstName: String, lastName: String, password: String, email: String, phone: String): String? {
-        File(context.filesDir, "users.txt").printWriter().use { file ->
-            val user = String.format("%s,%s,%s,%s,%s", firstName, lastName, generateHash(password), email, phone)
-            file.println(user)
+        try {
+            val file = File(context.filesDir, "users.txt")
+            val user = String.format("%s,%s,%s,%s,%s\n", firstName, lastName, generateHash(password), email, phone)
+
+            file.writeText(user)
             return "OK"
         }
+        catch (e: IOException) {
+            println(e)
+        }
+
+        return null
     }
 }
 
