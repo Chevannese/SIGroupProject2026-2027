@@ -59,6 +59,52 @@ class Client(private val context: Context) {
         }
     }
 
+    fun register(trn: String, name: String, password: String, email: String, phone: String): RegisterCode {
+        // Validate first, independent of file contents
+        if (trn.length != 9 || !trn.isDigitsOnly()) return RegisterCode.TRN_INVALID
+        if (phone.isEmpty() || !phone.isDigitsOnly()) return RegisterCode.PHONE_INVALID
+        if (password.length < 9) return RegisterCode.PASSWORD_INVALID
+        if (!email.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$")))
+            return RegisterCode.EMAIL_INVALID
+
+
+        return try {
+            val file = File(context.filesDir, "users.txt")
+            Log.d("FILE", "File path: ${file.path}")
+
+            // Only read if it exists yet
+            if (file.exists()) {
+                for (line in file.readLines()) {
+                    if (line.isBlank()) continue
+                    val split = line.split(",")
+                    if (split.size < 3) continue
+
+                    when {
+                        split[0] == trn -> return RegisterCode.TRN_EXISTS
+                        split[1] == email -> return RegisterCode.EMAIL_EXISTS
+                        split[2] == phone -> return RegisterCode.PHONE_EXISTS
+                    }
+                }
+            }
+
+            // trn,email,phone,name,password  (commas stripped from name to protect the format)
+            val safeName = name.replace(",", " ").replace("\n", " ")
+            val user = "$trn,$email,$phone,$safeName,$password\n"
+
+            // appendText creates the file if needed and appends otherwise
+            file.appendText(user)
+            Log.d("FILE", "User written")
+            RegisterCode.OK
+        } catch (e: IOException) {
+            Log.d("ERROR", e.message.toString())
+            RegisterCode.ERROR
+        }
+    }
+
+
+    /*
+    Old Code that did not work
+    
     public fun register(trn: String, name: String, password: String, email: String, phone: String): RegisterCode {
         try {
             val file = File(context.filesDir, "users.txt")
@@ -115,6 +161,8 @@ class Client(private val context: Context) {
             return RegisterCode.ERROR
         }
     }
+
+    */
 }
 
 private const val ALGORITHM = "PBKDF2WithHmacSHA512"
