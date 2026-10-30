@@ -66,6 +66,7 @@ class Client(private val context: Context) {
             return RegisterCode.EMPTY_FIELD
         }
         if (name.matches(Regex(pattern="/^[a-zA-Z ]+$/"))) return RegisterCode.NAME_INVALID
+        if (!name.all{ it.isLetter() }) return RegisterCode.NAME_INVALID
         if (trn.length != 9 || !trn.isDigitsOnly()) return RegisterCode.TRN_INVALID
         if (!email.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$")))
             return RegisterCode.EMAIL_INVALID
