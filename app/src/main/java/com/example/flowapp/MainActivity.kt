@@ -1,6 +1,7 @@
 package com.example.flowapp
 
 import android.os.Bundle
+import android.telephony.PhoneNumberFormattingTextWatcher
 import android.util.Log
 import android.widget.*
 import androidx.activity.*
@@ -72,26 +73,7 @@ class MainActivity : ComponentActivity() {
         val register: Button = findViewById(R.id.registerBtn)
         var formatPhone = false
 
-        phone.doAfterTextChanged { s ->
-            try {
-                if (!formatPhone && s != null) {
-                    val digits = s.filter { it.isDigit() }.take(10)
-                    val formatted = buildString {
-                        digits.forEachIndexed { i, c ->
-                            if (i == 3 || i == 6) append('-')
-                            append(c)
-                        }
-                    }
-                    s.replace(0, s.length, formatted)
-                }
-            }
-            catch (e: Exception) {
-                Log.e("ERROR", e.toString())
-            }
-            finally {
-                formatPhone = false
-            }
-        }
+        phone.addTextChangedListener(PhoneNumberFormattingTextWatcher())
 
         toLogin.setOnClickListener {
             showLogin()
