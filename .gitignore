@@ -11,3 +11,4 @@ build
 local.properties
 LoginScreen.kt
 .idea/deploymentTargetSelector.xml
+/.idea
