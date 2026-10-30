@@ -2,6 +2,8 @@ package com.example.flowapp
 
 import android.os.Bundle
 import android.telephony.PhoneNumberFormattingTextWatcher
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.widget.*
 import androidx.activity.*
@@ -71,9 +73,8 @@ class MainActivity : ComponentActivity() {
         val confirmPassword: EditText = findViewById(R.id.reg_confirmPass)
         val toLogin: TextView = findViewById(R.id.accExist)
         val register: Button = findViewById(R.id.registerBtn)
-        var formatPhone = false
 
-        phone.addTextChangedListener(PhoneNumberFormattingTextWatcher())
+        phone.addTextChangedListener(PhoneDashWatcher())
 
         toLogin.setOnClickListener {
             showLogin()
@@ -120,4 +121,26 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+}
+
+class PhoneDashWatcher : TextWatcher {
+    private var isFormatting = false
+
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+    override fun afterTextChanged(s: Editable?) {
+        if (isFormatting || s == null) return
+        isFormatting = true
+
+        val digits = s.toString().filter { it.isDigit() }.take(10)
+        val formatted = when {
+            digits.length > 6 -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}"
+            digits.length > 3 -> "${digits.substring(0, 3)}-${digits.substring(3)}"
+            else -> digits
+        }
+
+        s.replace(0, s.length, formatted)
+        isFormatting = false
+    }
 }
