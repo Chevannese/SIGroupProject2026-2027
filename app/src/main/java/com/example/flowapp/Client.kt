@@ -22,9 +22,12 @@ enum class LoginCode {
 
 enum class RegisterCode {
     OK,
+    EMPTY_FIELD,
     TRN_INVALID,
     PHONE_INVALID,
-    PASSWORD_INVALID,
+    PASSWORD_LONG,
+    PASSWORD_SHORT,
+    PASSWORD_MISMATCH,
     EMAIL_INVALID,
     TRN_EXISTS,
     EMAIL_EXISTS,
@@ -59,13 +62,19 @@ class Client(private val context: Context) {
         }
     }
 
-    fun register(trn: String, name: String, password: String, email: String, phone: String): RegisterCode {
+    fun register(trn: String, name: String, password: String, email: String, phone: String, confirmPassword:String): RegisterCode {
         // Validate first, independent of file contents
+        if (listOf(trn, name, password, email, phone).any { it.isBlank() }) {
+            return RegisterCode.EMPTY_FIELD
+        }
         if (trn.length != 9 || !trn.isDigitsOnly()) return RegisterCode.TRN_INVALID
-        if (phone.isEmpty() || !phone.isDigitsOnly()) return RegisterCode.PHONE_INVALID
-        if (password.length < 9) return RegisterCode.PASSWORD_INVALID
         if (!email.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$")))
             return RegisterCode.EMAIL_INVALID
+        if (phone.isEmpty() || !phone.isDigitsOnly()) return RegisterCode.PHONE_INVALID
+        if (password.length < 8) return RegisterCode.PASSWORD_SHORT
+        if (password.length > 30) return RegisterCode.PASSWORD_LONG
+        if (password != confirmPassword) return RegisterCode.PASSWORD_MISMATCH
+
 
 
         return try {

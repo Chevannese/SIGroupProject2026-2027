@@ -76,16 +76,20 @@ class MainActivity : ComponentActivity() {
             val email: EditText = findViewById(R.id.reg_email)
             val phone: EditText = findViewById(R.id.reg_phone)
             val password: EditText = findViewById(R.id.reg_password)
+            val confirmPassword: EditText = findViewById(R.id.reg_confirmPass)
 
             val client = Client(applicationContext)
-            val response = client.register(trn = trn.text.toString(), name = name.text.toString(), password = password.text.toString(), email = email.text.toString(), phone = phone.text.toString())
+            val response = client.register(trn = trn.text.toString(), name = name.text.toString(), password = password.text.toString(), email = email.text.toString(), phone = phone.text.toString(), confirmPassword = confirmPassword.text.toString())
             register.isEnabled = true;
 
             when (response) {
-                RegisterCode.TRN_INVALID -> Toast.makeText(applicationContext, "TRN is invalid", Toast.LENGTH_SHORT).show()
-                RegisterCode.PHONE_INVALID -> Toast.makeText(applicationContext, "Phone is invalid", Toast.LENGTH_SHORT).show()
-                RegisterCode.PASSWORD_INVALID -> Toast.makeText(applicationContext, "Password is invalid", Toast.LENGTH_SHORT).show()
-                RegisterCode.EMAIL_INVALID -> Toast.makeText(applicationContext, "Email is invalid", Toast.LENGTH_SHORT).show()
+                RegisterCode.EMPTY_FIELD ->Toast.makeText(applicationContext, "One of the fields is empty", Toast.LENGTH_SHORT).show()
+                RegisterCode.TRN_INVALID -> Toast.makeText(applicationContext, "TRN must be 9 digits", Toast.LENGTH_SHORT).show()
+                RegisterCode.PHONE_INVALID -> Toast.makeText(applicationContext, "Phone should be in format: 87612345678", Toast.LENGTH_SHORT).show()
+                RegisterCode.PASSWORD_LONG -> Toast.makeText(applicationContext, "Password should not be greater than 30 characters", Toast.LENGTH_SHORT).show()
+                RegisterCode.PASSWORD_SHORT -> Toast.makeText(applicationContext, "Password should not be less than 8 characters", Toast.LENGTH_SHORT).show()
+                RegisterCode.PASSWORD_MISMATCH -> Toast.makeText(applicationContext, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                RegisterCode.EMAIL_INVALID -> Toast.makeText(applicationContext, "Email should be in format: example@yahoo.com", Toast.LENGTH_SHORT).show()
                 RegisterCode.TRN_EXISTS -> Toast.makeText(applicationContext, "TRN already exists", Toast.LENGTH_SHORT).show()
                 RegisterCode.EMAIL_EXISTS -> Toast.makeText(applicationContext, "Email already exists", Toast.LENGTH_SHORT).show()
                 RegisterCode.PHONE_EXISTS -> Toast.makeText(applicationContext, "Phone already exists", Toast.LENGTH_SHORT).show()
