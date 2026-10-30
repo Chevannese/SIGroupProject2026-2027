@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
         val toLogin: TextView = findViewById(R.id.accExist)
         val register: Button = findViewById(R.id.registerBtn)
 
-        phone.addTextChangedListener(PhoneDashWatcher())
+        //phone.addTextChangedListener(PhoneDashWatcher())
 
         toLogin.setOnClickListener {
             showLogin()
@@ -120,7 +120,6 @@ class MainActivity : ComponentActivity() {
             showLogin()
         }
     }
-
 }
 
 class PhoneDashWatcher : TextWatcher {
