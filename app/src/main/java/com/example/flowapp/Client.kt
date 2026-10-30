@@ -43,10 +43,11 @@ class Client(private val context: Context) {
                 }
             }
 
-            return "NOT_FOUND"
+            return LoginCode.NOT_FOUND
         }
         catch (e: IOException) {
-            return "ERROR: " + e.message
+            println("ERROR: " + e.message)
+            return LoginCode.ERROR
         }
     }
 
@@ -83,11 +84,11 @@ class Client(private val context: Context) {
             // trn -> email -> phone -> name -> password
             val user = String.format("%s,%s,%s,%s,%s\n", trn, email, phone, name, generateHash(password))
             file.appendText(user)
-            return OK
+            return RegisterCode.OK
         }
         catch (e: IOException) {
             println("ERROR: " + e.message)
-            return ERROR
+            return RegisterCode.ERROR
         }
     }
 }
