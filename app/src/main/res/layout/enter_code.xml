@@ -3,4 +3,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
+    <EditText
+        android:hint="@string/password"
+        android:id="@+id/password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:autofillHints="password"
+        android:minHeight="48dp"
+        android:background="@drawable/input_fields_design"
+        android:layout_marginBottom="20dp"
+        />
+
+
+    <EditText
+        android:hint="@string/confirmPass"
+        android:id="@+id/confirmPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:autofillHints="password"
+        android:minHeight="48dp"
+        android:background="@drawable/input_fields_design"
+        android:layout_marginBottom="20dp"
+        />
+
+
+
+
+
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
