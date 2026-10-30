@@ -82,18 +82,6 @@
         />
 
     <Button
-        android:text="@string/enterCode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        android:id="@+id/enterCodeBtn"
-        android:background="@drawable/slightly_round_corner_button"
-        android:layout_marginBottom="25dp"
-        />
-
-    <Button
         android:id="@+id/backToLoginBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
