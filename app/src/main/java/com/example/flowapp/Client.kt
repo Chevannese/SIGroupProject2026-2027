@@ -1,19 +1,15 @@
 package com.example.flowapp
 
 import android.content.Context
-import android.provider.ContactsContract
+
 import androidx.core.text.isDigitsOnly
 import java.io.File
-import java.io.FileWriter
+
 import java.io.IOException
-import java.security.SecureRandom
-import java.security.spec.KeySpec
-import javax.crypto.SecretKey
-import javax.crypto.SecretKeyFactory
-import javax.crypto.spec.PBEKeySpec
+
 import android.util.Log
 import java.security.MessageDigest
-import kotlin.io.path.createFile
+
 
 enum class LoginCode {
     OK,
@@ -25,6 +21,7 @@ enum class RegisterCode {
     OK,
     EMPTY_FIELD,
     TRN_INVALID,
+    NAME_INVALID,
     PHONE_INVALID,
     PASSWORD_LONG,
     PASSWORD_SHORT,
@@ -37,7 +34,7 @@ enum class RegisterCode {
 }
 
 class Client(private val context: Context) {
-    public fun login(trn: String, password: String): LoginCode {
+     fun login(trn: String, password: String): LoginCode {
         try {
             val file = File(context.filesDir, "users.txt")
             Log.d("FILE", "File opened: " + file.path.toString())
@@ -46,7 +43,7 @@ class Client(private val context: Context) {
 
             for (user in users) {
                 val split = user.split(",")
-                if (split[0] == trn && split[4] == password) {
+                if (split[0] == trn && split[4] == password.hash256()) {
                     return LoginCode.OK
                 }
             }
@@ -68,6 +65,7 @@ class Client(private val context: Context) {
         if (listOf(trn, name, password, email, phone).any { it.isBlank() }) {
             return RegisterCode.EMPTY_FIELD
         }
+        if (name.matches(Regex(pattern="/^[a-zA-Z ]+$/"))) return RegisterCode.NAME_INVALID
         if (trn.length != 9 || !trn.isDigitsOnly()) return RegisterCode.TRN_INVALID
         if (!email.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$")))
             return RegisterCode.EMAIL_INVALID
@@ -99,7 +97,7 @@ class Client(private val context: Context) {
 
             // trn,email,phone,name,password  (commas stripped from name to protect the format)
             val safeName = name.replace(",", " ").replace("\n", " ")
-            val user = "$trn,$email,$phone,$safeName,$password\n"
+            val user = "$trn,$email,$phone,$safeName,$password.hash256()\n"
 
             // appendText creates the file if needed and appends otherwise
             file.appendText(user)
