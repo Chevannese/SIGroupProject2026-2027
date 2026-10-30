@@ -11,6 +11,7 @@ import java.security.spec.KeySpec
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
+import android.util.Log
 
 enum class LoginCode {
     OK,
@@ -34,6 +35,7 @@ class Client(private val context: Context) {
     public fun login(trn: String, password: String): LoginCode {
         try {
             val file = File(context.filesDir, "users.txt")
+            Log.d("INFO", "File opened: " + file.path.toString())
             val users = file.readLines()
 
             for (user in users) {
@@ -46,7 +48,7 @@ class Client(private val context: Context) {
             return LoginCode.NOT_FOUND
         }
         catch (e: IOException) {
-            println("ERROR: " + e.message)
+            Log.d("ERROR", e.message.toString())
             return LoginCode.ERROR
         }
     }
@@ -54,6 +56,8 @@ class Client(private val context: Context) {
     public fun register(trn: String, name: String, password: String, email: String, phone: String): RegisterCode {
         try {
             val file = File(context.filesDir, "users.txt")
+            val filewriter = FileWriter(File(context.filesDir, "users.txt"), true)
+            Log.d("INFO", "File opened: " + file.path.toString())
 
             for (line in file.readLines()) {
                 val split = line.split(",")
@@ -83,11 +87,17 @@ class Client(private val context: Context) {
 
             // trn -> email -> phone -> name -> password
             val user = String.format("%s,%s,%s,%s,%s\n", trn, email, phone, name, generateHash(password))
-            file.appendText(user)
+            file.parentFile?.mkdirs()
+            file.createNewFile()
+
+            Log.d("INFO", "Created File: " + file.path.toString())
+            //file.appendText(user)
+            filewriter.append(user)
+            Log.d("INFO", "File written: " + file.path.toString())
             return RegisterCode.OK
         }
         catch (e: IOException) {
-            println("ERROR: " + e.message)
+            Log.d("ERROR", e.message.toString())
             return RegisterCode.ERROR
         }
     }
