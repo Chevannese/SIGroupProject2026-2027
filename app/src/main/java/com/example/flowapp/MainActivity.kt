@@ -116,6 +116,10 @@ class MainActivity : ComponentActivity() {
         val sendCode: Button = findViewById(R.id.sendCodeBtn)
         val toLogin: Button = findViewById(R.id.backToLoginBtn)
 
+        sendCode.setOnClickListener
+        {
+
+        }
         toLogin.setOnClickListener {
             showLogin()
         }

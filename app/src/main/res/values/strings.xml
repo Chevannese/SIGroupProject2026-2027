@@ -43,4 +43,20 @@
     <string name="newPassword">New Password</string>
     <string name="instrPassword">Create a new Password for your account.</string>
     <string name="updatePassword">Update\nPassword</string>
+    <string name="accountBal">Account Balance</string>
+    <string name="cardNum">Card Number: </string>
+    <string name="currentBal">Current Balance</string>
+    <string name="balanceAmt">Balance Cound not be Found</string>
+    <string name="viewTransaction">View Transaction History</string>
+    <string name="amountMoney">$</string>
+    <string name="accountStatus">Account Status</string>
+    <string name="transactions">Transactions</string>
+    <string name="incoming">Incoming</string>
+    <string name="outgoing">Outgoing</string>
+    <string name="amount">Amount</string>
+    <string name="back">Back</string>
+    <string name="freeze">Tap to Freeze Account</string>
+    <string name="unfreeze">Tap to Unfreeze Account</string>
+    <string name="refresh">Refresh</string>
+
 </resources>
