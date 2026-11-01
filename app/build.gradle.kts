@@ -71,6 +71,4 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.57.1")
     implementation(libs.androidx.compose.material3)
     implementation("androidx.compose.material:material-icons-extended")
-    implementation("com.sun.mail:android-mail:1.6.7")
-    implementation("com.sun.mail:android-activation:1.6.7")
 }
