@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
 import java.nio.file.WatchEvent
 
+/*
 @Composable
 fun AddCard() {
     var ccNumber by remember { mutableStateOf("") }
@@ -95,3 +96,4 @@ fun CardPreview() {
         AddCard()
     }
 }
+ */

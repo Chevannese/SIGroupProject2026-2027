@@ -50,6 +50,12 @@ private val Blue = Color(0xFF0A5CFF)
 
 private val ScreenBg = Color(0xFFF8FAFF)
 
+@Composable fun Queues(onBack: () -> Unit = {}) {
+
+}
+
+/*
+
 @Composable
 fun Queues(onBack: () -> Unit = {}) {
     val services = listOf("Customer Service", "Cashier", "Account Opening", "Loans")
@@ -116,3 +122,5 @@ fun QueuesPreview() {
         Queues()
     }
 }
+
+ */
