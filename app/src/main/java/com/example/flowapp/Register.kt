@@ -2,14 +2,18 @@ package com.example.flowapp
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
+import com.example.flowapp.ui.theme.FlowAppTheme
 
 @Composable
 fun Register(
@@ -182,4 +186,11 @@ private fun RegisterInputField(
         visualTransformation = visualTransformation,
         keyboardOptions = keyboardOptions,
     )
+}
+
+@Preview
+@Composable fun RegisterPreview() {
+    FlowAppTheme {
+        Register()
+    }
 }
