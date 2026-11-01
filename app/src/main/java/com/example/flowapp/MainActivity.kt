@@ -115,16 +115,24 @@ class MainActivity : ComponentActivity() {
 
         val sendCode: Button = findViewById(R.id.sendCodeBtn)
         val toLogin: Button = findViewById(R.id.backToLoginBtn)
-
-        sendCode.setOnClickListener
+        //Temporary to see Account Balance
+        sendCode.setOnClickListener()
         {
-
+            showEnterPassPage()
         }
         toLogin.setOnClickListener {
             showLogin()
         }
     }
+
+    private fun showEnterPassPage()
+    {
+        setContentView(R.layout.account_balance_page)
+
+    }
 }
+
+
 
 class PhoneDashWatcher : TextWatcher {
     private var isFormatting = false

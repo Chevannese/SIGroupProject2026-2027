@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -9,26 +8,29 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="50dp"
         android:background="@drawable/title_of_page_design"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/imageButton2"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:id="@+id/backToProfile"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="start"
             android:background="@drawable/title_of_page_design"
-            app:srcCompat="?android:attr/homeAsUpIndicator" />
+            android:contentDescription="@string/back"
+            android:src="@drawable/arrow_back" />
 
         <TextView
             android:id="@+id/accBalTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
+            android:layout_gravity="end"
             android:text="@string/accountBal"
+            android:gravity="center"
             android:textColor="@color/dark_blue"
-            android:textSize="35sp"
+            android:textSize="25sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -56,6 +58,7 @@
             android:id="@+id/imageView"
             android:layout_width="86dp"
             android:layout_height="73dp"
+            android:contentDescription="@string/cardNum"
             android:src="@drawable/card" />
 
         <LinearLayout
@@ -107,28 +110,47 @@
         android:orientation="horizontal">
 
         <Switch
-        android:id="@+id/switch1"
-        android:layout_width="151dp"
-        android:layout_height="51dp"
-        android:layout_gravity="left"
-        android:text="@string/freeze"
-        android:textOff="@string/unfreeze"
-        android:textOn="@string/freeze" />
+            android:id="@+id/freezeBtn"
+            android:background="@drawable/light_green_round_corner_button"
+            android:layout_width="151dp"
+            android:layout_height="51dp"
+            android:layout_gravity="center"
+            android:text="@string/freeze"
+            android:textOff="@string/unfreeze"
+            android:textOn="@string/freeze" />
 
-        <ImageButton
-            android:id="@+id/imageButton3"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:srcCompat="@android:drawable/ic_menu_rotate" />
+            android:gravity="end|center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/refresh"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/title_of_page_design"
+                android:contentDescription="@string/refresh"
+                android:src="@drawable/refresh_page" />
+
+            <TextView
+                android:id="@+id/refreshTextView"
+                android:textColor="@color/dark_blue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/refresh"
+                android:textSize="15sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
 
     </LinearLayout>
     <Button
-        android:id="@+id/loginBtn"
+        android:id="@+id/viewHistory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        android:background="@drawable/gray_round_corner_button"
+        android:background="@drawable/title_of_page_design"
         android:text="@string/viewTransaction"
         android:textColor="@color/dark_blue"
         android:textStyle="bold" />
@@ -153,29 +175,30 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/incomingBtn"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:layout_marginEnd="5dp"
-            android:background="@drawable/slightly_round_corner_button"
-            android:text="@string/incoming" />
+            android:text="@string/incoming"
+            style="?android:attr/buttonBarButtonStyle"
+            />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/outgoingBtn"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:layout_marginEnd="5dp"
-            android:background="@drawable/slightly_round_corner_button"
+            style="?android:attr/buttonBarButtonStyle"
             android:text="@string/outgoing" />
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/amountBtn"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:background="@drawable/slightly_round_corner_button"
+            style="?android:attr/buttonBarButtonStyle"
             android:text="@string/amount" />
     </LinearLayout>
 

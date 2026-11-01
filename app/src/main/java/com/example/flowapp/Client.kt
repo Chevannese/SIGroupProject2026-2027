@@ -65,7 +65,7 @@ class Client(private val context: Context) {
         if (listOf(trn, name, password, email, phone).any { it.isBlank() }) {
             return RegisterCode.EMPTY_FIELD
         }
-        if (!name.all{ it.isLetter() }) return RegisterCode.NAME_INVALID
+        if (!name.all{ it.isLetter()  || it == ' '}) return RegisterCode.NAME_INVALID
         if (trn.length != 9 || !trn.isDigitsOnly()) return RegisterCode.TRN_INVALID
         if (!email.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$")))
             return RegisterCode.EMAIL_INVALID

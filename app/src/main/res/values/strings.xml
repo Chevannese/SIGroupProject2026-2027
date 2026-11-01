@@ -55,8 +55,8 @@
     <string name="outgoing">Outgoing</string>
     <string name="amount">Amount</string>
     <string name="back">Back</string>
-    <string name="freeze">Tap to Freeze Account</string>
-    <string name="unfreeze">Tap to Unfreeze Account</string>
+    <string name="freeze">Tap to Block</string>
+    <string name="unfreeze">Tap to Unblock</string>
     <string name="refresh">Refresh</string>
 
 </resources>
