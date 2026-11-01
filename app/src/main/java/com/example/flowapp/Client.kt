@@ -126,7 +126,34 @@ class Client(private val context: Context) {
         }
     }
 
-    /*
+    fun sendEmail(to: String, subject: String, body: String) {
+        val host = "smtp.example.com"
+        val username = System.getenv("SMTP_USER")
+        val password = System.getenv("SMTP_PASS")
+
+        val props = Properties().apply {
+            put("mail.smtp.host", host)
+            put("mail.smtp.port", "587")
+            put("mail.smtp.auth", "true")
+            put("mail.smtp.starttls.enable", "true") // upgrade to TLS
+        }
+
+        val session = Session.getInstance(props, object : Authenticator() {
+            override fun getPasswordAuthentication() =
+                PasswordAuthentication(username, password)
+        })
+
+        val message = MimeMessage(session).apply {
+            setFrom(InternetAddress(username))
+            setRecipients(Message.RecipientType.TO, InternetAddress.parse(to))
+            setSubject(subject)
+            setText(body) // plain text
+            // For HTML instead: setContent("<h1>Hello</h1>", "text/html; charset=utf-8")
+        }
+
+        Transport.send(message)
+    }
+
     fun verifyRecoveryCode(email: String, enteredCode: String): Boolean {
         // should search existing codes
 
@@ -179,7 +206,67 @@ class Client(private val context: Context) {
         Transport.send(message)
     }
 
-     */
+    /*
+    Old Code that did not work
+    
+    public fun register(trn: String, name: String, password: String, email: String, phone: String): RegisterCode {
+        try {
+            val file = File(context.filesDir, "users.txt")
+            //val filewriter = FileWriter(File(context.filesDir, "users.txt"), true)
+            Log.d("FILE", "File opened: " + file.path.toString())
+
+            for (line in file.readLines()) {
+                val split = line.split(",")
+
+                if (trn.length != 9 || !trn.isDigitsOnly()) {
+                    return RegisterCode.TRN_INVALID
+                }
+                else if (!phone.isDigitsOnly()) {
+                    return RegisterCode.PHONE_INVALID
+                }
+                else if (password.length < 9) { // more checks required
+                    return RegisterCode.PASSWORD_INVALID
+                }
+                else if (!email.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$"))) {
+                    return RegisterCode.EMAIL_INVALID
+                }
+                else if (split[0] == trn) {
+                    return RegisterCode.TRN_EXISTS
+                }
+                else if (split[1] == email) {
+                    return RegisterCode.EMAIL_EXISTS
+                }
+                else if (split[2] == phone) {
+                    return RegisterCode.PHONE_EXISTS
+                }
+            }
+
+            // trn -> email -> phone -> name -> password
+            val user = String.format("%s,%s,%s,%s,%s\n", trn, email, phone, name, password)
+            //if (!file.exists()) {
+                Log.d("FILE", "File does not exist: " + file.path.toString())
+                file.parentFile?.mkdirs()
+                file.createNewFile()
+                file.writeBytes(byteArrayOf())
+                FileWriter(file).write(0)
+                Log.d("FILE", "Created File: " + file.path.toString())
+                file.toPath().createFile()
+            //}
+
+
+            file.printWriter().use {
+                it.println(user)
+            }
+            Log.d("FILE", "File written: " + file.path.toString())
+            return RegisterCode.OK
+        }
+        catch (e: IOException) {
+            Log.d("ERROR", e.message.toString())
+            return RegisterCode.ERROR
+        }
+    }
+
+    */
 }
 
 private const val ALGORITHM = "PBKDF2WithHmacSHA512"
