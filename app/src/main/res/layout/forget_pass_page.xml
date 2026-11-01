@@ -4,20 +4,40 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:text="@string/forget_password1"
-        android:textSize="35sp"
-        android:textColor="@color/dark_blue"
-        android:textStyle="bold"
-        android:id="@+id/FlowName"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="90dp"
-        android:background="@drawable/title_of_page_design"
-        android:contentDescription="@null"
+        android:layout_marginTop="50dp"
         android:layout_marginBottom="20dp"
-        />
+        android:background="@drawable/title_of_page_design"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/backToLoginBtn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="start"
+            android:background="@drawable/title_of_page_design"
+            android:contentDescription="@string/back"
+            android:src="@drawable/arrow_back" />
+
+        <TextView
+            android:text="@string/forget_password1"
+            android:textSize="35sp"
+            android:textColor="@color/dark_blue"
+            android:textStyle="bold"
+            android:id="@+id/FlowName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/title_of_page_design"
+            android:contentDescription="@null"
+            />
+
+
+
+    </LinearLayout>
+
 
 
         <ImageView
@@ -81,16 +101,7 @@
         android:layout_marginBottom="25dp"
         />
 
-    <Button
-        android:id="@+id/backToLoginBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="25dp"
-        android:background="@drawable/slightly_round_corner_button"
-        android:text="@string/backToLogin"
-        android:textColor="@color/white"
-        android:textStyle="bold" />
+
 
 
 </LinearLayout>
