@@ -10,6 +10,21 @@ import java.io.IOException
 import android.util.Log
 import java.security.MessageDigest
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.security.SecureRandom
+import java.time.Clock
+import java.util.Locale
+import java.util.Properties
+import javax.mail.Authenticator
+import javax.mail.Message
+import javax.mail.PasswordAuthentication
+import javax.mail.Session
+import javax.mail.Transport
+import javax.mail.internet.InternetAddress
+import javax.mail.internet.MimeMessage
+import kotlin.time.Instant
+
 
 enum class LoginCode {
     OK,
@@ -34,6 +49,10 @@ enum class RegisterCode {
 }
 
 class Client(private val context: Context) {
+    val smtpHost = ""
+    val smtpUsername = ""
+    val smtpPassword = ""
+
      fun login(trn: String, password: String): LoginCode {
         try {
             val file = File(context.filesDir, "users.txt")
@@ -74,8 +93,6 @@ class Client(private val context: Context) {
         if (password.length > 30) return RegisterCode.PASSWORD_LONG
         if (password != confirmPassword) return RegisterCode.PASSWORD_MISMATCH
 
-
-
         return try {
             val file = File(context.filesDir, "users.txt")
             Log.d("FILE", "File path: ${file.path}")
@@ -109,6 +126,85 @@ class Client(private val context: Context) {
         }
     }
 
+    fun sendEmail(to: String, subject: String, body: String) {
+        val host = "smtp.example.com"
+        val username = System.getenv("SMTP_USER")
+        val password = System.getenv("SMTP_PASS")
+
+        val props = Properties().apply {
+            put("mail.smtp.host", host)
+            put("mail.smtp.port", "587")
+            put("mail.smtp.auth", "true")
+            put("mail.smtp.starttls.enable", "true") // upgrade to TLS
+        }
+
+        val session = Session.getInstance(props, object : Authenticator() {
+            override fun getPasswordAuthentication() =
+                PasswordAuthentication(username, password)
+        })
+
+        val message = MimeMessage(session).apply {
+            setFrom(InternetAddress(username))
+            setRecipients(Message.RecipientType.TO, InternetAddress.parse(to))
+            setSubject(subject)
+            setText(body) // plain text
+            // For HTML instead: setContent("<h1>Hello</h1>", "text/html; charset=utf-8")
+        }
+
+        Transport.send(message)
+    }
+
+    fun verifyRecoveryCode(email: String, enteredCode: String): Boolean {
+        // should search existing codes
+
+        // and if an email matches check if the code is expired
+
+        return false
+    }
+
+    suspend fun forgetPassword(email: String) {
+        // Check if email exists in users file
+        try {
+            val file = File(context.filesDir, "users.txt")
+            val users = file.readLines()
+
+            for (user in users) {
+                val split = user.split(",")
+                if (split[1] == email) {
+                    // create the recovery code and send it to the email
+                    // create 6 digit code
+                    val code = String.format(locale = Locale.US,"%06d", SecureRandom().nextInt(1_000_000));
+
+                }
+            }
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+        }
+    }
+
+    suspend fun mail(to: String, subject: String, body: String) = withContext(Dispatchers.IO) {
+        val props = Properties().apply {
+            put("mail.smtp.host", smtpHost)
+            put("mail.smtp.port", "587")
+            put("mail.smtp.auth", "true")
+            put("mail.smtp.starttls.enable", "true")
+        }
+
+        val session = Session.getInstance(props, object : Authenticator() {
+            override fun getPasswordAuthentication() =
+                PasswordAuthentication(smtpUsername, smtpPassword)
+        })
+
+        val message = MimeMessage(session).apply {
+            setFrom(InternetAddress(smtpUsername))
+            setRecipients(Message.RecipientType.TO, InternetAddress.parse(to))
+            setSubject(subject)
+            setText(body)
+        }
+
+        Transport.send(message)
+    }
 
     /*
     Old Code that did not work
@@ -183,4 +279,21 @@ private const val SECRET = "SomeRandomSecret"
 // so like if you have a password variable, to get the hash you type password.hash256()
 fun String.hash256(): String {
     return MessageDigest.getInstance("SHA-256").digest(this.toByteArray()).toHexString()
+}
+
+data class RecoveryToken(
+    val code: String,
+    val timestampMillis: Long = System.currentTimeMillis()
+) {
+    fun isExpired(expirationMinutes: Long = 10): Boolean {
+        val elapsed = System.currentTimeMillis() - timestampMillis
+        return elapsed > (expirationMinutes * 60 * 1000)
+    }
+}
+
+enum class ForgetPasswordCode {
+    OK,
+    EMAIL_INVALID,
+    EMAIL_NOT_FOUND,
+    ERROR
 }
