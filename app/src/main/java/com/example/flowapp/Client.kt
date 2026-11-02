@@ -16,7 +16,17 @@ enum class LoginCode {
     NOT_FOUND,
     ERROR
 }
-
+enum class UpdatePassword
+{
+    OK,
+    EMPTY_FIELD,
+    PASSWORD_LONG,
+    PASSWORD_SHORT,
+    PASSWORD_MISMATCH,
+    //Code_Expired,
+    //Code_Invalid,
+    ERROR
+}
 enum class RegisterCode {
     OK,
     EMPTY_FIELD,
@@ -108,78 +118,28 @@ class Client(private val context: Context) {
             RegisterCode.ERROR
         }
     }
-
-
-    /*
-    Old Code that did not work
-    
-    public fun register(trn: String, name: String, password: String, email: String, phone: String): RegisterCode {
-        try {
-            val file = File(context.filesDir, "users.txt")
-            //val filewriter = FileWriter(File(context.filesDir, "users.txt"), true)
-            Log.d("FILE", "File opened: " + file.path.toString())
-
-            for (line in file.readLines()) {
-                val split = line.split(",")
-
-                if (trn.length != 9 || !trn.isDigitsOnly()) {
-                    return RegisterCode.TRN_INVALID
-                }
-                else if (!phone.isDigitsOnly()) {
-                    return RegisterCode.PHONE_INVALID
-                }
-                else if (password.length < 9) { // more checks required
-                    return RegisterCode.PASSWORD_INVALID
-                }
-                else if (!email.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$"))) {
-                    return RegisterCode.EMAIL_INVALID
-                }
-                else if (split[0] == trn) {
-                    return RegisterCode.TRN_EXISTS
-                }
-                else if (split[1] == email) {
-                    return RegisterCode.EMAIL_EXISTS
-                }
-                else if (split[2] == phone) {
-                    return RegisterCode.PHONE_EXISTS
-                }
-            }
-
-            // trn -> email -> phone -> name -> password
-            val user = String.format("%s,%s,%s,%s,%s\n", trn, email, phone, name, password)
-            //if (!file.exists()) {
-                Log.d("FILE", "File does not exist: " + file.path.toString())
-                file.parentFile?.mkdirs()
-                file.createNewFile()
-                file.writeBytes(byteArrayOf())
-                FileWriter(file).write(0)
-                Log.d("FILE", "Created File: " + file.path.toString())
-                file.toPath().createFile()
-            //}
-
-
-            file.printWriter().use {
-                it.println(user)
-            }
-            Log.d("FILE", "File written: " + file.path.toString())
-            return RegisterCode.OK
+    fun updatePassword(verifyCode:String, password: String, confirmPassword: String): UpdatePassword {
+        if(listOf(verifyCode,password,confirmPassword).any(){ it.isBlank() })
+        {
+            return UpdatePassword.EMPTY_FIELD
         }
-        catch (e: IOException) {
-            Log.d("ERROR", e.message.toString())
-            return RegisterCode.ERROR
+        if (password.length < 8) return UpdatePassword.PASSWORD_SHORT
+        if (password.length > 30) return UpdatePassword.PASSWORD_LONG
+        if (password != confirmPassword) return UpdatePassword.PASSWORD_MISMATCH
+        return try {
+            UpdatePassword.OK
+        }catch (e : IOException)
+        {
+            UpdatePassword.ERROR
         }
     }
 
-    */
+
 }
 
-private const val ALGORITHM = "PBKDF2WithHmacSHA512"
-private const val ITERATIONS = 120_000
-private const val KEY_LENGTH = 256
-private const val SECRET = "SomeRandomSecret"
 
 
-// you can hash it by calling this function
+
 // so like if you have a password variable, to get the hash you type password.hash256()
 fun String.hash256(): String {
     return MessageDigest.getInstance("SHA-256").digest(this.toByteArray()).toHexString()

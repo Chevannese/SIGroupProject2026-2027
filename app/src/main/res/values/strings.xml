@@ -22,7 +22,6 @@
     <string name="accExist">Already have an account? Login Here</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="invalid_username">Not a valid username</string>
@@ -35,7 +34,7 @@
     <string name="sendCode">Send Reset\nCode</string>
     <string name="backToLogin">Back to\nLogin</string>
     <string name="Unlock_Icon">Unlock Icon</string>
-    <string name="enterCode">Enter Code\nHere</string>
+    <string name="enterCode">Enter Code Here</string>
     <string name="verifyCode">Verification Code</string>
     <string name="reset">Reset\nPassword</string>
     <string name="changePassword">Change Password</string>

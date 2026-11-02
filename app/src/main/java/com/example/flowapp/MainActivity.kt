@@ -128,7 +128,39 @@ class MainActivity : ComponentActivity() {
 
     private fun showEnterPassPage()
     {
-        setContentView(R.layout.account_balance_page)
+        setContentView(R.layout.enter_code)
+
+        val back: ImageButton = findViewById(R.id.back)
+        val password: EditText = findViewById(R.id.password)
+        val confirmPassword: EditText = findViewById(R.id.confirmPass)
+        val verifyCode: EditText = findViewById(R.id.verifyCode)
+        val updatePassword: Button = findViewById(R.id.changePassBtn)
+        val client = Client(applicationContext)
+
+        back.setOnClickListener()
+        {
+            showForgetPassPage()
+        }
+
+        updatePassword.setOnClickListener()
+        {
+            updatePassword.isEnabled = false;
+            val response = client.updatePassword(verifyCode = verifyCode.text.toString(), password = password.text.toString(),confirmPassword = confirmPassword.text.toString())
+            updatePassword.isEnabled = true;
+            when (response){
+                UpdatePassword.EMPTY_FIELD ->Toast.makeText(applicationContext, "One of the fields is empty", Toast.LENGTH_SHORT).show()
+                UpdatePassword.PASSWORD_LONG -> Toast.makeText(applicationContext, "Password should not be greater than 30 characters", Toast.LENGTH_SHORT).show()
+                UpdatePassword.PASSWORD_SHORT -> Toast.makeText(applicationContext, "Password should not be less than 8 characters", Toast.LENGTH_SHORT).show()
+                UpdatePassword.PASSWORD_MISMATCH -> Toast.makeText(applicationContext, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                UpdatePassword.ERROR -> Toast.makeText(applicationContext, "Failed to update password", Toast.LENGTH_SHORT).show()
+                UpdatePassword.OK -> {
+                    Toast.makeText(applicationContext, "Successfully registered", Toast.LENGTH_SHORT).show()
+                    showLogin()
+                }
+            }
+
+        }
+
 
     }
 }
