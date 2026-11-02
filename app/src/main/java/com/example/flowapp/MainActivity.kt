@@ -114,7 +114,8 @@ class MainActivity : ComponentActivity() {
         setContentView(R.layout.forget_pass_page)
 
         val sendCode: Button = findViewById(R.id.sendCodeBtn)
-        val toLogin: Button = findViewById(R.id.backToLoginBtn)
+        val toLogin: ImageButton = findViewById(R.id.backToLoginBtn)
+        
         //Temporary to see Account Balance
         sendCode.setOnClickListener()
         {
