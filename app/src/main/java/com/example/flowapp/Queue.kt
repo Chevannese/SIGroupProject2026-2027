@@ -225,6 +225,7 @@ private fun TitleBar(onBack: () -> Unit) {
     }
 }
 
+/*
 @Composable
 private fun DropdownField(
     label: String,
@@ -281,6 +282,8 @@ private fun DropdownField(
         }
     }
 }
+
+ */
 
 @Composable
 private fun TicketCard(number: String) {
