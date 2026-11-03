@@ -115,26 +115,39 @@ class MainActivity : ComponentActivity() {
         val email: EditText = findViewById(R.id.email)
         val sendCode: Button = findViewById(R.id.sendCodeBtn)
         val toLogin: ImageButton = findViewById(R.id.backToLoginBtn)
-        val client = Client(applicationContext)
+
         //Needs to add to file
         //Validation check if this guy exists
 
-        val code = client.generateCode(email.text.toString())
         val emailString = email.text.toString()
-        /*
-        EMAIL_EXIST
-        EMAIL_NOT_EXIST
-        Error
 
-        When(code)
-        {
-            EmailValidate
-        }*/
+
+
+
         sendCode.setOnClickListener()
         {
+            /*
+            val client = Client(applicationContext)
             sendCode.isEnabled = false;
+            when (code) {
+                Client.ValidateEmail.EXIST -> {
+                    val code = client.generateCode(emailString)
 
-            showEnterPassPage(emailString)
+                    // send `code` to the email here
+                    sendCode.isEnabled = true
+                    showEnterPassPage(emailString)
+                }
+                Client.ValidateEmail.NOT_EXISTS -> {
+                    sendCode.isEnabled = true
+                    Toast.makeText(applicationContext, "No account found with that email", Toast.LENGTH_SHORT).show()
+                }
+                Client.ValidateEmail.ERROR -> {
+                    sendCode.isEnabled = true
+                    Toast.makeText(applicationContext, "Something went wrong. Try again", Toast.LENGTH_SHORT).show()
+                }
+            }*/
+
+
         }
         toLogin.setOnClickListener {
             showLogin()

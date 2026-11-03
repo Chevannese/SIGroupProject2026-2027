@@ -67,12 +67,23 @@ enum class RegisterCode {
     ERROR
 }
 
+
+
+
 @OptIn(ExperimentalTime::class)
 class Client(private val context: Context = MainActivity.instance.applicationContext) {
     private val smtpHost = ""
     private val smtpUsername = ""
     private val smtpPassword = ""
-    
+
+    enum class ValidateEmail
+    {
+        EXIST,
+
+        NOT_EXISTS,
+
+        ERROR
+    }
     fun login(trn: String, password: String): LoginCode {
         try {
             val file = File(context.filesDir, "users.txt")
@@ -197,6 +208,8 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
 
         /** "Receive verification code" button. Returns the code so you can email/SMS it. */
         fun generateCode(username: String): String = synchronized(lock) {
+
+
             require(username.isNotBlank() && ',' !in username && '\n' !in username) { "Invalid username" }
 
             val code = random.nextInt(1_000_000).toString().padStart(6, '0')
