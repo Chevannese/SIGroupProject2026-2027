@@ -54,9 +54,9 @@
     <string name="refresh">Refresh</string>
     <string name="enterEmail">Enter Email</string>
     <string name="feedback">Feedback</string>
-    <string name="love_feedback">We'd love to hear from you!</string>
+    <string name="love_feedback">We\'d love to hear from you!</string>
     <string name="love_feedback2">Your feedback helps us serve you better</string>
-    <string name="feedback_here">Write your feedback here...</string>
+    <string name="feedback_here">Write your feedback here..</string>
     <string name="rate_experience">Rate Your Experience</string>
     <string name="submit">Submit</string>
 

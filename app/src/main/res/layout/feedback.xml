@@ -80,12 +80,13 @@
         android:layout_marginHorizontal="16dp"
         android:background="@drawable/title_of_page_design"
         android:gravity="top|start"
-        android:hint="Write your feedback here…"
+        android:hint="@string/feedback_here"
         android:inputType="textMultiLine|textCapSentences"
         android:padding="16dp"
         android:textColor="#0B2A66"
         android:textColorHint="#0B2A66"
-        android:layout_marginBottom="20dp"/>
+        android:layout_marginBottom="10dp"
+        android:autofillHints="null"/>
 
     <TextView
         android:text="@string/rate_experience"
@@ -97,7 +98,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@null"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
         />
 
     <RatingBar
@@ -110,6 +111,19 @@
         android:numStars="5"
         android:stepSize="1"
         android:rating="0" />
+
+    <Button
+        android:text="@string/submit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:id="@+id/submitBtn"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/blue_round_corner_button"
+        android:layout_marginBottom="10dp"
+        />
 
 
 </LinearLayout>
