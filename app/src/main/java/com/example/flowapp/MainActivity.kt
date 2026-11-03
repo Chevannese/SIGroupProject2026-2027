@@ -15,6 +15,11 @@ import com.example.flowapp.ui.theme.FlowAppTheme
 import java.io.File
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        lateinit var instance: MainActivity
+            private set
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

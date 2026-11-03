@@ -68,11 +68,11 @@ enum class RegisterCode {
 }
 
 @OptIn(ExperimentalTime::class)
-class Client(private val context: Context) {
+class Client(private val context: Context = MainActivity.instance.applicationContext) {
     private val smtpHost = ""
     private val smtpUsername = ""
     private val smtpPassword = ""
-
+    
     fun login(trn: String, password: String): LoginCode {
         try {
             val file = File(context.filesDir, "users.txt")
