@@ -115,8 +115,30 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
         }
     }
 
+    fun validate(trn: String, name: String, password: String, email: String, phone: String, confirmPassword: String): RegisterCode? {
+        if (listOf(trn, name, password, email, phone).any { it.isBlank() })
+            return RegisterCode.EMPTY_FIELD
+        else if (!name.all{ it.isLetter()  || it == ' '})
+            return RegisterCode.NAME_INVALID
+        else if (trn.length != 9 || !trn.isDigitsOnly())
+            return RegisterCode.TRN_INVALID
+        else if (!email.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$")))
+            return RegisterCode.EMAIL_INVALID
+        else if (phone.isEmpty() || !phone.isDigitsOnly() || phone.length >12)
+            return RegisterCode.PHONE_INVALID
+        else if (password.length < 8)
+            return RegisterCode.PASSWORD_SHORT
+        else if (password.length > 30)
+            return RegisterCode.PASSWORD_LONG
+        else if (password != confirmPassword)
+            return RegisterCode.PASSWORD_MISMATCH
+        else return null
+    }
+
     fun register(trn: String, name: String, password: String, email: String, phone: String, confirmPassword:String): RegisterCode {
+        // moved out to separate function
         // Validate first, independent of file contents
+        /*
         if (listOf(trn, name, password, email, phone).any { it.isBlank() }) {
             return RegisterCode.EMPTY_FIELD
         }
@@ -128,8 +150,12 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
         if (password.length < 8) return RegisterCode.PASSWORD_SHORT
         if (password.length > 30) return RegisterCode.PASSWORD_LONG
         if (password != confirmPassword) return RegisterCode.PASSWORD_MISMATCH
+         */
 
-
+        val validate = validate(trn, name, password, email, phone, confirmPassword)
+        if (validate != null) {
+            return validate
+        }
 
         return try {
             val file = File(context.filesDir, "users.txt")
@@ -158,7 +184,8 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
             file.appendText(user)
             Log.d("FILE", "User written")
             RegisterCode.OK
-        } catch (e: IOException) {
+        }
+        catch (e: IOException) {
             Log.d("ERROR", e.message.toString())
             RegisterCode.ERROR
         }
