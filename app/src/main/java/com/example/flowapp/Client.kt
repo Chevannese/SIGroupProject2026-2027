@@ -17,9 +17,6 @@ import java.util.Locale
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 
-import java.time.Duration
-import java.time.Instant
-
 
 // mail stuff
 /*
@@ -215,9 +212,13 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
                     val split = line.split(",")
                     if (split[0] == code && split[2].toLong() > now.toEpochMilliseconds()) {
                         if (validate("123456789", "Joe Mama", password, split[1], "8761234567", confirmPassword) != null) {
-                            updatePassword(split[1], password)
-                            removeCode(code)
-                            return RecoveryCode.OK
+                            if (updatePassword(split[1], password)) {
+                                removeCodes(split[1])
+                                return RecoveryCode.OK
+                            }
+                            else {
+                                return RecoveryCode.ERROR
+                            }
                         }
                         else {
                             return RecoveryCode.INVALID_PASSWORD
@@ -234,27 +235,25 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
         }
     }
 
-    fun removeCode(code: String) {
+    fun removeCodes(email: String) {
         try {
             val file = File(context.filesDir, "recovery_codes.txt")
             val updated = StringBuilder()
 
-            if (!file.exists()) {
-                return
-            }
+            if (file.exists()) {
+                for (line in file.readLines()) {
+                    val split = line.split(",")
 
-            for (line in file.readLines()) {
-                val split = line.split(",")
-
-                // if code matches
-                if (split[0] != code) {
-                    // don't add back to file
-                    updated.appendLine(line)
+                    // if code matches
+                    if (split[1] != email) {
+                        // don't add back to file
+                        updated.appendLine(line)
+                    }
                 }
-            }
 
-            // write all remaining
-            file.writeText(updated.toString())
+                // write all remaining
+                file.writeText(updated.toString())
+            }
         }
         catch (e: Exception) {
             Log.d("ERROR", e.message.toString())
@@ -268,21 +267,19 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
             val updated = StringBuilder()
             var found = false
 
-            if (!file.exists()) {
-                return false
-            }
+            if (file.exists()) {
+                for (line in file.readLines()) {
+                    if (line.isBlank()) continue
+                    val split = line.split(",")
 
-            for (line in file.readLines()) {
-                if (line.isBlank()) continue
-                val split = line.split(",")
-
-                if (split[1] == email) {
-                    // trn,email,phone,name,password
-                    updated.appendLine("%s,%s,%s,%s,%s".format(split[0], split[1], split[2], split[3], password.hash256()))
-                    found = true
-                }
-                else {
-                    updated.appendLine(line)
+                    if (split[1] == email) {
+                        // trn,email,phone,name,password
+                        updated.appendLine("%s,%s,%s,%s,%s".format(split[0], split[1], split[2], split[3], password.hash256()))
+                        found = true
+                    }
+                    else {
+                        updated.appendLine(line)
+                    }
                 }
             }
 
@@ -295,6 +292,29 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
             Log.d("ERROR", e.message.toString())
             throw e
         }
+
+        return false
+    }
+
+    fun codeExists(code: String): Boolean {
+        try {
+            val file = File(context.filesDir, "recovery_codes.txt")
+
+            if (file.exists()) {
+                for (line in file.readLines()) {
+                    val split = line.split(",")
+
+                    if (split[0] == code) {
+                        return true
+                    }
+                }
+            }
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+            throw e
+        }
+
         return false
     }
 
@@ -304,28 +324,29 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
             val userFile = File(context.filesDir, "users.txt")
             val recoveryFile = File(context.filesDir, "recovery_codes.txt")
 
-            if (!userFile.exists()) {
-                return null
-            }
+            if (userFile.exists()) {
+                for (user in userFile.readLines()) {
+                    val split = user.split(",")
 
-            for (user in userFile.readLines()) {
-                val split = user.split(",")
+                    // find user by email
+                    if (split[1] == email.trim()) {
+                        // create the 6 digit recovery code
+                        var code = String.format(locale = Locale.US, "%06d", SecureRandom().nextInt(1_000_000))
+                        // 5 minutes from now
+                        val now = Clock.System.now()
+                        val fiveMinutes = now.plus(5.minutes)
 
-                // find user by email
-                if (split[1] == email.trim()) {
-                    // create the 6 digit recovery code
-                    val code = String.format(locale = Locale.US, "%06d", SecureRandom().nextInt(1_000_000));
-                    // 5 minutes from now
-                    val now = Clock.System.now()
-                    val fiveMinutes = now.plus(5.minutes)
+                        while (codeExists(code)) {
+                            code = String.format(locale = Locale.US, "%06d", SecureRandom().nextInt(1_000_000))
+                        }
 
-                    val line = "%s,%s,%s\n".format(code, email, fiveMinutes.toEpochMilliseconds())
-                    // TODO: check if a code already exists for this email
-                    recoveryFile.appendText(line)
+                        val line = "%s,%s,%s\n".format(code, email, fiveMinutes.toEpochMilliseconds())
+                        recoveryFile.appendText(line)
 
-                    // mail(email, "Password Recovery Code", "Your password recovery code is: $code")
-                    // just show the user the code cuz lazy
-                    return code
+                        // mail(email, "Password Recovery Code", "Your password recovery code is: $code")
+                        // just show the user the code cuz lazy
+                        return code
+                    }
                 }
             }
         }

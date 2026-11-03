@@ -150,12 +150,14 @@ class MainActivity : ComponentActivity() {
             val client = Client()
             val response = client.verifyRecoveryCode(verifyCode.text.toString(), password.text.toString(), confirmPassword.text.toString())
 
-            if (response) {
-                Toast.makeText(applicationContext, "Successfully updated password", Toast.LENGTH_SHORT).show()
-                showLogin()
-            }
-            else {
-                Toast.makeText(applicationContext, "Failed to update password", Toast.LENGTH_SHORT).show()
+            when (response) {
+                RecoveryCode.OK -> {
+                    Toast.makeText(applicationContext, "Successfully updated password", Toast.LENGTH_SHORT).show()
+                    showLogin()
+                }
+                RecoveryCode.INVALID_CODE -> Toast.makeText(applicationContext, "Code is does not exist or is expired", Toast.LENGTH_SHORT).show()
+                RecoveryCode.INVALID_PASSWORD -> Toast.makeText(applicationContext, "Invalid password.\nPassword must contain letters, numbers and a special character", Toast.LENGTH_SHORT).show()
+                RecoveryCode.ERROR -> Toast.makeText(applicationContext, "An error occured when updating password", Toast.LENGTH_SHORT).show()
             }
         }
     }
