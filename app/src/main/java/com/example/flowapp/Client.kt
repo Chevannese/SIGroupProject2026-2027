@@ -17,6 +17,10 @@ import java.util.Locale
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 
+import java.time.Duration
+import java.time.Instant
+
+
 // mail stuff
 /*
 import kotlinx.coroutines.Dispatchers
@@ -159,6 +163,58 @@ class Client(private val context: Context) {
             UpdatePassword.ERROR
         }
     }
+
+
+
+        private val file = File("reset_codes.txt")
+        private val validFor = Duration.ofMinutes(10)
+        private val random = SecureRandom()
+        private val lock = Any()
+
+        private data class Entry(val username: String, val code: String, val createdAt: Instant)
+
+        private fun readEntries(): List<Entry> {
+            if (!file.exists()) return emptyList()
+            return file.readLines().mapNotNull { line ->
+                val parts = line.split(",")
+                if (parts.size != 3) return@mapNotNull null
+                val time = runCatching { Instant.parse(parts[2]) }.getOrNull()
+                    ?: return@mapNotNull null
+                Entry(parts[0], parts[1], time)
+            }
+        }
+
+        private fun writeEntries(entries: List<Entry>) {
+            file.writeText(entries.joinToString("") { "${it.username},${it.code},${it.createdAt}\n" })
+        }
+
+        private fun isExpired(e: Entry) = Duration.between(e.createdAt, Instant.now()) > validFor
+
+        /** "Receive verification code" button. Returns the code so you can email/SMS it. */
+        fun generateCode(username: String): String = synchronized(lock) {
+            require(username.isNotBlank() && ',' !in username && '\n' !in username) { "Invalid username" }
+
+            val code = random.nextInt(1_000_000).toString().padStart(6, '0')
+
+            // Drop expired codes and any older code for this user, then add the new one
+            val kept = readEntries().filter { !isExpired(it) && it.username != username }
+            writeEntries(kept + Entry(username, code, Instant.now()))
+            code
+        }
+
+        /** "Enter verification code" button. True = let the user go to the next page. */
+        fun verifyAndConsume(username: String, code: String): Boolean = synchronized(lock) {
+            // Delete expired codes from the file
+            val active = readEntries().filter { !isExpired(it) }
+
+            val match = active.firstOrNull { it.username == username && it.code == code }
+
+            // If matched, delete that code too (one-time use)
+            writeEntries(if (match != null) active - match else active)
+
+            match != null
+        }
+
 
     /*
     fun verifyRecoveryCode(email: String, enteredCode: String, password: String, confirmPassword: UpdatePassword): Boolean {

@@ -112,10 +112,11 @@ class MainActivity : ComponentActivity() {
     private fun showForgetPassPage()
     {
         setContentView(R.layout.forget_pass_page)
-
+        val email: EditText = findViewById(R.id.email)
         val sendCode: Button = findViewById(R.id.sendCodeBtn)
         val toLogin: ImageButton = findViewById(R.id.backToLoginBtn)
-        
+        val client = Client(applicationContext)
+        val code = client.generateCode(email.text.toString())
 
         sendCode.setOnClickListener()
         {
