@@ -54,7 +54,7 @@ enum class UpdatePassword
     //Code_Invalid,
     ERROR
 }
- */
+
 enum class RegisterCode {
     OK,
     EMPTY_FIELD,
@@ -86,7 +86,7 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
     private val smtpPassword = ""
     */
 
-    /*
+
     enum class ValidateEmail
     {
         EXIST,
@@ -95,7 +95,7 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
 
         ERROR
     }
-    */
+
 
     fun login(trn: String, password: String): LoginCode {
         try {
@@ -229,6 +229,7 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
             return LoginCode.ERROR
         }
     }
+    /*
     fun updatePassword(email:String,verifyCode:String, password: String, confirmPassword: String): UpdatePassword {
     fun verifyRecoveryCode(code: String, password: String, confirmPassword: String): RecoveryCode {
         // should search existing codes
@@ -264,7 +265,7 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
             Log.d("ERROR", e.message.toString())
             return RecoveryCode.ERROR
         }
-    }
+    }*/
 
     fun removeCodes(email: String) {
         try {
@@ -292,6 +293,7 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
         }
     }
 
+    /*
     fun updatePassword(email: String, password: String): Boolean {
         try {
             val file = File(context.filesDir, "users.txt")
@@ -388,7 +390,7 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
         return null
     }
 
-    /*
+     */
     fun updatePassword(verifyCode:String, password: String, confirmPassword: String): UpdatePassword {
         if(listOf(verifyCode,password,confirmPassword).any(){ it.isBlank() }) {
             return UpdatePassword.EMPTY_FIELD
@@ -407,59 +409,10 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
 
 
 
-        private val file = File("reset_codes.txt")
-        private val validFor = Duration.ofMinutes(10)
-        private val random = SecureRandom()
-        private val lock = Any()
-
-        private data class Entry(val username: String, val code: String, val createdAt: Instant)
-
-        private fun readEntries(): List<Entry> {
-            if (!file.exists()) return emptyList()
-            return file.readLines().mapNotNull { line ->
-                val parts = line.split(",")
-                if (parts.size != 3) return@mapNotNull null
-                val time = runCatching { Instant.parse(parts[2]) }.getOrNull()
-                    ?: return@mapNotNull null
-                Entry(parts[0], parts[1], time)
-            }
-        }
-
-        private fun writeEntries(entries: List<Entry>) {
-            file.writeText(entries.joinToString("") { "${it.username},${it.code},${it.createdAt}\n" })
-        }
-
-        private fun isExpired(e: Entry) = Duration.between(e.createdAt, Instant.now()) > validFor
-
-        /** "Receive verification code" button. Returns the code so you can email/SMS it. */
-        fun generateCode(username: String): String = synchronized(lock) {
 
 
-            require(username.isNotBlank() && ',' !in username && '\n' !in username) { "Invalid username" }
-
-            val code = random.nextInt(1_000_000).toString().padStart(6, '0')
-
-            // Drop expired codes and any older code for this user, then add the new one
-            val kept = readEntries().filter { !isExpired(it) && it.username != username }
-            writeEntries(kept + Entry(username, code, Instant.now()))
-            code
-        }
-
-        /** "Enter verification code" button. True = let the user go to the next page. */
-        fun verifyAndConsume(username: String, code: String): Boolean = synchronized(lock) {
-            // Delete expired codes from the file
-            val active = readEntries().filter { !isExpired(it) }
-
-            val match = active.firstOrNull { it.username == username && it.code == code }
-
-            // If matched, delete that code too (one-time use)
-            writeEntries(if (match != null) active - match else active)
-
-            match != null
-        }
 
 
-     */
 
     /*
     suspend fun mail(to: String, subject: String, body: String) = withContext(Dispatchers.IO) {

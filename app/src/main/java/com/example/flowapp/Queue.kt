@@ -53,7 +53,7 @@ fun Queues(onBack: () -> Unit = {}, startTab: Int = 0) {
         }) { innerPadding ->
         when (tab) {
             0 -> QueueTab(innerPadding)
-            1 -> TicketTab(innerPadding)
+          //  1 -> TicketTab(innerPadding)
         }
     }
 }
@@ -95,12 +95,12 @@ fun Queues(onBack: () -> Unit = {}, startTab: Int = 0) {
         }
     }
 }
-
+/*
 @Composable fun TicketTab(padding: PaddingValues) {
     Column(modifier = Modifier.padding(padding)) {
         //val client = Client()
         //val ticket = client.getTicket()
-        val ticket = Ticket.default()
+        //val ticket = Ticket.default()
 
         Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceEvenly) {
             Text("Date:", modifier = Modifier.fillMaxWidth())
@@ -138,7 +138,7 @@ fun Queues(onBack: () -> Unit = {}, startTab: Int = 0) {
             }
         }
     }
-}
+}*/
 
 @Preview
 @Composable

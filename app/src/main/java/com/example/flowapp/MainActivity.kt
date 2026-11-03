@@ -3,11 +3,13 @@ package com.example.flowapp
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.widget.*
 import androidx.activity.*
 import androidx.activity.compose.*
 import com.example.flowapp.ui.theme.FlowAppTheme
 import java.io.File
+import java.security.SecureRandom
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -22,6 +24,9 @@ class MainActivity : ComponentActivity() {
         // shows login when the app starts
         showLogin()
     }
+
+    private var generatedCode: String? = null
+    private var codeExpiry: Long = 0
 
     private fun showLogin() {
         // switch to login page
@@ -61,6 +66,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
 
     private fun showRegister() {
         setContentView(R.layout.register)
@@ -108,7 +115,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
     private fun showForgetPassPage() {
+
+
         setContentView(R.layout.forget_pass_page)
 
         val email: EditText = findViewById(R.id.email)
@@ -117,12 +127,11 @@ class MainActivity : ComponentActivity() {
 
         sendCode.setOnClickListener {
 
-            // Get the email entered by the user
             val emailString = email.text.toString().trim()
 
             if (emailString.isEmpty()) {
                 Toast.makeText(
-                    applicationContext,
+                    this,
                     "Please enter your email address",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -130,31 +139,66 @@ class MainActivity : ComponentActivity() {
                 return@setOnClickListener
             }
 
-            val client = Client(applicationContext)
+            // Run file access and SMTP operations off the UI thread
+            sendCode.isEnabled = false
+            //val emailServer = EmailSender(applicationContext)
 
-            val response = client.checkEmailAddress(emailString)
+            Thread {
+                try {
 
-            when (response) {
-                LoginCode.NOT_FOUND -> {
-                    Toast.makeText(
-                        applicationContext,
-                        "Email address not found",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    val client = Client(applicationContext)
+
+                    val response = client.checkEmailAddress(emailString)
+
+                    if (response == LoginCode.OK) {
+
+                        val code = generateVerificationCode()
+
+                        val sender = EmailSender()
+
+                        sender.sendVerificationCode(emailString, code)
+
+                        generatedCode = code
+                        codeExpiry = System.currentTimeMillis() + 5 * 60 * 1000
+
+                        runOnUiThread {
+                            Toast.makeText(
+                                this,
+                                "Verification code sent!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            showEnterPassPage(emailString)
+                        }
+
+                    } else {
+                        runOnUiThread {
+                            sendCode.isEnabled = true
+
+                            Toast.makeText(
+                                this,
+                                "Unable to process password reset",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
+                } catch (e: Exception) {
+
+                    Log.e("EMAIL_ERROR", "Failed to send verification code", e)
+
+                    runOnUiThread {
+                        sendCode.isEnabled = true
+
+                        Toast.makeText(
+                            this,
+                            "Unable to send verification email",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
 
-                LoginCode.ERROR -> {
-                    Toast.makeText(
-                        applicationContext,
-                        "An unknown error occurred",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                LoginCode.OK -> {
-                    showEnterPassPage(emailString)
-                }
-            }
+            }.start()
         }
 
         toLogin.setOnClickListener {
@@ -183,7 +227,7 @@ class MainActivity : ComponentActivity() {
         updatePassword.setOnClickListener()
         {
             updatePassword.isEnabled = false;
-            val response = client.updatePassword(emailString,verifyCode = verifyCode.text.toString(), password = password.text.toString(),confirmPassword = confirmPassword.text.toString())
+            val response = client.updatePassword(verifyCode.text.toString(), password = password.text.toString(),confirmPassword = confirmPassword.text.toString())
             updatePassword.isEnabled = true;
             when (response){
                 UpdatePassword.EMPTY_FIELD ->Toast.makeText(applicationContext, "One of the fields is empty", Toast.LENGTH_SHORT).show()
@@ -195,11 +239,13 @@ class MainActivity : ComponentActivity() {
                     Toast.makeText(applicationContext, "Successfully changed password", Toast.LENGTH_SHORT).show()
                     showLogin()
                 }
-                RecoveryCode.INVALID_CODE -> Toast.makeText(applicationContext, "Code is does not exist or is expired", Toast.LENGTH_SHORT).show()
-                RecoveryCode.INVALID_PASSWORD -> Toast.makeText(applicationContext, "Invalid password.\nPassword must contain letters, numbers and a special character", Toast.LENGTH_SHORT).show()
-                RecoveryCode.ERROR -> Toast.makeText(applicationContext, "An error occured when updating password", Toast.LENGTH_SHORT).show()
+
             }
         }
+    }
+
+    private fun generateVerificationCode(): String {
+        return (SecureRandom().nextInt(900000) + 100000).toString()
     }
 
 

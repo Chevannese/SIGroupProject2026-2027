@@ -9,6 +9,13 @@ android {
         version = release(37)
     }
 
+    packaging {
+        resources {
+            excludes += "META-INF/NOTICE.md"
+            excludes += "META-INF/LICENSE.md"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.flowapp"
         minSdk = 26
@@ -71,6 +78,9 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.57.1")
     implementation(libs.androidx.compose.material3)
     implementation("androidx.compose.material:material-icons-extended")
-    //implementation("com.sun.mail:android-mail:1.6.7")
+    //Hopefully this does not crash it
+
+    implementation("com.sun.mail:android-mail:1.6.7")
     //implementation("com.sun.mail:android-activation:1.6.7")
+
 }
