@@ -155,8 +155,12 @@ class MainActivity : ComponentActivity() {
                         val code = generateVerificationCode()
 
                         val sender = EmailSender()
+                        val saved = client.writeVerifyCodeToFile(emailString, code)
 
-                        sender.sendVerificationCode(emailString, code)
+                        if (saved) {
+                            // Send verification email
+                            sender.sendVerificationCode(emailString, code)
+                        }
 
                         generatedCode = code
                         codeExpiry = System.currentTimeMillis() + 5 * 60 * 1000

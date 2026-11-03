@@ -40,7 +40,7 @@ class EmailSender {
                 Message.RecipientType.TO,
                 InternetAddress.parse(recipient)
             )
-            subject = "Password Reset Verification Code"
+            subject = "Flow Service - Password Verification Code"
 
             setText("""
                 Hello,
