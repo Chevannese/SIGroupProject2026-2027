@@ -1,50 +1,20 @@
 package com.example.flowapp
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.twotone.KeyboardArrowRight
-import androidx.compose.material.icons.filled.CreditCard
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.twotone.ChevronRight
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -76,7 +46,7 @@ fun ProfileItem(icon: ImageVector, title: String, value: String, menu: Boolean =
         if (menu) {
             // Chevron Right
             Icon(
-                imageVector = Icons.TwoTone.ChevronRight,
+                imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,
                 tint = darkBlue,
                 modifier = Modifier.size(22.dp)
@@ -88,8 +58,6 @@ fun ProfileItem(icon: ImageVector, title: String, value: String, menu: Boolean =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Personal(onBack: () -> Unit = {}) {
-    val lightBlue = Color(0xFFE8F1FC)
-    val darkBlue = Color(0xFF0D3B72)
     var changePassword by remember { mutableStateOf(false) }
 
     BackBar("Profile", onBack) { innerPadding ->
@@ -184,7 +152,9 @@ fun Personal(onBack: () -> Unit = {}) {
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
+    var password8Chars by remember { mutableStateOf(false) }
     var passwordsMatch by remember { mutableStateOf(false) }
+    var passwordContainsLNS by remember { mutableStateOf(false) }
 
     BackBar(title = "Change Password", onBack) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding).consumeWindowInsets(innerPadding).verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -203,10 +173,24 @@ fun Personal(onBack: () -> Unit = {}) {
             Spacer(modifier = Modifier.height(15.dp))
             OutlinedTextField(
                 value = newPassword,
-                onValueChange = { text -> newPassword = text },
+                onValueChange = {
+                    text -> newPassword = text
+                    passwordsMatch = confirmPassword == newPassword
+                    password8Chars = newPassword.length >= 8
+                    passwordContainsLNS = newPassword.any { it.isLetter() } && newPassword.any { it.isDigit() } && newPassword.any { it == '!' || it == '@' || it == '#' || it == '$' || it == '%' || it == '^' || it == '&' || it == '*' }
+                },
                 placeholder = { Text(text = "New Password") },
                 supportingText = {
-                    Text("Password must be at least 8 characters long, contain a number, and contain a special character.",)
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(password8Chars, {}, enabled = false)
+                            Text("Password must be at least 8 characters long",)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(passwordContainsLNS, {}, enabled = false)
+                            Text("Password must contain letters, numbers and a special character")
+                        }
+                    }
                 },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
@@ -224,7 +208,12 @@ fun Personal(onBack: () -> Unit = {}) {
                     passwordsMatch = confirmPassword == newPassword
                 },
                 placeholder = { Text(text = "Confirm Password") },
-                supportingText = { if (!passwordsMatch) { Text("Passwords must match") } },
+                supportingText = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = passwordsMatch, onCheckedChange = {}, enabled = false)
+                        Text("Passwords must match")
+                    }
+                },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
@@ -235,7 +224,11 @@ fun Personal(onBack: () -> Unit = {}) {
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            Button(onClick = {}) {
+            Button(onClick = {
+                val client = Client()
+                // TODO: implement change password
+                // client.changePassword()
+            }) {
                 Text("Change Password")
             }
         }
