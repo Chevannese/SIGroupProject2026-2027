@@ -108,51 +108,62 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    
-    private fun showForgetPassPage()
-    {
+
+    private fun showForgetPassPage() {
         setContentView(R.layout.forget_pass_page)
+
         val email: EditText = findViewById(R.id.email)
         val sendCode: Button = findViewById(R.id.sendCodeBtn)
         val toLogin: ImageButton = findViewById(R.id.backToLoginBtn)
 
-        //Needs to add to file
-        //Validation check if this guy exists
+        sendCode.setOnClickListener {
 
-        val emailString = email.text.toString()
+            // Get the email entered by the user
+            val emailString = email.text.toString().trim()
 
+            if (emailString.isEmpty()) {
+                Toast.makeText(
+                    applicationContext,
+                    "Please enter your email address",
+                    Toast.LENGTH_SHORT
+                ).show()
 
+                return@setOnClickListener
+            }
 
-
-        sendCode.setOnClickListener()
-        {
-            /*
             val client = Client(applicationContext)
-            sendCode.isEnabled = false;
-            when (code) {
-                Client.ValidateEmail.EXIST -> {
-                    val code = client.generateCode(emailString)
 
-                    // send `code` to the email here
-                    sendCode.isEnabled = true
+            val response = client.checkEmailAddress(emailString)
+
+            when (response) {
+                LoginCode.NOT_FOUND -> {
+                    Toast.makeText(
+                        applicationContext,
+                        "Email address not found",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                LoginCode.ERROR -> {
+                    Toast.makeText(
+                        applicationContext,
+                        "An unknown error occurred",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                LoginCode.OK -> {
                     showEnterPassPage(emailString)
                 }
-                Client.ValidateEmail.NOT_EXISTS -> {
-                    sendCode.isEnabled = true
-                    Toast.makeText(applicationContext, "No account found with that email", Toast.LENGTH_SHORT).show()
-                }
-                Client.ValidateEmail.ERROR -> {
-                    sendCode.isEnabled = true
-                    Toast.makeText(applicationContext, "Something went wrong. Try again", Toast.LENGTH_SHORT).show()
-                }
-            }*/
-
-
+            }
         }
+
         toLogin.setOnClickListener {
             showLogin()
         }
     }
+
+
 
     private fun showEnterPassPage(emailString: String)
     {
@@ -164,7 +175,6 @@ class MainActivity : ComponentActivity() {
         val verifyCode: EditText = findViewById(R.id.verifyCode)
         val updatePassword: Button = findViewById(R.id.changePassBtn)
         val client = Client(applicationContext)
-        val authenticate = client.verifyAndConsume(emailString, verifyCode.text.toString())
 
         back.setOnClickListener()
         {
@@ -174,7 +184,7 @@ class MainActivity : ComponentActivity() {
         updatePassword.setOnClickListener()
         {
             updatePassword.isEnabled = false;
-            val response = client.updatePassword(verifyCode = verifyCode.text.toString(), password = password.text.toString(),confirmPassword = confirmPassword.text.toString())
+            val response = client.updatePassword(emailString,verifyCode = verifyCode.text.toString(), password = password.text.toString(),confirmPassword = confirmPassword.text.toString())
             updatePassword.isEnabled = true;
             when (response){
                 UpdatePassword.EMPTY_FIELD ->Toast.makeText(applicationContext, "One of the fields is empty", Toast.LENGTH_SHORT).show()
@@ -183,7 +193,7 @@ class MainActivity : ComponentActivity() {
                 UpdatePassword.PASSWORD_MISMATCH -> Toast.makeText(applicationContext, "Passwords do not match", Toast.LENGTH_SHORT).show()
                 UpdatePassword.ERROR -> Toast.makeText(applicationContext, "Failed to update password", Toast.LENGTH_SHORT).show()
                 UpdatePassword.OK -> {
-                    Toast.makeText(applicationContext, "Successfully registered", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, "Successfully changed password", Toast.LENGTH_SHORT).show()
                     showLogin()
                 }
             }
@@ -192,7 +202,7 @@ class MainActivity : ComponentActivity() {
 
 
     }
-}
+
 
 
 
@@ -208,7 +218,13 @@ class PhoneDashWatcher : TextWatcher {
 
         val digits = s.toString().filter { it.isDigit() }.take(10)
         val formatted = when {
-            digits.length > 6 -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}"
+            digits.length > 6 -> "${digits.substring(0, 3)}-${
+                digits.substring(
+                    3,
+                    6
+                )
+            }-${digits.substring(6)}"
+
             digits.length > 3 -> "${digits.substring(0, 3)}-${digits.substring(3)}"
             else -> digits
         }
@@ -216,4 +232,4 @@ class PhoneDashWatcher : TextWatcher {
         s.replace(0, s.length, formatted)
         isFormatting = false
     }
-}
+} }

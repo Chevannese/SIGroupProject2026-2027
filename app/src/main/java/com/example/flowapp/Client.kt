@@ -40,6 +40,12 @@ enum class LoginCode {
     NOT_FOUND,
     ERROR
 }
+
+enum class EmailCheck{
+    VALID,
+    INVALID
+}
+
 enum class UpdatePassword
 {
     OK,
@@ -164,7 +170,32 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
         }
     }
 
-    fun updatePassword(verifyCode:String, password: String, confirmPassword: String): UpdatePassword {
+    fun checkEmailAddress(email: String): LoginCode {
+        try {
+            val file = File(context.filesDir, "users.txt")
+
+            if (!file.exists()) {
+                return LoginCode.NOT_FOUND
+            }
+
+            val found = file.readLines().any { line ->
+                val attributes = line.split(",")
+
+                attributes.size == 5 &&
+                        attributes[1].trim().equals(email.trim(), ignoreCase = true)
+            }
+
+            return if (found) LoginCode.OK else LoginCode.NOT_FOUND
+
+        } catch (e: IOException) {
+            Log.d("ERROR", e.message.toString())
+            return LoginCode.ERROR
+        } catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+            return LoginCode.ERROR
+        }
+    }
+    fun updatePassword(email:String,verifyCode:String, password: String, confirmPassword: String): UpdatePassword {
         if(listOf(verifyCode,password,confirmPassword).any(){ it.isBlank() }) {
             return UpdatePassword.EMPTY_FIELD
         }
@@ -182,151 +213,6 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
 
 
 
-        private val file = File("reset_codes.txt")
-        private val validFor = Duration.ofMinutes(10)
-        private val random = SecureRandom()
-        private val lock = Any()
-
-        private data class Entry(val username: String, val code: String, val createdAt: Instant)
-
-        private fun readEntries(): List<Entry> {
-            if (!file.exists()) return emptyList()
-            return file.readLines().mapNotNull { line ->
-                val parts = line.split(",")
-                if (parts.size != 3) return@mapNotNull null
-                val time = runCatching { Instant.parse(parts[2]) }.getOrNull()
-                    ?: return@mapNotNull null
-                Entry(parts[0], parts[1], time)
-            }
-        }
-
-        private fun writeEntries(entries: List<Entry>) {
-            file.writeText(entries.joinToString("") { "${it.username},${it.code},${it.createdAt}\n" })
-        }
-
-        private fun isExpired(e: Entry) = Duration.between(e.createdAt, Instant.now()) > validFor
-
-        /** "Receive verification code" button. Returns the code so you can email/SMS it. */
-        fun generateCode(username: String): String = synchronized(lock) {
-
-
-            require(username.isNotBlank() && ',' !in username && '\n' !in username) { "Invalid username" }
-
-            val code = random.nextInt(1_000_000).toString().padStart(6, '0')
-
-            // Drop expired codes and any older code for this user, then add the new one
-            val kept = readEntries().filter { !isExpired(it) && it.username != username }
-            writeEntries(kept + Entry(username, code, Instant.now()))
-            code
-        }
-
-        /** "Enter verification code" button. True = let the user go to the next page. */
-        fun verifyAndConsume(username: String, code: String): Boolean = synchronized(lock) {
-            // Delete expired codes from the file
-            val active = readEntries().filter { !isExpired(it) }
-
-            val match = active.firstOrNull { it.username == username && it.code == code }
-
-            // If matched, delete that code too (one-time use)
-            writeEntries(if (match != null) active - match else active)
-
-            match != null
-        }
-
-    /*
-    fun verifyRecoveryCode(email: String, enteredCode: String, password: String, confirmPassword: UpdatePassword): Boolean {
-        // should search existing codes
-        try {
-            val file = File(context.filesDir, "recovery_codes.txt")
-            val now = Clock.System.now()
-
-            if (!file.exists()) {
-                return false
-            }
-
-            val lines = file.readLines()
-            for (line in lines) {
-                val split = line.split(",")
-                // different email
-                if (email != split[0]) {
-                    continue
-                }
-                // wrong code
-                else if (enteredCode != split[1]) {
-                    continue
-                }
-                // expired
-                else if (now.toEpochMilliseconds() > split[2].toLong()) {
-                    continue
-                }
-
-                return true
-            }
-        }
-        catch (e: Exception) {
-            Log.d("ERROR", e.message.toString())
-        }
-
-        return false
-    }
-
-    suspend fun forgetPassword(email: String) {
-        // Check if email exists in users file
-        try {
-            val userFile = File(context.filesDir, "users.txt")
-            val recoveryFile = File(context.filesDir, "recovery_codes.txt")
-
-            if (!userFile.exists()) {
-                return
-            }
-
-            val users = userFile.readLines()
-
-            for (user in users) {
-                val split = user.split(",")
-                if (split[1] == email.trim()) {
-                    // create the 6 digit recovery code and send it to the email
-                    val code = String.format(locale = Locale.US, "%06d", SecureRandom().nextInt(1_000_000));
-                    // 5 minutes from now
-                    val now = Clock.System.now()
-                    val fiveMinutes = now.plus(5.minutes)
-
-                    val line = "%s,%s,%s\n".format(email, code, fiveMinutes.toEpochMilliseconds())
-                    // TODO: check if a code already exists for this email
-                    recoveryFile.appendText(line)
-
-                    mail(email, "Password Recovery Code", "Your password recovery code is: $code")
-                }
-            }
-        }
-        catch (e: Exception) {
-            Log.d("ERROR", e.message.toString())
-        }
-    }
-
-    suspend fun mail(to: String, subject: String, body: String) = withContext(Dispatchers.IO) {
-        val props = Properties().apply {
-            put("mail.smtp.host", smtpHost)
-            put("mail.smtp.port", "587")
-            put("mail.smtp.auth", "true")
-            put("mail.smtp.starttls.enable", "true")
-        }
-
-        val session = Session.getInstance(props, object : Authenticator() {
-            override fun getPasswordAuthentication() =
-                PasswordAuthentication(smtpUsername, smtpPassword)
-        })
-
-        val message = MimeMessage(session).apply {
-            setFrom(InternetAddress(smtpUsername))
-            setRecipients(Message.RecipientType.TO, InternetAddress.parse(to))
-            setSubject(subject)
-            setText(body)
-        }
-
-        Transport.send(message)
-    }
-    */
 
     fun getTicket(): Ticket {
         // TODO: get ticket from file
@@ -346,5 +232,4 @@ fun String.hash256(): String {
 
 data class Ticket(val date: String, val time: String, val branch: String, val waitTime: String) {
 
-    val status: Any
 }
