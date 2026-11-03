@@ -45,13 +45,12 @@ enum class EmailCheck{
 
 enum class UpdatePassword
 {
-    OK,
     EMPTY_FIELD,
-    PASSWORD_LONG,
     PASSWORD_SHORT,
+    PASSWORD_LONG,
     PASSWORD_MISMATCH,
-    //Code_Expired,
-    //Code_Invalid,
+    INVALID_CODE,
+    OK,
     ERROR
 }
 
@@ -293,167 +292,95 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
         }
     }
 
-/*
-fun forgetPassword(email: String): String? {
-        // Check if email exists in users file
-        try {
-            val userFile = File(context.filesDir, "users.txt")
-            val recoveryFile = File(context.filesDir, "recovery_codes.txt")
+fun updatePassword(email: String, verifyCode: String, password: String, confirmPassword: String): UpdatePassword {
 
-            if (userFile.exists()) {
-                for (user in userFile.readLines()) {
-                    val split = user.split(",")
-
-                    // find user by email
-                    if (split[1] == email.trim()) {
-                        // create the 6 digit recovery code
-                        var code = String.format(locale = Locale.US, "%06d", SecureRandom().nextInt(1_000_000))
-                        // 5 minutes from now
-                        val now = Clock.System.now()
-                        val fiveMinutes = now.plus(5.minutes)
-
-                        while (codeExists(code)) {
-                            code = String.format(locale = Locale.US, "%06d", SecureRandom().nextInt(1_000_000))
-                        }
-
-                        val line = "%s,%s,%s\n".format(code, email, fiveMinutes.toEpochMilliseconds())
-                        recoveryFile.appendText(line)
-
-                        // mail(email, "Password Recovery Code", "Your password recovery code is: $code")
-                        // just show the user the code cuz lazy
-                        return code
-                    }
-                }
-            }
-        }
-        catch (e: Exception) {
-            Log.d("ERROR", e.message.toString())
-        }
-
-        return null
-    }
-*/
-
-
-
-
-fun removeCodes(email: String) {
-    try {
-        val file = File(context.filesDir, "recovery_codes.txt")
-        val updated = StringBuilder()
-
-        if (file.exists()) {
-            for (line in file.readLines()) {
-                val split = line.split(",")
-
-                // if code matches
-                if (split[1] != email) {
-                    // don't add back to file
-                    updated.appendLine(line)
-                }
-            }
-
-            // write all remaining
-            file.writeText(updated.toString())
-        }
-    } catch (e: Exception) {
-        Log.d("ERROR", e.message.toString())
-        throw e
-    }
-}
-
-/*
-fun updatePassword(email: String, password: String): Boolean {
-try {
-    val file = File(context.filesDir, "users.txt")
-    val updated = StringBuilder()
-    var found = false
-
-    if (file.exists()) {
-        for (line in file.readLines()) {
-            if (line.isBlank()) continue
-            val split = line.split(",")
-
-            if (split[1] == email) {
-                // trn,email,phone,name,password
-                updated.appendLine("%s,%s,%s,%s,%s".format(split[0], split[1], split[2], split[3], password.hash256()))
-                found = true
-            }
-            else {
-                updated.appendLine(line)
-            }
-        }
-    }
-
-    if (found) {
-        file.writeText(updated.toString())
-        return true
-    }
-}
-catch (e: Exception) {
-    Log.d("ERROR", e.message.toString())
-    throw e
-}
-
-return false
-}
-
-
-fun forgetPassword(email: String): String? {
-// Check if email exists in users file
-try {
-    val userFile = File(context.filesDir, "users.txt")
-    val recoveryFile = File(context.filesDir, "recovery_codes.txt")
-
-    if (userFile.exists()) {
-        for (user in userFile.readLines()) {
-            val split = user.split(",")
-
-            // find user by email
-            if (split[1] == email.trim()) {
-                // create the 6 digit recovery code
-                var code = String.format(locale = Locale.US, "%06d", SecureRandom().nextInt(1_000_000))
-                // 5 minutes from now
-                val now = Clock.System.now()
-                val fiveMinutes = now.plus(5.minutes)
-
-                while (codeExists(code)) {
-                    code = String.format(locale = Locale.US, "%06d", SecureRandom().nextInt(1_000_000))
-                }
-
-                val line = "%s,%s,%s\n".format(code, email, fiveMinutes.toEpochMilliseconds())
-                recoveryFile.appendText(line)
-
-
-                // just show the user the code cuz lazy
-                return code
-            }
-        }
-    }
-}
-catch (e: Exception) {
-    Log.d("ERROR", e.message.toString())
-}
-
-return null
-}
-
-*/
-fun updatePassword(
-    verifyCode: String,
-    password: String,
-    confirmPassword: String
-): UpdatePassword {
-    if (listOf(verifyCode, password, confirmPassword).any() { it.isBlank() }) {
+    if (listOf(verifyCode, password, confirmPassword).any { it.isBlank() }) {
         return UpdatePassword.EMPTY_FIELD
     }
+
     if (password.length < 8) return UpdatePassword.PASSWORD_SHORT
     if (password.length > 30) return UpdatePassword.PASSWORD_LONG
     if (password != confirmPassword) return UpdatePassword.PASSWORD_MISMATCH
+
     return try {
+        val recoveryFile = File(context.filesDir, "recovery_codes.txt")
+        val userFile = File(context.filesDir, "users.txt")
+
+        if (!recoveryFile.exists() || !userFile.exists()) {
+            return UpdatePassword.ERROR
+        }
+
+        // Find the recovery code associated with this email
+        val recoveryCodes = recoveryFile.readLines().toMutableList()
+
+        val recoveryIndex = recoveryCodes.indexOfFirst { line ->
+            val split = line.split(",")
+
+            split.size == 3 &&
+                    split[0].trim() == verifyCode.trim() &&
+                    split[1].trim().equals(email.trim(), ignoreCase = true)
+        }
+
+        if (recoveryIndex == -1) {
+            return UpdatePassword.INVALID_CODE
+        }
+
+        // Retrieve the recovery code details
+        val recoveryDetails = recoveryCodes[recoveryIndex].split(",")
+
+        val email = recoveryDetails[1].trim()
+        val expiryTime = recoveryDetails[2].trim().toLongOrNull()
+            ?: return UpdatePassword.INVALID_CODE
+
+        // Check whether the code has expired
+        val currentTime = Clock.System.now().toEpochMilliseconds()
+
+        if (currentTime > expiryTime) {
+            return UpdatePassword.INVALID_CODE
+        }
+
+        // Update the user's password
+        val users = userFile.readLines().toMutableList()
+
+        val userIndex = users.indexOfFirst { line ->
+            val split = line.split(",")
+
+            split.size == 5 &&
+                    split[1].trim().equals(email, ignoreCase = true)
+        }
+
+        if (userIndex == -1) {
+            return UpdatePassword.ERROR
+        }
+
+        val userDetails = users[userIndex].split(",").toMutableList()
+
+        // Hash the new password using your existing password-hashing method
+        userDetails[4] = password.hash256()
+
+        users[userIndex] = userDetails.joinToString(",")
+
+        // Save the updated user information
+        userFile.writeText(users.joinToString("\n") + "\n")
+
+        // Remove the successfully used recovery code
+        recoveryCodes.removeAt(recoveryIndex)
+
+        recoveryFile.writeText(
+            if (recoveryCodes.isNotEmpty()) {
+                recoveryCodes.joinToString("\n") + "\n"
+            } else {
+                ""
+            }
+        )
+
         UpdatePassword.OK
+
     } catch (e: IOException) {
-        Log.d("ERROR", e.message.toString())
+        Log.e("ERROR", "Failed to update password", e)
+        UpdatePassword.ERROR
+    } catch (e: Exception) {
+        Log.e("ERROR", "Unexpected error while updating password", e)
         UpdatePassword.ERROR
     }
 }

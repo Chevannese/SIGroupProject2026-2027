@@ -10,6 +10,7 @@ import androidx.activity.compose.*
 import com.example.flowapp.ui.theme.FlowAppTheme
 import java.io.File
 import java.security.SecureRandom
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -212,8 +213,8 @@ class MainActivity : ComponentActivity() {
 
 
 
-    private fun showEnterPassPage(emailString: String)
-    {
+
+    private fun showEnterPassPage(emailString: String) {
         setContentView(R.layout.enter_code)
 
         val back: ImageButton = findViewById(R.id.back)
@@ -221,35 +222,89 @@ class MainActivity : ComponentActivity() {
         val confirmPassword: EditText = findViewById(R.id.confirmPass)
         val verifyCode: EditText = findViewById(R.id.verifyCode)
         val updatePassword: Button = findViewById(R.id.changePassBtn)
+
         val client = Client(applicationContext)
 
-        // back to previous page
-        back.setOnClickListener() {
+        // Back to previous page
+        back.setOnClickListener {
             showForgetPassPage()
         }
 
-        updatePassword.setOnClickListener()
-        {
-            updatePassword.isEnabled = false;
-            val response = client.updatePassword(verifyCode.text.toString(), password = password.text.toString(),confirmPassword = confirmPassword.text.toString())
-            updatePassword.isEnabled = true;
-            when (response){
-                UpdatePassword.EMPTY_FIELD ->Toast.makeText(applicationContext, "One of the fields is empty", Toast.LENGTH_SHORT).show()
-                UpdatePassword.PASSWORD_LONG -> Toast.makeText(applicationContext, "Password should not be greater than 30 characters", Toast.LENGTH_SHORT).show()
-                UpdatePassword.PASSWORD_SHORT -> Toast.makeText(applicationContext, "Password should not be less than 8 characters", Toast.LENGTH_SHORT).show()
-                UpdatePassword.PASSWORD_MISMATCH -> Toast.makeText(applicationContext, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                UpdatePassword.ERROR -> Toast.makeText(applicationContext, "Failed to update password", Toast.LENGTH_SHORT).show()
+        updatePassword.setOnClickListener {
+            updatePassword.isEnabled = false
+
+            val response = client.updatePassword(
+                email = emailString,
+                verifyCode = verifyCode.text.toString(),
+                password = password.text.toString(),
+                confirmPassword = confirmPassword.text.toString()
+            )
+
+            updatePassword.isEnabled = true
+
+            when (response) {
+                UpdatePassword.EMPTY_FIELD ->
+                    Toast.makeText(
+                        applicationContext,
+                        "One of the fields is empty",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                UpdatePassword.PASSWORD_LONG ->
+                    Toast.makeText(
+                        applicationContext,
+                        "Password should not be greater than 30 characters",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                UpdatePassword.PASSWORD_SHORT ->
+                    Toast.makeText(
+                        applicationContext,
+                        "Password should not be less than 8 characters",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                UpdatePassword.PASSWORD_MISMATCH ->
+                    Toast.makeText(
+                        applicationContext,
+                        "Passwords do not match",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                UpdatePassword.INVALID_CODE ->
+                    Toast.makeText(
+                        applicationContext,
+                        "Invalid or expired verification code",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                UpdatePassword.ERROR ->
+                    Toast.makeText(
+                        applicationContext,
+                        "Failed to update password",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
                 UpdatePassword.OK -> {
-                    Toast.makeText(applicationContext, "Successfully changed password", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        applicationContext,
+                        "Successfully changed password",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
                     showLogin()
                 }
-
             }
         }
     }
 
+
     private fun generateVerificationCode(): String {
-        return (SecureRandom().nextInt(900000) + 100000).toString()
+        return String.format(
+            Locale.US,
+            "%06d",
+            SecureRandom().nextInt(1_000_000)
+        )
     }
 
 
