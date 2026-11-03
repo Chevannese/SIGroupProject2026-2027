@@ -314,16 +314,6 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
         Transport.send(message)
     }
     */
-
-    fun getTicket(): Ticket {
-        // TODO: get ticket from file
-        return Ticket(
-            date = "TODO()",
-            time = "TODO()",
-            branch = "TODO()",
-            waitTime = "TODO()"
-        )
-    }
 }
 
 // so like if you have a password variable, to get the hash you type password.hash256()
@@ -331,7 +321,3 @@ fun String.hash256(): String {
     return MessageDigest.getInstance("SHA-256").digest(this.toByteArray()).toHexString()
 }
 
-data class Ticket(val date: String, val time: String, val branch: String, val waitTime: String) {
-
-    val status: Any
-}
