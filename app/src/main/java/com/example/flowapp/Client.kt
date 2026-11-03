@@ -4,11 +4,28 @@ import android.content.Context
 
 import androidx.core.text.isDigitsOnly
 import java.io.File
-
 import java.io.IOException
-
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.security.MessageDigest
+
+
+// time stuff
+import java.security.SecureRandom
+import kotlin.time.Clock
+import java.util.Locale
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.ExperimentalTime
+
+import javax.mail.Authenticator
+import javax.mail.Message
+import javax.mail.PasswordAuthentication
+import javax.mail.Session
+import javax.mail.Transport
+import javax.mail.internet.InternetAddress
+import javax.mail.internet.MimeMessage
+import java.util.Properties
 
 
 enum class LoginCode {
@@ -43,8 +60,13 @@ enum class RegisterCode {
     ERROR
 }
 
+@OptIn(ExperimentalTime::class)
 class Client(private val context: Context) {
-     fun login(trn: String, password: String): LoginCode {
+    private val smtpHost = ""
+    private val smtpUsername = ""
+    private val smtpPassword = ""
+
+    fun login(trn: String, password: String): LoginCode {
         try {
             val file = File(context.filesDir, "users.txt")
             Log.d("FILE", "File opened: " + file.path.toString())
@@ -118,9 +140,9 @@ class Client(private val context: Context) {
             RegisterCode.ERROR
         }
     }
+
     fun updatePassword(verifyCode:String, password: String, confirmPassword: String): UpdatePassword {
-        if(listOf(verifyCode,password,confirmPassword).any(){ it.isBlank() })
-        {
+        if(listOf(verifyCode,password,confirmPassword).any(){ it.isBlank() }) {
             return UpdatePassword.EMPTY_FIELD
         }
         if (password.length < 8) return UpdatePassword.PASSWORD_SHORT
@@ -128,12 +150,105 @@ class Client(private val context: Context) {
         if (password != confirmPassword) return UpdatePassword.PASSWORD_MISMATCH
         return try {
             UpdatePassword.OK
-        }catch (e : IOException)
-        {
+        }
+        catch (e : IOException) {
+            Log.d("ERROR", e.message.toString())
             UpdatePassword.ERROR
         }
     }
 
+    fun verifyRecoveryCode(email: String, enteredCode: String, password: String, confirmPassword: UpdatePassword): Boolean {
+        // should search existing codes
+        try {
+            val file = File(context.filesDir, "recovery_codes.txt")
+            val now = Clock.System.now()
+
+            if (!file.exists()) {
+                return false
+            }
+
+            val lines = file.readLines()
+            for (line in lines) {
+                val split = line.split(",")
+                // different email
+                if (email != split[0]) {
+                    continue
+                }
+                // wrong code
+                else if (enteredCode != split[1]) {
+                    continue
+                }
+                // expired
+                else if (now.toEpochMilliseconds() > split[2].toLong()) {
+                    continue
+                }
+
+                return true
+            }
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+        }
+
+        return false
+    }
+
+    suspend fun forgetPassword(email: String) {
+        // Check if email exists in users file
+        try {
+            val userFile = File(context.filesDir, "users.txt")
+            val recoveryFile = File(context.filesDir, "recovery_codes.txt")
+
+            if (!userFile.exists()) {
+                return
+            }
+
+            val users = userFile.readLines()
+
+            for (user in users) {
+                val split = user.split(",")
+                if (split[1] == email.trim()) {
+                    // create the 6 digit recovery code and send it to the email
+                    val code = String.format(locale = Locale.US, "%06d", SecureRandom().nextInt(1_000_000));
+                    // 5 minutes from now
+                    val now = Clock.System.now()
+                    val fiveMinutes = now.plus(5.minutes)
+
+                    val line = "%s,%s,%s\n".format(email, code, fiveMinutes.toEpochMilliseconds())
+                    // TODO: check if a code already exists for this email
+                    recoveryFile.appendText(line)
+
+                    mail(email, "Password Recovery Code", "Your password recovery code is: $code")
+                }
+            }
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+        }
+    }
+
+    suspend fun mail(to: String, subject: String, body: String) = withContext(Dispatchers.IO) {
+        val props = Properties().apply {
+            put("mail.smtp.host", smtpHost)
+            put("mail.smtp.port", "587")
+            put("mail.smtp.auth", "true")
+            put("mail.smtp.starttls.enable", "true")
+        }
+
+        val session = Session.getInstance(props, object : Authenticator() {
+            override fun getPasswordAuthentication() =
+                PasswordAuthentication(smtpUsername, smtpPassword)
+        })
+
+        val message = MimeMessage(session).apply {
+            setFrom(InternetAddress(smtpUsername))
+            setRecipients(Message.RecipientType.TO, InternetAddress.parse(to))
+            setSubject(subject)
+            setText(body)
+        }
+
+        Transport.send(message)
+    }
 
 }
 
