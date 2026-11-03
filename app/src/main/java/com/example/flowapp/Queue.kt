@@ -24,14 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.fromColorLong
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.flowapp.ui.theme.FlowAppTheme
-
-private val Blue = Color(0xFF0A5CFF)
-
-private val ScreenBg = Color(0xFFF8FAFF)
 
 @Composable
 fun Queues(onBack: () -> Unit = {}) {
@@ -43,11 +38,11 @@ fun Queues(onBack: () -> Unit = {}) {
     var queueNumber by rememberSaveable { mutableStateOf<String?>(null) }
     var tab by rememberSaveable { mutableIntStateOf(0) }
 
-    Column(modifier = Modifier.fillMaxSize().background(ScreenBg).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp)) {
+    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp)) {
         Spacer(Modifier.height(20.dp))
 
         // Tabs
-        SecondaryTabRow(selectedTabIndex = tab, modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(Blue)) {
+        PrimaryTabRow(selectedTabIndex = tab, modifier = Modifier.clip(RoundedCornerShape(20.dp))) {
             Tab(
                 selected = tab == 0,
                 onClick = { tab = 0 },
@@ -95,7 +90,7 @@ fun Queues(onBack: () -> Unit = {}) {
 @Preview
 @Composable
 fun QueuesPreview() {
-    FlowAppTheme {
+    FlowAppTheme(darkTheme = true) {
         Queues()
     }
 }
