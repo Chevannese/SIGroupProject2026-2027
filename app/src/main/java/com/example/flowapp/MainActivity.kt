@@ -1,16 +1,11 @@
 package com.example.flowapp
 
 import android.os.Bundle
-import android.telephony.PhoneNumberFormattingTextWatcher
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.widget.*
 import androidx.activity.*
 import androidx.activity.compose.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.painterResource
-import androidx.core.widget.doAfterTextChanged
 import com.example.flowapp.ui.theme.FlowAppTheme
 import java.io.File
 
@@ -116,18 +111,32 @@ class MainActivity : ComponentActivity() {
         val sendCode: Button = findViewById(R.id.sendCodeBtn)
         val toLogin: ImageButton = findViewById(R.id.backToLoginBtn)
         val client = Client(applicationContext)
-        val code = client.generateCode(email.text.toString())
+        //Needs to add to file
+        //Validation check if this guy exists
 
+        val code = client.generateCode(email.text.toString())
+        val emailString = email.text.toString()
+        /*
+        EMAIL_EXIST
+        EMAIL_NOT_EXIST
+        Error
+
+        When(code)
+        {
+            EmailValidate
+        }*/
         sendCode.setOnClickListener()
         {
-            showEnterPassPage()
+            sendCode.isEnabled = false;
+
+            showEnterPassPage(emailString)
         }
         toLogin.setOnClickListener {
             showLogin()
         }
     }
 
-    private fun showEnterPassPage()
+    private fun showEnterPassPage(emailString: String)
     {
         setContentView(R.layout.enter_code)
 
@@ -137,6 +146,7 @@ class MainActivity : ComponentActivity() {
         val verifyCode: EditText = findViewById(R.id.verifyCode)
         val updatePassword: Button = findViewById(R.id.changePassBtn)
         val client = Client(applicationContext)
+        val authenticate = client.verifyAndConsume(emailString, verifyCode.text.toString())
 
         back.setOnClickListener()
         {
