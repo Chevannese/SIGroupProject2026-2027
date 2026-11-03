@@ -21,12 +21,7 @@
     <string name="email">Email</string>
     <string name="accExist">Already have an account? Login Here</string>
     <string name="title_activity_login">LoginActivity</string>
-    <string name="prompt_email">Email</string>
     <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="invalid_username">Not a valid username</string>
-    <string name="invalid_password">Password must be >5 characters</string>
-    <string name="login_failed">"Login failed"</string>
     <string name="forget_password1">Forget Password</string>
     <string name="sen1">No worries! Enter your account\ndetails below and we\'ll send you a\ncode to reset your password</string>
     <string name="accTrn">Account Number (TRN)</string>
@@ -57,5 +52,13 @@
     <string name="freeze">Tap to Block</string>
     <string name="unfreeze">Tap to Unblock</string>
     <string name="refresh">Refresh</string>
+    <string name="enterEmail">Enter Email</string>
+    <string name="feedback">Feedback</string>
+    <string name="love_feedback">We'd love to hear from you!</string>
+    <string name="love_feedback2">Your feedback helps us serve you better</string>
+    <string name="feedback_here">Write your feedback here...</string>
+    <string name="rate_experience">Rate Your Experience</string>
+    <string name="submit">Submit</string>
+
 
 </resources>

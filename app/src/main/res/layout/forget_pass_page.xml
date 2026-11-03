@@ -62,7 +62,7 @@
         />
 
     <TextView
-        android:text="Enter Email Details"
+        android:text="@string/enterEmail"
         android:textSize="20sp"
         android:textColor="@color/dark_blue"
         android:textStyle="bold"

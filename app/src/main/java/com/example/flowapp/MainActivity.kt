@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity() {
         val sendCode: Button = findViewById(R.id.sendCodeBtn)
         val toLogin: ImageButton = findViewById(R.id.backToLoginBtn)
         
-        //Temporary to see Account Balance
+
         sendCode.setOnClickListener()
         {
             showEnterPassPage()
