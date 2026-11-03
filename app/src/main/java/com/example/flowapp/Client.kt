@@ -8,7 +8,19 @@ import java.io.File
 import java.io.IOException
 
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.security.MessageDigest
+
+
+import javax.mail.Authenticator
+import javax.mail.Message
+import javax.mail.PasswordAuthentication
+import javax.mail.Session
+import javax.mail.Transport
+import javax.mail.internet.InternetAddress
+import javax.mail.internet.MimeMessage
+import java.util.Properties
 
 
 enum class LoginCode {
@@ -45,6 +57,9 @@ enum class RegisterCode {
 
 class Client(private val context: Context) {
      fun login(trn: String, password: String): LoginCode {
+    private val smtpHost = ""
+    private val smtpUsername = ""
+    private val smtpPassword = ""
         try {
             val file = File(context.filesDir, "users.txt")
             Log.d("FILE", "File opened: " + file.path.toString())
@@ -134,6 +149,29 @@ class Client(private val context: Context) {
         }
     }
 
+
+    suspend fun mail(to: String, subject: String, body: String) = withContext(Dispatchers.IO) {
+        val props = Properties().apply {
+            put("mail.smtp.host", smtpHost)
+            put("mail.smtp.port", "587")
+            put("mail.smtp.auth", "true")
+            put("mail.smtp.starttls.enable", "true")
+        }
+
+        val session = Session.getInstance(props, object : Authenticator() {
+            override fun getPasswordAuthentication() =
+                PasswordAuthentication(smtpUsername, smtpPassword)
+        })
+
+        val message = MimeMessage(session).apply {
+            setFrom(InternetAddress(smtpUsername))
+            setRecipients(Message.RecipientType.TO, InternetAddress.parse(to))
+            setSubject(subject)
+            setText(body)
+        }
+
+        Transport.send(message)
+    }
 
 }
 
