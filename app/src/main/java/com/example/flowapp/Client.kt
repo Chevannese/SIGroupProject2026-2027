@@ -141,7 +141,6 @@ class Client(private val context: Context) {
         }
     }
 
-    /*
     fun updatePassword(verifyCode:String, password: String, confirmPassword: String): UpdatePassword {
         if(listOf(verifyCode,password,confirmPassword).any(){ it.isBlank() }) {
             return UpdatePassword.EMPTY_FIELD
@@ -250,7 +249,7 @@ class Client(private val context: Context) {
 
         Transport.send(message)
     }
-    */
+
 }
 
 
