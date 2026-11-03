@@ -6,8 +6,7 @@ import androidx.core.text.isDigitsOnly
 import java.io.File
 import java.io.IOException
 import android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+
 import java.security.MessageDigest
 
 
@@ -18,6 +17,10 @@ import java.util.Locale
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 
+// mail stuff
+/*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.mail.Authenticator
 import javax.mail.Message
 import javax.mail.PasswordAuthentication
@@ -26,7 +29,7 @@ import javax.mail.Transport
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 import java.util.Properties
-
+*/
 
 enum class LoginCode {
     OK,
@@ -157,6 +160,7 @@ class Client(private val context: Context) {
         }
     }
 
+    /*
     fun verifyRecoveryCode(email: String, enteredCode: String, password: String, confirmPassword: UpdatePassword): Boolean {
         // should search existing codes
         try {
@@ -249,11 +253,8 @@ class Client(private val context: Context) {
 
         Transport.send(message)
     }
-
+    */
 }
-
-
-
 
 // so like if you have a password variable, to get the hash you type password.hash256()
 fun String.hash256(): String {
