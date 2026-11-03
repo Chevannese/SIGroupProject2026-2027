@@ -108,7 +108,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     private fun showForgetPassPage() {
         setContentView(R.layout.forget_pass_page)
 
@@ -176,8 +175,8 @@ class MainActivity : ComponentActivity() {
         val updatePassword: Button = findViewById(R.id.changePassBtn)
         val client = Client(applicationContext)
 
-        back.setOnClickListener()
-        {
+        // back to previous page
+        back.setOnClickListener() {
             showForgetPassPage()
         }
 
@@ -196,11 +195,11 @@ class MainActivity : ComponentActivity() {
                     Toast.makeText(applicationContext, "Successfully changed password", Toast.LENGTH_SHORT).show()
                     showLogin()
                 }
+                RecoveryCode.INVALID_CODE -> Toast.makeText(applicationContext, "Code is does not exist or is expired", Toast.LENGTH_SHORT).show()
+                RecoveryCode.INVALID_PASSWORD -> Toast.makeText(applicationContext, "Invalid password.\nPassword must contain letters, numbers and a special character", Toast.LENGTH_SHORT).show()
+                RecoveryCode.ERROR -> Toast.makeText(applicationContext, "An error occured when updating password", Toast.LENGTH_SHORT).show()
             }
-
         }
-
-
     }
 
 
