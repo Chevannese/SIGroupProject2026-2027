@@ -40,6 +40,7 @@ enum class LoginCode {
     NOT_FOUND,
     ERROR
 }
+/*
 enum class UpdatePassword
 {
     OK,
@@ -51,6 +52,7 @@ enum class UpdatePassword
     //Code_Invalid,
     ERROR
 }
+ */
 enum class RegisterCode {
     OK,
     EMPTY_FIELD,
@@ -67,15 +69,22 @@ enum class RegisterCode {
     ERROR
 }
 
-
-
+enum class RecoveryCode {
+    OK,
+    INVALID_CODE,
+    INVALID_PASSWORD,
+    ERROR
+}
 
 @OptIn(ExperimentalTime::class)
 class Client(private val context: Context = MainActivity.instance.applicationContext) {
+    /* Not needed until mail is re-added
     private val smtpHost = ""
     private val smtpUsername = ""
     private val smtpPassword = ""
+    */
 
+    /*
     enum class ValidateEmail
     {
         EXIST,
@@ -84,6 +93,8 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
 
         ERROR
     }
+    */
+
     fun login(trn: String, password: String): LoginCode {
         try {
             val file = File(context.filesDir, "users.txt")
@@ -191,6 +202,141 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
         }
     }
 
+    fun verifyRecoveryCode(code: String, password: String, confirmPassword: String): RecoveryCode {
+        // should search existing codes
+        try {
+            val codeFile = File(context.filesDir, "recovery_codes.txt")
+            val now = Clock.System.now()
+
+            if (codeFile.exists()) {
+                val lines = codeFile.readLines()
+
+                for (line in lines) {
+                    val split = line.split(",")
+                    if (split[0] == code && split[2].toLong() > now.toEpochMilliseconds()) {
+                        if (validate("123456789", "Joe Mama", password, split[1], "8761234567", confirmPassword) != null) {
+                            updatePassword(split[1], password)
+                            removeCode(code)
+                            return RecoveryCode.OK
+                        }
+                        else {
+                            return RecoveryCode.INVALID_PASSWORD
+                        }
+                    }
+                }
+            }
+
+            return RecoveryCode.INVALID_CODE
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+            return RecoveryCode.ERROR
+        }
+    }
+
+    fun removeCode(code: String) {
+        try {
+            val file = File(context.filesDir, "recovery_codes.txt")
+            val updated = StringBuilder()
+
+            if (!file.exists()) {
+                return
+            }
+
+            for (line in file.readLines()) {
+                val split = line.split(",")
+
+                // if code matches
+                if (split[0] != code) {
+                    // don't add back to file
+                    updated.appendLine(line)
+                }
+            }
+
+            // write all remaining
+            file.writeText(updated.toString())
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+            throw e
+        }
+    }
+
+    fun updatePassword(email: String, password: String): Boolean {
+        try {
+            val file = File(context.filesDir, "users.txt")
+            val updated = StringBuilder()
+            var found = false
+
+            if (!file.exists()) {
+                return false
+            }
+
+            for (line in file.readLines()) {
+                if (line.isBlank()) continue
+                val split = line.split(",")
+
+                if (split[1] == email) {
+                    // trn,email,phone,name,password
+                    updated.appendLine("%s,%s,%s,%s,%s".format(split[0], split[1], split[2], split[3], password.hash256()))
+                    found = true
+                }
+                else {
+                    updated.appendLine(line)
+                }
+            }
+
+            if (found) {
+                file.writeText(updated.toString())
+                return true
+            }
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+            throw e
+        }
+        return false
+    }
+
+    fun forgetPassword(email: String): String? {
+        // Check if email exists in users file
+        try {
+            val userFile = File(context.filesDir, "users.txt")
+            val recoveryFile = File(context.filesDir, "recovery_codes.txt")
+
+            if (!userFile.exists()) {
+                return null
+            }
+
+            for (user in userFile.readLines()) {
+                val split = user.split(",")
+
+                // find user by email
+                if (split[1] == email.trim()) {
+                    // create the 6 digit recovery code
+                    val code = String.format(locale = Locale.US, "%06d", SecureRandom().nextInt(1_000_000));
+                    // 5 minutes from now
+                    val now = Clock.System.now()
+                    val fiveMinutes = now.plus(5.minutes)
+
+                    val line = "%s,%s,%s\n".format(code, email, fiveMinutes.toEpochMilliseconds())
+                    // TODO: check if a code already exists for this email
+                    recoveryFile.appendText(line)
+
+                    // mail(email, "Password Recovery Code", "Your password recovery code is: $code")
+                    // just show the user the code cuz lazy
+                    return code
+                }
+            }
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+        }
+
+        return null
+    }
+
+    /*
     fun updatePassword(verifyCode:String, password: String, confirmPassword: String): UpdatePassword {
         if(listOf(verifyCode,password,confirmPassword).any(){ it.isBlank() }) {
             return UpdatePassword.EMPTY_FIELD
@@ -260,77 +406,10 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
             match != null
         }
 
+
+     */
+
     /*
-    fun verifyRecoveryCode(email: String, enteredCode: String, password: String, confirmPassword: UpdatePassword): Boolean {
-        // should search existing codes
-        try {
-            val file = File(context.filesDir, "recovery_codes.txt")
-            val now = Clock.System.now()
-
-            if (!file.exists()) {
-                return false
-            }
-
-            val lines = file.readLines()
-            for (line in lines) {
-                val split = line.split(",")
-                // different email
-                if (email != split[0]) {
-                    continue
-                }
-                // wrong code
-                else if (enteredCode != split[1]) {
-                    continue
-                }
-                // expired
-                else if (now.toEpochMilliseconds() > split[2].toLong()) {
-                    continue
-                }
-
-                return true
-            }
-        }
-        catch (e: Exception) {
-            Log.d("ERROR", e.message.toString())
-        }
-
-        return false
-    }
-
-    suspend fun forgetPassword(email: String) {
-        // Check if email exists in users file
-        try {
-            val userFile = File(context.filesDir, "users.txt")
-            val recoveryFile = File(context.filesDir, "recovery_codes.txt")
-
-            if (!userFile.exists()) {
-                return
-            }
-
-            val users = userFile.readLines()
-
-            for (user in users) {
-                val split = user.split(",")
-                if (split[1] == email.trim()) {
-                    // create the 6 digit recovery code and send it to the email
-                    val code = String.format(locale = Locale.US, "%06d", SecureRandom().nextInt(1_000_000));
-                    // 5 minutes from now
-                    val now = Clock.System.now()
-                    val fiveMinutes = now.plus(5.minutes)
-
-                    val line = "%s,%s,%s\n".format(email, code, fiveMinutes.toEpochMilliseconds())
-                    // TODO: check if a code already exists for this email
-                    recoveryFile.appendText(line)
-
-                    mail(email, "Password Recovery Code", "Your password recovery code is: $code")
-                }
-            }
-        }
-        catch (e: Exception) {
-            Log.d("ERROR", e.message.toString())
-        }
-    }
-
     suspend fun mail(to: String, subject: String, body: String) = withContext(Dispatchers.IO) {
         val props = Properties().apply {
             put("mail.smtp.host", smtpHost)

@@ -109,53 +109,28 @@ class MainActivity : ComponentActivity() {
     }
 
     
-    private fun showForgetPassPage()
-    {
+    private fun showForgetPassPage() {
         setContentView(R.layout.forget_pass_page)
         val email: EditText = findViewById(R.id.email)
         val sendCode: Button = findViewById(R.id.sendCodeBtn)
         val toLogin: ImageButton = findViewById(R.id.backToLoginBtn)
 
-        //Needs to add to file
-        //Validation check if this guy exists
+        sendCode.setOnClickListener() {
+            val client = Client()
+            // requests code
+            val code = client.forgetPassword(email.text.toString())
 
-        val emailString = email.text.toString()
-
-
-
-
-        sendCode.setOnClickListener()
-        {
-            /*
-            val client = Client(applicationContext)
-            sendCode.isEnabled = false;
-            when (code) {
-                Client.ValidateEmail.EXIST -> {
-                    val code = client.generateCode(emailString)
-
-                    // send `code` to the email here
-                    sendCode.isEnabled = true
-                    showEnterPassPage(emailString)
-                }
-                Client.ValidateEmail.NOT_EXISTS -> {
-                    sendCode.isEnabled = true
-                    Toast.makeText(applicationContext, "No account found with that email", Toast.LENGTH_SHORT).show()
-                }
-                Client.ValidateEmail.ERROR -> {
-                    sendCode.isEnabled = true
-                    Toast.makeText(applicationContext, "Something went wrong. Try again", Toast.LENGTH_SHORT).show()
-                }
-            }*/
-
-
+            if (code != null) {
+                Toast.makeText(applicationContext, "Code is: $code", Toast.LENGTH_SHORT).show()
+                showEnterPassPage()
+            }
         }
         toLogin.setOnClickListener {
             showLogin()
         }
     }
 
-    private fun showEnterPassPage(emailString: String)
-    {
+    private fun showEnterPassPage() {
         setContentView(R.layout.enter_code)
 
         val back: ImageButton = findViewById(R.id.back)
@@ -163,34 +138,26 @@ class MainActivity : ComponentActivity() {
         val confirmPassword: EditText = findViewById(R.id.confirmPass)
         val verifyCode: EditText = findViewById(R.id.verifyCode)
         val updatePassword: Button = findViewById(R.id.changePassBtn)
-        val client = Client(applicationContext)
-        val authenticate = client.verifyAndConsume(emailString, verifyCode.text.toString())
 
-        back.setOnClickListener()
-        {
+        // back to previous page
+        back.setOnClickListener() {
             showForgetPassPage()
         }
 
-        updatePassword.setOnClickListener()
-        {
-            updatePassword.isEnabled = false;
-            val response = client.updatePassword(verifyCode = verifyCode.text.toString(), password = password.text.toString(),confirmPassword = confirmPassword.text.toString())
-            updatePassword.isEnabled = true;
-            when (response){
-                UpdatePassword.EMPTY_FIELD ->Toast.makeText(applicationContext, "One of the fields is empty", Toast.LENGTH_SHORT).show()
-                UpdatePassword.PASSWORD_LONG -> Toast.makeText(applicationContext, "Password should not be greater than 30 characters", Toast.LENGTH_SHORT).show()
-                UpdatePassword.PASSWORD_SHORT -> Toast.makeText(applicationContext, "Password should not be less than 8 characters", Toast.LENGTH_SHORT).show()
-                UpdatePassword.PASSWORD_MISMATCH -> Toast.makeText(applicationContext, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                UpdatePassword.ERROR -> Toast.makeText(applicationContext, "Failed to update password", Toast.LENGTH_SHORT).show()
-                UpdatePassword.OK -> {
-                    Toast.makeText(applicationContext, "Successfully registered", Toast.LENGTH_SHORT).show()
-                    showLogin()
-                }
+        updatePassword.setOnClickListener() {
+
+
+            val client = Client()
+            val response = client.verifyRecoveryCode(verifyCode.text.toString(), password.text.toString(), confirmPassword.text.toString())
+
+            if (response) {
+                Toast.makeText(applicationContext, "Successfully updated password", Toast.LENGTH_SHORT).show()
+                showLogin()
             }
-
+            else {
+                Toast.makeText(applicationContext, "Failed to update password", Toast.LENGTH_SHORT).show()
+            }
         }
-
-
     }
 }
 
