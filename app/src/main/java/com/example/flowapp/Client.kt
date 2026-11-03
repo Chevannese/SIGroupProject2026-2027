@@ -89,6 +89,11 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
             val file = File(context.filesDir, "users.txt")
             Log.d("FILE", "File opened: " + file.path.toString())
             Log.d("FILE", "File contents: \n" + file.readText())
+
+            if (!file.exists()) {
+                return LoginCode.NOT_FOUND
+            }
+            
             val users = file.readLines()
 
             for (user in users) {
@@ -228,7 +233,6 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
             match != null
         }
 
-
     /*
     fun verifyRecoveryCode(email: String, enteredCode: String, password: String, confirmPassword: UpdatePassword): Boolean {
         // should search existing codes
@@ -323,9 +327,24 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
         Transport.send(message)
     }
     */
+
+    fun getTicket(): Ticket {
+        // TODO: get ticket from file
+        return Ticket(
+            date = "TODO()",
+            time = "TODO()",
+            branch = "TODO()",
+            waitTime = "TODO()"
+        )
+    }
 }
 
 // so like if you have a password variable, to get the hash you type password.hash256()
 fun String.hash256(): String {
     return MessageDigest.getInstance("SHA-256").digest(this.toByteArray()).toHexString()
+}
+
+data class Ticket(val date: String, val time: String, val branch: String, val waitTime: String) {
+
+    val status: Any
 }
