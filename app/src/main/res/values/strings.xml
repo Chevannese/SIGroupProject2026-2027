@@ -60,6 +60,10 @@
     <string name="rate_experience">Rate Your Experience</string>
     <string name="submit">Submit</string>
     <string name="ticket">Ticket</string>
+    <string name="ticketNumber">Ticket Number</string>
+    <string name="ticketStatus">Ticket Status</string>
+    <string name="paymentStatus">Payment Status</string>
+    <string name="date">Date:</string>
 
 
 </resources>
