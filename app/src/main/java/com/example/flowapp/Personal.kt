@@ -1,5 +1,6 @@
 package com.example.flowapp
 
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,7 +9,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.twotone.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +21,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun ProfileItem(icon: ImageVector, title: String, value: String, menu: Boolean = false, onClick: () -> Unit) {
@@ -57,8 +59,14 @@ fun ProfileItem(icon: ImageVector, title: String, value: String, menu: Boolean =
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Personal(onBack: () -> Unit = {}) {
+fun Personal(onBack: () -> Unit = {}, trn: String) {
     var changePassword by remember { mutableStateOf(false) }
+    val client = Client()
+    var user = client.user(trn)
+
+    if (user == null) {
+        user = User.default()
+    }
 
     BackBar("Profile", onBack) { innerPadding ->
         // Personal Information Header Box
@@ -73,7 +81,7 @@ fun Personal(onBack: () -> Unit = {}) {
                 ProfileItem(
                     icon = Icons.Default.Person,
                     title = "Name",
-                    value = "Kimoya Kimoya",
+                    value = user.name,
                     onClick = {}
                 )
 
@@ -83,9 +91,9 @@ fun Personal(onBack: () -> Unit = {}) {
                 )
 
                 ProfileItem(
-                    icon = Icons.Default.Email,
+                    icon = Icons.Default.Receipt,
                     title = "Email",
-                    value = "kimoya@example.com",
+                    value = user.email,
                     onClick = {}
                 )
 
@@ -99,7 +107,7 @@ fun Personal(onBack: () -> Unit = {}) {
                     title = "Password",
                     value = "********",
                     menu = true,
-                    onClick = {}
+                    onClick = { changePassword = true }
                 )
 
                 HorizontalDivider(
@@ -142,12 +150,21 @@ fun Personal(onBack: () -> Unit = {}) {
     }
 
     if (changePassword) {
-        ChangePassword( onBack = { changePassword = false })
+        ChangePassword( onBack = { changePassword = false }, trn)
+    }
+}
+
+suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
+    val client = Client()
+    val temp = client.user(trn)
+    when (temp) {
+        null -> return@withContext User.default()
+        else -> return@withContext temp
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun ChangePassword(onBack: () -> Unit = { }) {
+@Composable fun ChangePassword(onBack: () -> Unit = { }, trn: String) {
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -155,6 +172,7 @@ fun Personal(onBack: () -> Unit = {}) {
     var password8Chars by remember { mutableStateOf(false) }
     var passwordsMatch by remember { mutableStateOf(false) }
     var passwordContainsLNS by remember { mutableStateOf(false) }
+    var enableButton by remember { mutableStateOf(true) }
 
     BackBar(title = "Change Password", onBack) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding).consumeWindowInsets(innerPadding).verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -224,11 +242,29 @@ fun Personal(onBack: () -> Unit = {}) {
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            Button(onClick = {
-                val client = Client()
-                // TODO: implement change password
-                // client.changePassword()
-            }) {
+            Button(
+                enabled = enableButton,
+                onClick = {
+                    enableButton = false
+                    val client = Client()
+                    val response = client.changePassword(trn, currentPassword, newPassword, confirmPassword)
+
+                    when (response) {
+                        UpdatePassword.INVALID_PASSWORD -> Toast.makeText(MainActivity.instance.applicationContext, "Invalid password\nPassword must contain letters, numbers and a special character", Toast.LENGTH_SHORT).show()
+                        UpdatePassword.PASSWORD_MISMATCH -> Toast.makeText(MainActivity.instance.applicationContext, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                        UpdatePassword.EMPTY_FIELD -> Toast.makeText(MainActivity.instance.applicationContext, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                        UpdatePassword.OK -> {
+                            currentPassword = ""
+                            newPassword = ""
+                            confirmPassword = ""
+                        }
+                        UpdatePassword.ERROR -> Toast.makeText(MainActivity.instance.applicationContext, "An error occurred", Toast.LENGTH_SHORT).show()
+                        else -> {}
+                    }
+
+                    enableButton = true
+                }
+            ) {
                 Text("Change Password")
             }
         }
@@ -237,9 +273,9 @@ fun Personal(onBack: () -> Unit = {}) {
 
 @Preview(showBackground = true)
 @Composable
-fun ProfilePreview() {
+fun PersonalPreview() {
     FlowAppTheme {
-        Personal()
+        Personal(trn = "")
     }
 }
 
@@ -247,6 +283,6 @@ fun ProfilePreview() {
 @Composable
 fun ChangePasswordPreview() {
     FlowAppTheme {
-        ChangePassword()
+        ChangePassword(trn = "")
     }
 }

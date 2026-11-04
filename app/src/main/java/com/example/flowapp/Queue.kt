@@ -31,9 +31,8 @@ fun Queues(onBack: () -> Unit = {}, startTab: Int = 0) {
     var queueNumber by rememberSaveable { mutableStateOf<String?>(null) }
     var tab by rememberSaveable { mutableIntStateOf(startTab) }
 
-    Scaffold(modifier = Modifier.padding(20.dp),
-//        Spacer(Modifier.height(20.dp))
-        topBar = {
+    Column(modifier = Modifier.padding(20.dp)) {
+        Spacer(Modifier.height(20.dp))
             // Tabs
             PrimaryTabRow(
                 selectedTabIndex = tab,
@@ -50,22 +49,22 @@ fun Queues(onBack: () -> Unit = {}, startTab: Int = 0) {
                     text = { Text("My Ticket") }
                 )
             }
-        }) { innerPadding ->
+
         when (tab) {
-            0 -> QueueTab(innerPadding)
-          //  1 -> TicketTab(innerPadding)
+            0 -> QueueTab()
+            1 -> TicketTab()
         }
     }
 }
 
-@Composable fun QueueTab(padding: PaddingValues) {
+@Composable fun QueueTab() {
     val services = listOf("Phone Service", "Internet Service")
     val branches = listOf("Portmore", "Kingston")
 
     var service by rememberSaveable { mutableStateOf(services[0]) }
     var branch by rememberSaveable { mutableStateOf(branches[0]) }
 
-    Column(modifier = Modifier.padding(padding)) {
+    Column() {
         Spacer(Modifier.height(28.dp))
 
         DropdownField(
@@ -95,12 +94,13 @@ fun Queues(onBack: () -> Unit = {}, startTab: Int = 0) {
         }
     }
 }
-/*
-@Composable fun TicketTab(padding: PaddingValues) {
-    Column(modifier = Modifier.padding(padding)) {
+
+
+@Composable fun TicketTab() {
+    Column(modifier = Modifier.fillMaxWidth()) {
         //val client = Client()
         //val ticket = client.getTicket()
-        //val ticket = Ticket.default()
+        val ticket = Ticket.default()
 
         Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceEvenly) {
             Text("Date:", modifier = Modifier.fillMaxWidth())
@@ -138,7 +138,7 @@ fun Queues(onBack: () -> Unit = {}, startTab: Int = 0) {
             }
         }
     }
-}*/
+}
 
 @Preview
 @Composable
