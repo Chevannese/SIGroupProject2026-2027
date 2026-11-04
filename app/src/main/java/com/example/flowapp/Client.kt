@@ -104,7 +104,7 @@ class Client(
                 for (line in file.readLines()) {
                     val split = line.split(",")
 
-                    if (split[0] == trn) {
+                    if (split[0] == trn.trim()) {
                         return User(
                             trn = split[0],
                             email = split[1],
