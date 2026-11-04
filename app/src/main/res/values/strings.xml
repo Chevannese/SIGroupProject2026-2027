@@ -61,9 +61,10 @@
     <string name="submit">Submit</string>
     <string name="ticket">Ticket</string>
     <string name="ticketNumber">Ticket Number</string>
-    <string name="ticketStatus">Ticket Status</string>
+    <string name="ticketStatus">Ticket Status:</string>
     <string name="paymentStatus">Payment Status</string>
-    <string name="date">Date:</string>
+    <string name="date">Date/Time:</string>
+    <string name="viewDetails">View\nDetails</string>
 
 
 </resources>

@@ -14,6 +14,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="20dp"
         android:orientation="horizontal"
+        android:background="@color/input_field"
         android:gravity="center_vertical"
         >
 
@@ -37,23 +38,22 @@
                 android:id="@+id/ticketNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ticket Number: "
+                android:text="@string/ticketStatus"
                 android:textStyle="bold"
-                android:background="@color/input_field"                />
+                />
             <TextView
                 android:id="@+id/ticketStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
-                android:text="Ticket Status:"
-                android:background="@color/input_field"/>
+                android:text="@string/date"
+                />
             <TextView
                 android:id="@+id/ticketPaymentStatus"
                 android:layout_width="wrap_content"
                 android:textStyle="bold"
                 android:layout_height="wrap_content"
-                android:background="@color/input_field"
-                android:text="Payment Status" />
+                android:text="@string/paymentStatus" />
 
 
 
@@ -65,11 +65,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@drawable/slightly_round_corner_button"
-            android:text="@string/updatePassword"
+            android:text="@string/viewDetails"
             android:textColor="@color/white"
             android:textStyle="bold" />
 
-</LinearLayout>
+
+
+    </LinearLayout>
 
 
 
