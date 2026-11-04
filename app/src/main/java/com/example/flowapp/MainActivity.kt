@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
                 LoginCode.OK -> {
                     setContent {
                         FlowAppTheme() {
-                            Main(onLogoutClick = { showLogin() })
+                            Main(onLogoutClick = { showLogin() }, trn = trn.text.toString())
                         }
                     }
                 }
