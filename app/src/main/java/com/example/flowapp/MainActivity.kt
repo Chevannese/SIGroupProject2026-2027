@@ -182,7 +182,7 @@ class MainActivity : ComponentActivity() {
 
                             Toast.makeText(
                                 this,
-                                "Unable to process password reset",
+                                "Invalid Email",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
