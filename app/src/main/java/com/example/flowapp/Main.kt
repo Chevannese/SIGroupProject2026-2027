@@ -56,12 +56,6 @@ fun Main(onLogoutClick: () -> Unit, trn: String = "") {
                 NavigationBarItem(
                     selected = tab == 2,
                     onClick = { tab = 2 },
-                    icon = { Icon( imageVector = Icons.Default.CalendarMonth, contentDescription = "Appointments") },
-                    label = { Text("Appointment") }
-                )
-                NavigationBarItem(
-                    selected = tab == 3,
-                    onClick = { tab = 3 },
                     icon = { Icon( imageVector = Icons.Default.Wallet, contentDescription = "Payments") },
                     label = { Text("Payments") }
                 )
@@ -70,10 +64,9 @@ fun Main(onLogoutClick: () -> Unit, trn: String = "") {
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (tab) {
-                1 -> Home()
-                2 -> Queues()
-                3 -> Appointments()
-                4 -> Payments()
+                0 -> Home()
+                1 -> Queues()
+                2 -> Payments()
             }
         }
 
