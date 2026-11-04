@@ -90,6 +90,33 @@ class Client(private val context: Context = MainActivity.instance.applicationCon
         ERROR
     }
 
+    fun user(trn: String): User? {
+        try {
+            val file = File(context.filesDir, "users.txt")
+
+            if (file.exists()) {
+                for (line in file.readLines()) {
+                    val split = line.split(",")
+
+                    if (split[0] == trn) {
+                        return User(
+                            trn = split[0],
+                            email = split[1],
+                            phone = split[2],
+                            name = split[3],
+                            password = split[4]
+                        )
+                    }
+                }
+            }
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+        }
+
+        return null
+    }
+
 
     fun login(trn: String, password: String): LoginCode {
         try {
