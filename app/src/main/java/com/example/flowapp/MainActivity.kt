@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
         login.setOnClickListener {
             val trn: EditText = findViewById(R.id.loginTRN)
             val password: EditText = findViewById(R.id.loginPassword)
-            val client = Client(applicationContext)
+            val client = Client()
 
             val response = client.login(trn.text.toString(), password.text.toString())
 
@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
         register.setOnClickListener {
             register.isEnabled = false;
 
-            val client = Client(applicationContext)
+            val client = Client()
             val response = client.register(trn = trn.text.toString(), name = name.text.toString(), password = password.text.toString(), email = email.text.toString(), phone = phone.text.toString(), confirmPassword = confirmPassword.text.toString())
             register.isEnabled = true;
 
@@ -151,7 +151,7 @@ class MainActivity : ComponentActivity() {
             Thread {
                 try {
 
-                    val client = Client(applicationContext)
+                    val client = Client()
 
                     val response = client.checkEmailAddress(emailString)
 
@@ -227,7 +227,7 @@ class MainActivity : ComponentActivity() {
         val verifyCode: EditText = findViewById(R.id.verifyCode)
         val updatePassword: Button = findViewById(R.id.changePassBtn)
 
-        val client = Client(applicationContext)
+        val client = Client()
 
         // Back to previous page
         back.setOnClickListener {
