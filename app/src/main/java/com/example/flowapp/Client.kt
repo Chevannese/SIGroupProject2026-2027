@@ -38,7 +38,7 @@ enum class LoginCode {
     ERROR
 }
 
-enum class EmailCheck{
+enum class EmailCheck {
     VALID,
     INVALID
 }
@@ -51,6 +51,7 @@ enum class UpdatePassword
     PASSWORD_MISMATCH,
     INVALID_CODE,
     OK,
+    INVALID_PASSWORD,
     ERROR
 }
 
@@ -77,23 +78,20 @@ enum class RecoveryCode {
     ERROR
 }
 
+enum class ValidateEmail {
+    EXIST,
+
+    NOT_EXISTS,
+
+    ERROR
+}
+
 @OptIn(ExperimentalTime::class)
-class Client(
+class Client() {
     private val context: Context = if (MainActivity.isInitialized) {
         MainActivity.instance.applicationContext
     } else {
         throw IllegalStateException("MainActivity has not been initialized yet.")
-    }
-) {
-
-
-    enum class ValidateEmail
-    {
-        EXIST,
-
-        NOT_EXISTS,
-
-        ERROR
     }
 
     fun user(trn: String): User? {
@@ -115,14 +113,61 @@ class Client(
                     }
                 }
             }
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             Log.d("ERROR", e.message.toString())
         }
 
         return null
     }
 
+    fun changePassword(
+        trn: String,
+        oldPassword: String,
+        newPassword: String,
+        confirmPassword: String
+    ): UpdatePassword {
+        if (validate(password = newPassword, confirmPassword = confirmPassword) != null) {
+            return UpdatePassword.ERROR
+        }
+
+        try {
+            val file = File(context.filesDir, "users.txt")
+            val updated = StringBuilder()
+            var changed = false
+
+            if (file.exists()) {
+                for (line in file.readLines()) {
+                    val split = line.split(",")
+
+                    if (split[0] == trn && split[4] == oldPassword.hash256()) {
+                        updated.appendLine(
+                            "%s,%s,%s,%s,%s".format(
+                                split[0],
+                                split[1],
+                                split[2],
+                                split[3],
+                                newPassword.hash256()
+                            )
+                        )
+                        changed = true
+                    } else {
+                        updated.appendLine(line)
+                    }
+                }
+            }
+
+            file.writeText(updated.toString())
+
+            if (changed) {
+                return UpdatePassword.OK
+            }
+        } catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+            return UpdatePassword.ERROR
+        }
+
+        return UpdatePassword.ERROR
+    }
 
     fun login(trn: String, password: String): LoginCode {
         try {
@@ -133,7 +178,7 @@ class Client(
             if (!file.exists()) {
                 return LoginCode.NOT_FOUND
             }
-            
+
             val users = file.readLines()
 
             for (user in users) {
@@ -144,27 +189,32 @@ class Client(
             }
 
             return LoginCode.NOT_FOUND
-        }
-        catch (e: IOException) {
+        } catch (e: IOException) {
             Log.d("ERROR", e.message.toString())
             return LoginCode.ERROR
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             Log.d("ERROR", e.message.toString())
             return LoginCode.ERROR
         }
     }
 
-    fun validate(trn: String, name: String, password: String, email: String, phone: String, confirmPassword: String): RegisterCode? {
+    fun validate(
+        trn: String = "123456789",
+        name: String = "Joe Mama",
+        password: String = "mypass123!",
+        email: String = "thisisaperson12@gmail.com",
+        phone: String = "8761234567",
+        confirmPassword: String = password
+    ): RegisterCode? {
         if (listOf(trn, name, password, email, phone).any { it.isBlank() })
             return RegisterCode.EMPTY_FIELD
-        else if (!name.all{ it.isLetter()  || it == ' '})
+        else if (!name.all { it.isLetter() || it == ' ' })
             return RegisterCode.NAME_INVALID
         else if (trn.length != 9 || !trn.isDigitsOnly())
             return RegisterCode.TRN_INVALID
         else if (!email.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$")))
             return RegisterCode.EMAIL_INVALID
-        else if (phone.isEmpty() || !phone.isDigitsOnly() || phone.length >12)
+        else if (phone.isEmpty() || !phone.isDigitsOnly() || phone.length > 12)
             return RegisterCode.PHONE_INVALID
         else if (password.length < 8)
             return RegisterCode.PASSWORD_SHORT
@@ -175,7 +225,14 @@ class Client(
         else return null
     }
 
-    fun register(trn: String, name: String, password: String, email: String, phone: String, confirmPassword:String): RegisterCode {
+    fun register(
+        trn: String,
+        name: String,
+        password: String,
+        email: String,
+        phone: String,
+        confirmPassword: String
+    ): RegisterCode {
 
 
         val validate = validate(trn, name, password, email, phone, confirmPassword)
@@ -210,8 +267,7 @@ class Client(
             file.appendText(user)
             Log.d("FILE", "User written")
             RegisterCode.OK
-        }
-        catch (e: IOException) {
+        } catch (e: IOException) {
             Log.d("ERROR", e.message.toString())
             RegisterCode.ERROR
         }
@@ -256,8 +312,7 @@ class Client(
                     }
                 }
             }
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             Log.d("ERROR", e.message.toString())
             throw e
         }
@@ -325,96 +380,102 @@ class Client(
         }
     }
 
-fun updatePassword(email: String, verifyCode: String, password: String, confirmPassword: String): UpdatePassword {
+    fun updatePassword(
+        email: String,
+        verifyCode: String,
+        password: String,
+        confirmPassword: String
+    ): UpdatePassword {
 
-    if (listOf(verifyCode, password, confirmPassword).any { it.isBlank() }) {
-        return UpdatePassword.EMPTY_FIELD
-    }
-
-    if (password.length < 8) return UpdatePassword.PASSWORD_SHORT
-    if (password.length > 30) return UpdatePassword.PASSWORD_LONG
-    if (password != confirmPassword) return UpdatePassword.PASSWORD_MISMATCH
-
-    return try {
-        val recoveryFile = File(context.filesDir, "recovery_codes.txt")
-        val userFile = File(context.filesDir, "users.txt")
-
-        if (!recoveryFile.exists() || !userFile.exists()) {
-            return UpdatePassword.ERROR
+        if (listOf(verifyCode, password, confirmPassword).any { it.isBlank() }) {
+            return UpdatePassword.EMPTY_FIELD
         }
 
-        // Find the recovery code associated with this email
-        val recoveryCodes = recoveryFile.readLines().toMutableList()
+        if (password.length < 8) return UpdatePassword.PASSWORD_SHORT
+        if (password.length > 30) return UpdatePassword.PASSWORD_LONG
+        if (password != confirmPassword) return UpdatePassword.PASSWORD_MISMATCH
 
-        val recoveryIndex = recoveryCodes.indexOfFirst { line ->
-            val split = line.split(",")
+        return try {
+            val recoveryFile = File(context.filesDir, "recovery_codes.txt")
+            val userFile = File(context.filesDir, "users.txt")
 
-            split.size == 3 &&
-                    split[0].trim() == verifyCode.trim() &&
-                    split[1].trim().equals(email.trim(), ignoreCase = true)
-        }
-
-        if (recoveryIndex == -1) {
-            return UpdatePassword.INVALID_CODE
-        }
-
-        // Retrieve the recovery code details
-        val recoveryDetails = recoveryCodes[recoveryIndex].split(",")
-
-        val email = recoveryDetails[1].trim()
-        val expiryTime = recoveryDetails[2].trim().toLongOrNull()
-            ?: return UpdatePassword.INVALID_CODE
-
-        // Check whether the code has expired
-        val currentTime = Clock.System.now().toEpochMilliseconds()
-
-        if (currentTime > expiryTime) {
-            return UpdatePassword.INVALID_CODE
-        }
-
-        // Update the user's password
-        val users = userFile.readLines().toMutableList()
-
-        val userIndex = users.indexOfFirst { line ->
-            val split = line.split(",")
-
-            split.size == 5 &&
-                    split[1].trim().equals(email, ignoreCase = true)
-        }
-
-        if (userIndex == -1) {
-            return UpdatePassword.ERROR
-        }
-
-        val userDetails = users[userIndex].split(",").toMutableList()
-
-        // Hash the new password using your existing password-hashing method
-        userDetails[4] = password.hash256()
-
-        users[userIndex] = userDetails.joinToString(",")
-
-        // Save the updated user information
-        userFile.writeText(users.joinToString("\n") + "\n")
-
-        // Remove the successfully used recovery code
-        recoveryCodes.removeAt(recoveryIndex)
-
-        recoveryFile.writeText(
-            if (recoveryCodes.isNotEmpty()) {
-                recoveryCodes.joinToString("\n") + "\n"
-            } else {
-                ""
+            if (!recoveryFile.exists() || !userFile.exists()) {
+                return UpdatePassword.ERROR
             }
-        )
 
-        UpdatePassword.OK
+            // Find the recovery code associated with this email
+            val recoveryCodes = recoveryFile.readLines().toMutableList()
 
-    } catch (e: IOException) {
-        Log.e("ERROR", "Failed to update password", e)
-        UpdatePassword.ERROR
-    } catch (e: Exception) {
-        Log.e("ERROR", "Unexpected error while updating password", e)
-        UpdatePassword.ERROR
+            val recoveryIndex = recoveryCodes.indexOfFirst { line ->
+                val split = line.split(",")
+
+                split.size == 3 &&
+                        split[0].trim() == verifyCode.trim() &&
+                        split[1].trim().equals(email.trim(), ignoreCase = true)
+            }
+
+            if (recoveryIndex == -1) {
+                return UpdatePassword.INVALID_CODE
+            }
+
+            // Retrieve the recovery code details
+            val recoveryDetails = recoveryCodes[recoveryIndex].split(",")
+
+            val email = recoveryDetails[1].trim()
+            val expiryTime = recoveryDetails[2].trim().toLongOrNull()
+                ?: return UpdatePassword.INVALID_CODE
+
+            // Check whether the code has expired
+            val currentTime = Clock.System.now().toEpochMilliseconds()
+
+            if (currentTime > expiryTime) {
+                return UpdatePassword.INVALID_CODE
+            }
+
+            // Update the user's password
+            val users = userFile.readLines().toMutableList()
+
+            val userIndex = users.indexOfFirst { line ->
+                val split = line.split(",")
+
+                split.size == 5 &&
+                        split[1].trim().equals(email, ignoreCase = true)
+            }
+
+            if (userIndex == -1) {
+                return UpdatePassword.ERROR
+            }
+
+            val userDetails = users[userIndex].split(",").toMutableList()
+
+            // Hash the new password using your existing password-hashing method
+            userDetails[4] = password.hash256()
+
+            users[userIndex] = userDetails.joinToString(",")
+
+            // Save the updated user information
+            userFile.writeText(users.joinToString("\n") + "\n")
+
+            // Remove the successfully used recovery code
+            recoveryCodes.removeAt(recoveryIndex)
+
+            recoveryFile.writeText(
+                if (recoveryCodes.isNotEmpty()) {
+                    recoveryCodes.joinToString("\n") + "\n"
+                } else {
+                    ""
+                }
+            )
+
+            UpdatePassword.OK
+
+        } catch (e: IOException) {
+            Log.e("ERROR", "Failed to update password", e)
+            UpdatePassword.ERROR
+        } catch (e: Exception) {
+            Log.e("ERROR", "Unexpected error while updating password", e)
+            UpdatePassword.ERROR
+        }
     }
 }
 
@@ -423,5 +484,3 @@ fun updatePassword(email: String, verifyCode: String, password: String, confirmP
 fun String.hash256(): String {
     return MessageDigest.getInstance("SHA-256").digest(this.toByteArray()).toHexString()
 }
-}
-
