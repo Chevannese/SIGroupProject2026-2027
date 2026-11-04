@@ -15,10 +15,12 @@ import com.example.flowapp.ui.theme.FlowAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Main(onLogoutClick: () -> Unit) {
+fun Main(onLogoutClick: () -> Unit, trn: String = "") {
     var tab by remember { mutableIntStateOf(0) }
     var showProfile by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
+    val client = Client()
+    val user = client.user(trn)
 
     Scaffold(
         topBar = {
@@ -79,7 +81,8 @@ fun Main(onLogoutClick: () -> Unit) {
             ModalBottomSheet(onDismissRequest = { showProfile = false }, sheetState = sheetState) {
                 Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(imageVector = Icons.Default.Person, modifier = Modifier.size(100.dp), contentDescription = "icon")
-                    Text("Jonathan Blackwood")
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(user?.name.toString())
                     Button(onClick = onLogoutClick) {
                         Text("Logout")
                     }
