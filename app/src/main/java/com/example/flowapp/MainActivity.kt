@@ -16,10 +16,14 @@ class MainActivity : ComponentActivity() {
     companion object {
         lateinit var instance: MainActivity
             private set
+
+        val isInitialized: Boolean
+            get() = ::instance.isInitialized
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
         enableEdgeToEdge()
 
         // shows login when the app starts

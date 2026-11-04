@@ -78,7 +78,13 @@ enum class RecoveryCode {
 }
 
 @OptIn(ExperimentalTime::class)
-class Client(private val context: Context = MainActivity.instance.applicationContext) {
+class Client(
+    private val context: Context = if (MainActivity.isInitialized) {
+        MainActivity.instance.applicationContext
+    } else {
+        throw IllegalStateException("MainActivity has not been initialized yet.")
+    }
+) {
 
 
     enum class ValidateEmail
