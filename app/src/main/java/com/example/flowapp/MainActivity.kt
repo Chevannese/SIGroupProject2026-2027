@@ -288,7 +288,12 @@ class MainActivity : ComponentActivity() {
                         "Failed to update password",
                         Toast.LENGTH_SHORT
                     ).show()
-
+                UpdatePassword.INVALID_PASSWORD ->
+                    Toast.makeText(
+                        applicationContext,
+                        "Invalid password",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 UpdatePassword.OK -> {
                     Toast.makeText(
                         applicationContext,
