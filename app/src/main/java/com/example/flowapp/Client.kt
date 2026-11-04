@@ -126,8 +126,11 @@ class Client() {
         newPassword: String,
         confirmPassword: String
     ): UpdatePassword {
-        if (validate(password = newPassword, confirmPassword = confirmPassword) != null) {
-            return UpdatePassword.ERROR
+        if (oldPassword != newPassword) {
+            return UpdatePassword.PASSWORD_MISMATCH
+        }
+        else if (!oldPassword.any { it.isLetter() } || !oldPassword.any { it.isDigit() } || !oldPassword.any { it == '!' || it == '@' || it == '#' || it == '$' || it == '%' || it == '^' || it == '&' || it == '*' }) {
+            return UpdatePassword.INVALID_PASSWORD
         }
 
         try {
@@ -166,7 +169,7 @@ class Client() {
             return UpdatePassword.ERROR
         }
 
-        return UpdatePassword.ERROR
+        return UpdatePassword.INVALID_PASSWORD
     }
 
     fun login(trn: String, password: String): LoginCode {
