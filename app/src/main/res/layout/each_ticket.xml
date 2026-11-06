@@ -19,7 +19,7 @@
         >
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/ticketImage"
             android:layout_width="86dp"
             android:layout_height="73dp"
             android:contentDescription="@string/ticket"
@@ -38,19 +38,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ticketStatus"
+                android:textColor="@color/black"
                 android:textStyle="bold"
                 />
             <TextView
-                android:id="@+id/ticketStatus"
+                android:id="@+id/date_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
+                android:textColor="@color/black"
                 android:text="@string/date"
                 />
             <TextView
                 android:id="@+id/ticketPaymentStatus"
                 android:layout_width="wrap_content"
                 android:textStyle="bold"
+                android:textColor="@color/black"
                 android:layout_height="wrap_content"
                 android:text="@string/paymentStatus" />
 
