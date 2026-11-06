@@ -97,6 +97,7 @@ fun Queues(onBack: () -> Unit = {}, startTab: Int = 0) {
 
 
 @Composable fun TicketTab() {
+    /*
     Column(modifier = Modifier.fillMaxWidth()) {
         //val client = Client()
         //val ticket = client.getTicket()
@@ -138,6 +139,7 @@ fun Queues(onBack: () -> Unit = {}, startTab: Int = 0) {
             }
         }
     }
+    */
 }
 
 @Preview
