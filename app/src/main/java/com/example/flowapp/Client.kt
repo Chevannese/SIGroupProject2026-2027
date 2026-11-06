@@ -12,6 +12,7 @@ import java.security.MessageDigest
 
 // time stuff
 import java.security.SecureRandom
+import java.time.LocalDateTime
 import kotlin.time.Clock
 import java.util.Locale
 import kotlin.time.Duration.Companion.minutes
@@ -497,7 +498,21 @@ class Client() {
                 for (line in file.readLines()) {
                     val split = line.split(",")
                     if (split[0] == trn) {
-                        tickets.add(Ticket(split[1], split[2], split[3], split[4], split[5]))
+                        tickets.add(
+                            Ticket(
+                                ticketNo = split[1],
+                                custID = split[2],
+                                service = split[3],
+                                branch = split[4],
+                                queueNumber = split[5].toInt(),
+                                paymentMethod = split[6],
+                                paymentStatus = PaymentStatus.valueOf(split[7]),
+                                ticketStatus = TicketStatus.valueOf(split[8]),
+                                cost = split[9].toDouble(),
+                                totalPaid = split[10].toDouble(),
+                                createdAt = LocalDateTime.parse(split[11])
+                            )
+                        )
                     }
                 }
             }
