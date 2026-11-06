@@ -114,19 +114,7 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
                     color = Color(0xFFF0F0F0),
                     modifier = Modifier.padding(start = 72.dp)
                 )
-
-                ProfileItem(
-                    icon = Icons.Default.LocationOn,
-                    title = "Address",
-                    value = "Kingston, Jamaica",
-                    onClick = {}
-                )
-
-                HorizontalDivider(
-                    color = Color(0xFFF0F0F0),
-                    modifier = Modifier.padding(start = 72.dp)
-                )
-
+                
                 ProfileItem(
                     icon = Icons.Default.Payments,
                     title = "Purchase History",
