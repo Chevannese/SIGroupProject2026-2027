@@ -17,7 +17,7 @@ import kotlin.time.Clock
 import java.util.Locale
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
-
+import java.util.Date
 
 // mail stuff
 /*
@@ -506,11 +506,11 @@ class Client() {
                                 branch = split[4],
                                 queueNumber = split[5].toInt(),
                                 paymentMethod = split[6],
-                                paymentStatus = PaymentStatus.valueOf(split[7]),
-                                ticketStatus = TicketStatus.valueOf(split[8]),
+                                paymentStatus = split[7],
+                                ticketStatus = split[8],
                                 cost = split[9].toDouble(),
                                 totalPaid = split[10].toDouble(),
-                                createdAt = LocalDateTime.parse(split[11])
+                                created = Date(split[11].toLong())
                             )
                         )
                     }

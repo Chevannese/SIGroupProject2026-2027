@@ -3,35 +3,8 @@ import java.io.File
 import java.time.LocalDateTime
 
 
-enum class PaymentStatus {
-    PENDING,
-    PAID,
-    PARTIALLY_PAID
-}
 
-enum class TicketStatus {
-    WAITING,
-    IN_SERVICE,
-    COMPLETED,
-    CANCELLED
-}
-data class Ticket(
-    val ticketNo: String,
-    val custID: String,
-    val service: String,
-    val branch: String,
-    val queueNumber: Int,
 
-    var paymentMethod: String,
-    var paymentStatus: PaymentStatus,
-
-    var ticketStatus: TicketStatus,
-
-    var cost: Double,
-    var totalPaid: Double,
-
-    val createdAt: LocalDateTime = LocalDateTime.now()
-)
 
 
 data class QueueEntry(

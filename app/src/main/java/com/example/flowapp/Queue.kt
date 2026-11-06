@@ -25,37 +25,66 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.flowapp.ui.theme.FlowAppTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
-fun Queues(onBack: () -> Unit = {}, startTab: Int = 0) {
-    var queueNumber by rememberSaveable { mutableStateOf<String?>(null) }
-    var tab by rememberSaveable { mutableIntStateOf(startTab) }
+fun Queues(
+    onBack: () -> Unit = {},
+    startTab: Int = 0
+) {
+    val context = LocalContext.current
+
+    // Currently signed-in customer
+    val trn = "123456789"
+
+    var tickets by rememberSaveable {
+        mutableStateOf(emptyList<Ticket>())
+    }
+
+    var tab by rememberSaveable {
+        mutableIntStateOf(startTab)
+    }
+
+    LaunchedEffect(trn) {
+        tickets = withContext(Dispatchers.IO) {
+
+            initializeDefaultTickets(context, trn)
+
+            getCustomerTickets(context, trn)
+        }
+    }
 
     Column(modifier = Modifier.padding(20.dp)) {
+
         Spacer(Modifier.height(20.dp))
-            // Tabs
-            PrimaryTabRow(
-                selectedTabIndex = tab,
-                modifier = Modifier.clip(RoundedCornerShape(20.dp))
-            ) {
-                Tab(
-                    selected = tab == 0,
-                    onClick = { tab = 0 },
-                    text = { Text("Get a ticket") }
-                )
-                Tab(
-                    selected = tab == 0,
-                    onClick = { tab = 0 },
-                    text = { Text("My Ticket") }
-                )
-            }
+
+        PrimaryTabRow(
+            selectedTabIndex = tab,
+            modifier = Modifier.clip(RoundedCornerShape(20.dp))
+        ) {
+            Tab(
+                selected = tab == 0,
+                onClick = { tab = 0 },
+                text = { Text("Get a ticket") }
+            )
+
+            Tab(
+                selected = tab == 1,
+                onClick = { tab = 1 },
+                text = { Text("My Ticket") }
+            )
+        }
 
         when (tab) {
             0 -> QueueTab()
-            1 -> TicketsScreen()
+            1 -> TicketsScreen(tickets = tickets)
+        }
         }
     }
-}
+
 
 @Composable fun QueueTab() {
     val services = listOf("Phone Service", "Internet Service")
