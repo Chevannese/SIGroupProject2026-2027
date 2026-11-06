@@ -76,14 +76,14 @@ class ServiceQueue(
 
         fun checkCurrentCustomer() {
 
-            val customer = currentCustomer ?: return
+           // val customer = currentCustomer ?: return
 
-            if (LocalDateTime.now().isAfter(customer.serviceEndTime)) {
+          //  if (LocalDateTime.now().isAfter(customer.serviceEndTime)) {
 
-                customer.status = QueueStatus.COMPLETED
-                customer.ticket.ticketStatus = TicketStatus.COMPLETED
+            //    customer.status = QueueStatus.COMPLETED
+            //    customer.ticket.ticketStatus = TicketStatus.COMPLETED
 
-                currentCustomer = null
+            //    currentCustomer = null
 
                 saveQueue()
 
@@ -97,4 +97,3 @@ class ServiceQueue(
 
 
 
-}
