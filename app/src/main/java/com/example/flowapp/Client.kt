@@ -68,7 +68,8 @@ enum class RegisterCode {
     TRN_EXISTS,
     EMAIL_EXISTS,
     PHONE_EXISTS,
-    ERROR
+    ERROR,
+    PASSWORD_INVALID
 }
 
 enum class RecoveryCode {
@@ -126,12 +127,14 @@ class Client() {
         newPassword: String,
         confirmPassword: String
     ): UpdatePassword {
-        if (oldPassword != newPassword) {
-            return UpdatePassword.PASSWORD_MISMATCH
+        when (validate(password = newPassword, confirmPassword = confirmPassword)) {
+            RegisterCode.EMPTY_FIELD -> return UpdatePassword.EMPTY_FIELD
+            RegisterCode.PASSWORD_SHORT -> return UpdatePassword.PASSWORD_SHORT
+            RegisterCode.PASSWORD_LONG -> return UpdatePassword.PASSWORD_LONG
+            RegisterCode.PASSWORD_MISMATCH -> return UpdatePassword.PASSWORD_MISMATCH
+            else -> {}
         }
-        else if (!oldPassword.any { it.isLetter() } || !oldPassword.any { it.isDigit() } || !oldPassword.any { it == '!' || it == '@' || it == '#' || it == '$' || it == '%' || it == '^' || it == '&' || it == '*' }) {
-            return UpdatePassword.INVALID_PASSWORD
-        }
+
 
         try {
             val file = File(context.filesDir, "users.txt")
@@ -225,6 +228,9 @@ class Client() {
             return RegisterCode.PASSWORD_LONG
         else if (password != confirmPassword)
             return RegisterCode.PASSWORD_MISMATCH
+        else if (!password.any { it.isLetter() } || !password.any { it.isDigit() } || !password.any { it == '!' || it == '@' || it == '#' || it == '$' || it == '%' || it == '^' || it == '&' || it == '*' }) {
+            return RegisterCode.PASSWORD_INVALID
+        }
         else return null
     }
 
@@ -479,6 +485,29 @@ class Client() {
             Log.e("ERROR", "Unexpected error while updating password", e)
             UpdatePassword.ERROR
         }
+    }
+
+    fun tickets(trn: String): List<Ticket> {
+        val tickets = mutableListOf<Ticket>()
+
+        try {
+            val file = File(context.filesDir, "tickets.txt")
+
+            if (file.exists()) {
+                for (line in file.readLines()) {
+                    val split = line.split(",")
+                    if (split[0] == trn) {
+                        tickets.add(Ticket(split[1], split[2], split[3], split[4], split[5]))
+                    }
+                }
+            }
+
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+        }
+
+        return tickets
     }
 }
 
