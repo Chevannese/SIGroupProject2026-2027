@@ -22,8 +22,7 @@
             android:id="@+id/imageView"
             android:layout_width="86dp"
             android:layout_height="73dp"
-            android:weight="1"
-            android:contentDescription="@string/cardNum"
+            android:contentDescription="@string/ticket"
             android:src="@drawable/ticket" />
 
         <LinearLayout
@@ -55,9 +54,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/paymentStatus" />
 
-
-
-
         </LinearLayout>
         <Button
             android:id="@+id/changePassBtn"
@@ -68,12 +64,6 @@
             android:text="@string/viewDetails"
             android:textColor="@color/white"
             android:textStyle="bold" />
-
-
-
     </LinearLayout>
-
-
-
 
 </androidx.cardview.widget.CardView>
