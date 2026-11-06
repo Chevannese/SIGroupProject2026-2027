@@ -486,6 +486,29 @@ class Client() {
             UpdatePassword.ERROR
         }
     }
+
+    fun tickets(trn: String): List<Ticket> {
+        val tickets = mutableListOf<Ticket>()
+
+        try {
+            val file = File(context.filesDir, "tickets.txt")
+
+            if (file.exists()) {
+                for (line in file.readLines()) {
+                    val split = line.split(",")
+                    if (split[0] == trn) {
+                        tickets.add(Ticket(split[1], split[2], split[3], split[4], split[5]))
+                    }
+                }
+            }
+
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+        }
+
+        return tickets
+    }
 }
 
 
