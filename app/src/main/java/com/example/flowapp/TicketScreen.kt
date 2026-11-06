@@ -13,26 +13,19 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flowapp.ui.theme.FlowAppTheme
 import java.time.format.DateTimeFormatter
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TicketsScreen(viewModel: TicketsViewModel = viewModel()) {
     val tickets by viewModel.tickets.collectAsState()
 
-    Scaffold(
-        topBar = { TopAppBar(title = { Text("All Tickets") }) }
-    ) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { Text("All Tickets") }) }) { padding ->
         if (tickets.isEmpty()) {
-            Box(
-                Modifier.fillMaxSize().padding(padding),
-                contentAlignment = Alignment.Center
-            ) { Text("No tickets yet") }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                Text("No tickets yet")
+            }
+        }
+        else {
+            LazyColumn(modifier = Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(tickets, key = { it.ticketNo }) { ticket ->
                     TicketCard(ticket)
                 }
@@ -47,10 +40,7 @@ fun TicketCard(ticket: Ticket) {
 
     Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(2.dp)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Ticket ${ticket.ticketNo}", style = MaterialTheme.typography.titleMedium)
                 Text("Queue #${ticket.queueNumber}", style = MaterialTheme.typography.titleMedium)
             }
