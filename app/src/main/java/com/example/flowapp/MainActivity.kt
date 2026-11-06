@@ -107,6 +107,7 @@ class MainActivity : ComponentActivity() {
                 RegisterCode.PASSWORD_LONG -> Toast.makeText(applicationContext, "Password should not be greater than 30 characters", Toast.LENGTH_SHORT).show()
                 RegisterCode.PASSWORD_SHORT -> Toast.makeText(applicationContext, "Password should not be less than 8 characters", Toast.LENGTH_SHORT).show()
                 RegisterCode.PASSWORD_MISMATCH -> Toast.makeText(applicationContext, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                RegisterCode.PASSWORD_INVALID -> Toast.makeText(applicationContext, "Password should contain letters, numbers and 1 special character", Toast.LENGTH_SHORT).show()
                 RegisterCode.EMAIL_INVALID -> Toast.makeText(applicationContext, "Email should be in format: example@yahoo.com", Toast.LENGTH_SHORT).show()
                 RegisterCode.TRN_EXISTS -> Toast.makeText(applicationContext, "TRN already exists", Toast.LENGTH_SHORT).show()
                 RegisterCode.EMAIL_EXISTS -> Toast.makeText(applicationContext, "Email already exists", Toast.LENGTH_SHORT).show()
