@@ -52,7 +52,7 @@ fun Queues(onBack: () -> Unit = {}, startTab: Int = 0) {
 
         when (tab) {
             0 -> QueueTab()
-            1 -> TicketTab()
+            1 -> TicketsScreen()
         }
     }
 }
@@ -96,51 +96,6 @@ fun Queues(onBack: () -> Unit = {}, startTab: Int = 0) {
 }
 
 
-@Composable fun TicketTab() {
-    /*
-    Column(modifier = Modifier.fillMaxWidth()) {
-        //val client = Client()
-        //val ticket = client.getTicket()
-        val ticket = Ticket.default()
-
-        Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            Text("Date:", modifier = Modifier.fillMaxWidth())
-            Text(ticket.date, modifier = Modifier.fillMaxWidth())
-        }
-        Row(modifier = Modifier.fillMaxSize()) {
-            Text("Time:", modifier = Modifier.fillMaxWidth())
-            Text(ticket.time, modifier = Modifier.fillMaxWidth())
-        }
-        Row(modifier = Modifier.fillMaxSize()) {
-            Text("Branch:", modifier = Modifier.fillMaxWidth())
-            Text(ticket.branch, modifier = Modifier.fillMaxWidth())
-        }
-        Row(modifier = Modifier.fillMaxSize()) {
-            Text("Estimated Wait Time:")
-            Text(ticket.waitTime)
-        }
-
-        Row(modifier = Modifier.fillMaxSize()) {
-            when (ticket.status) {
-                "active" -> {
-                    Box(modifier = Modifier.size(20.dp).clip(CircleShape))
-                    Column {
-                        Text("Active")
-                        Text("You'll be notified when it's your turn")
-                    }
-                }
-                "inactive" -> {
-                    Box(modifier = Modifier.size(20.dp).clip(CircleShape))
-                    Column {
-                        Text("Inactive")
-                        Text("Not in queue")
-                    }
-                }
-            }
-        }
-    }
-    */
-}
 
 @Preview
 @Composable
