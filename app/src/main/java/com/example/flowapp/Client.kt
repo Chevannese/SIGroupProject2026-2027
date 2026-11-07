@@ -539,7 +539,7 @@ class Client() {
     fun add_card(trn: String, card: String): Boolean {
         try {
             val file = File(context.filesDir, "cards.txt")
-            file.appendText("$trn,$card\n")
+            file.appendText("$trn,$card,5000\n")
             return true
         }
         catch (e: Exception) {
