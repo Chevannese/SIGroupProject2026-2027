@@ -10,11 +10,12 @@ import java.util.Locale
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.flowapp.ui.theme.FlowAppTheme
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun TicketCard(ticket: Ticket) {
 
-    val fmt = SimpleDateFormat(
+    val fmt = DateTimeFormatter.ofPattern(
         "dd MMM yyyy, h:mm a",
         LocalLocale.current.platformLocale
     )
