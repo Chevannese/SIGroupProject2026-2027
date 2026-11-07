@@ -87,72 +87,7 @@ fun saveTicket(context: Context, ticket: Ticket) {
     file.appendText(ticketToString(ticket) + "\n")
 }
 
-// Initialize default tickets
 
 
-fun initializeDefaultTickets(
-    context: Context,
-    trn: String
-) {
-    // Only initialize default tickets for this customer
-    if (trn != "123456789") return
-
-    val existingTickets = getAllTickets(context)
-
-    val start = LocalDateTime.now()
-    val tenMinutes = 10L
-
-    val defaultTickets = listOf(
-        Ticket(
-            ticketNo = "TKT001",
-            custID = "123456789",
-            service = "Phone Service",
-            branch = "Portmore",
-            paymentMethod = "Cash",
-            paymentStatus = "Paid",
-            ticketStatus = "Waiting",
-            cost = 500.0,
-            totalPaid = 500.0,
-            created = start
-        ),
-
-        Ticket(
-            ticketNo = "TKT002",
-            custID = "123456789",
-            service = "Internet Service",
-            branch = "Kingston",
-            paymentMethod = "Card",
-            paymentStatus = "Partially Paid",
-            ticketStatus = "Waiting",
-            cost = 1000.0,
-            totalPaid = 500.0,
-            created = start.plusMinutes(tenMinutes)
-        ),
-
-        Ticket(
-            ticketNo = "TKT003",
-            custID = "123456789",
-            service = "Phone Service",
-            branch = "Kingston",
-            paymentMethod = "Cash",
-            paymentStatus = "Unpaid",
-            ticketStatus = "Waiting",
-            cost = 500.0,
-            totalPaid = 0.0,
-            created = start.plusMinutes(tenMinutes * 2)
-        )
-    )
-
-    defaultTickets.forEach { ticket ->
-        val alreadyExists = existingTickets.any {
-            it.ticketNo == ticket.ticketNo &&
-                    it.custID == "123456789"
-        }
-
-        if (!alreadyExists) {
-            saveTicket(context, ticket)
-        }
-    }
-}
 
 

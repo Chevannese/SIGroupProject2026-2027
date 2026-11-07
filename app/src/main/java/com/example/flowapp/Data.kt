@@ -17,7 +17,7 @@ data class Ticket(
     val created: LocalDateTime = LocalDateTime.now(),
     val serviceStartTime: LocalDateTime? = null,
     val serviceEndTime: LocalDateTime? = null,
-    val serviceTime: Int = 0
+    val serviceTime: Int = 10
 )
 
 
