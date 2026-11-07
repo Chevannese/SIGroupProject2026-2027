@@ -62,7 +62,7 @@ fun Home(trn: String = "123456789") {
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = savedCard!!.substring(savedCard!!.length - 5),
+                            text = savedCard!!.substring(savedCard!!.length - 4),
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
