@@ -7,6 +7,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.example.flowapp.ui.theme.FlowAppTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -115,14 +117,15 @@ fun Queues(
                 val client = Client()
                 val card = client.cards(trn)
 
-                if (card == null) {
+                if (card.isNullOrBlank()) {
                     showCard = true
                 }
                 else {
                     toast("TODO: Proceed to queue")
                 }
             },
-            modifier = Modifier.scale(1.2f).align(Alignment.CenterHorizontally)) {
+            modifier = Modifier.scale(1.2f).align(Alignment.CenterHorizontally)
+        ) {
             Text(
                 text = "Get Queue Number",
                 fontWeight = FontWeight.Bold,
@@ -132,23 +135,37 @@ fun Queues(
     }
 
     if (showCard) {
-        BasicAlertDialog(onDismissRequest = {}) {
-            Column {
-                Text("No Card found")
-
-                TextButton(onClick = {
-                    showCard = false
-                    showAddCard = true
-                }) {
-                    Text("Add Card")
-                }
+        NoCardDialog(
+            onDismissRequest = { showCard = false },
+            onConfirmRequest = {
+                showCard = false
+                showAddCard = true
             }
-        }
+        )
     }
 
     if (showAddCard) {
         AddCard(onBack = { showAddCard = false }, trn = trn)
     }
+}
+
+@Composable
+fun NoCardDialog(onDismissRequest: () -> Unit = {}, onConfirmRequest: () -> Unit = {}) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = { Text("No Payment Method Found") },
+        text = { Text("You do not have a payment method saved. Would you like to add a card now?") },
+        confirmButton = {
+            TextButton(onClick = onConfirmRequest) {
+                Text("Add Card")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text("Close")
+            }
+        }
+    )
 }
 
 
@@ -168,4 +185,11 @@ fun TicketPreview() {
     FlowAppTheme {
         Queues(trn = "123456789", startTab = 1)
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun Dialog() {
+    NoCardDialog()
 }
