@@ -51,8 +51,6 @@ fun Queues(
     LaunchedEffect(trn) {
         tickets = withContext(Dispatchers.IO) {
 
-            initializeDefaultTickets(context, trn)
-
             getCustomerTickets(context, trn)
         }
     }
