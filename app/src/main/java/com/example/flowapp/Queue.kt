@@ -1,30 +1,25 @@
 package com.example.flowapp
 
-import androidx.compose.material3.*
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flowapp.ui.theme.FlowAppTheme
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -36,8 +31,6 @@ fun Queues(
 ) {
     val context = LocalContext.current
 
-
-
     var tickets by rememberSaveable {
         mutableStateOf(emptyList<Ticket>())
     }
@@ -48,13 +41,11 @@ fun Queues(
 
     LaunchedEffect(trn) {
         tickets = withContext(Dispatchers.IO) {
-
             getCustomerTickets(context, trn)
         }
     }
 
     Column(modifier = Modifier.padding(20.dp)) {
-
         Spacer(Modifier.height(20.dp))
 
         PrimaryTabRow(
@@ -78,11 +69,12 @@ fun Queues(
             0 -> QueueTab(trn)
             1 -> TicketsScreen(tickets = tickets)
         }
-        }
     }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun QueueTab(trn: String, onGetQueue: () -> Unit = {}) {
+@Composable
+fun QueueTab(trn: String, onGetQueue: () -> Unit = {}) {
     val services = listOf("Phone Service", "Internet Service")
     val branches = listOf("Portmore", "Kingston")
 
@@ -91,46 +83,51 @@ fun Queues(
     var showCard by rememberSaveable { mutableStateOf(false) }
     var showAddCard by rememberSaveable { mutableStateOf(false) }
 
-    Column() {
-        Spacer(Modifier.height(28.dp))
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column {
+            Spacer(Modifier.height(28.dp))
 
-        DropdownField(
-            label = "Select Service",
-            options = services,
-            selected = service,
-            onSelected = { service = it }
-        )
-
-        Spacer(Modifier.height(28.dp))
-
-        DropdownField(
-            label = "Select Branch",
-            options = branches,
-            selected = branch,
-            onSelected = { branch = it }
-        )
-
-        Spacer(Modifier.height(28.dp))
-
-        Button(
-            onClick = {
-                val client = Client()
-                val card = client.cards(trn)
-
-                if (card.isNullOrBlank()) {
-                    showCard = true
-                }
-                else {
-                    toast("TODO: Proceed to queue")
-                }
-            },
-            modifier = Modifier.scale(1.2f).align(Alignment.CenterHorizontally)
-        ) {
-            Text(
-                text = "Get Queue Number",
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
+            DropdownField(
+                label = "Select Service",
+                options = services,
+                selected = service,
+                onSelected = { service = it }
             )
+
+            Spacer(Modifier.height(28.dp))
+
+            DropdownField(
+                label = "Select Branch",
+                options = branches,
+                selected = branch,
+                onSelected = { branch = it }
+            )
+
+            Spacer(Modifier.height(28.dp))
+
+            Button(
+                onClick = {
+                    val client = Client()
+                    val card = client.cards(trn)
+
+                    if (card.isNullOrBlank()) {
+                        showCard = true
+                    } else {
+                        toast("TODO: Proceed to queue")
+                    }
+                },
+                modifier = Modifier.scale(1.2f).align(Alignment.CenterHorizontally)
+            ) {
+                Text(
+                    text = "Get Queue Number",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
+        }
+
+        if (showAddCard) {
+            AddCard(onBack = { showAddCard = false }, trn = trn)
         }
     }
 
@@ -142,10 +139,6 @@ fun Queues(
                 showAddCard = true
             }
         )
-    }
-
-    if (showAddCard) {
-        AddCard(onBack = { showAddCard = false }, trn = trn)
     }
 }
 
@@ -167,9 +160,6 @@ fun NoCardDialog(onDismissRequest: () -> Unit = {}, onConfirmRequest: () -> Unit
         }
     )
 }
-
-
-
 
 @Preview
 @Composable
