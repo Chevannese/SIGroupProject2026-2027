@@ -68,72 +68,70 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
         user = User.default()
     }
 
-    BackBar("Profile", onBack) { innerPadding ->
+    BackBar("Profile", onBack) {
         // Personal Information Header Box
-        Box(modifier = Modifier.padding(innerPadding)) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Column(
-                modifier = Modifier.fillMaxSize().padding(16.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
 
-                ProfileItem(
-                    icon = Icons.Default.Person,
-                    title = "Name",
-                    value = user.name,
-                    onClick = {}
-                )
+        Spacer(modifier = Modifier.height(24.dp))
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(10.dp),) {
 
-                HorizontalDivider(
-                    color = Color(0xFFF0F0F0),
-                    modifier = Modifier.padding(start = 72.dp)
-                )
+            ProfileItem(
+                icon = Icons.Default.Person,
+                title = "Name",
+                value = user.name,
+                onClick = {}
+            )
 
-                ProfileItem(
-                    icon = Icons.Default.Receipt,
-                    title = "Email",
-                    value = user.email,
-                    onClick = {}
-                )
+            HorizontalDivider(
+                color = Color(0xFFF0F0F0),
+                modifier = Modifier.padding(start = 72.dp)
+            )
 
-                HorizontalDivider(
-                    color = Color(0xFFF0F0F0),
-                    modifier = Modifier.padding(start = 72.dp)
-                )
+            ProfileItem(
+                icon = Icons.Default.Receipt,
+                title = "Email",
+                value = user.email,
+                onClick = {}
+            )
 
-                ProfileItem(
-                    icon = Icons.Default.Lock,
-                    title = "Password",
-                    value = "********",
-                    menu = true,
-                    onClick = { changePassword = true }
-                )
+            HorizontalDivider(
+                color = Color(0xFFF0F0F0),
+                modifier = Modifier.padding(start = 72.dp)
+            )
 
-                HorizontalDivider(
-                    color = Color(0xFFF0F0F0),
-                    modifier = Modifier.padding(start = 72.dp)
-                )
+            ProfileItem(
+                icon = Icons.Default.Lock,
+                title = "Password",
+                value = "********",
+                menu = true,
+                onClick = { changePassword = true }
+            )
+
+            HorizontalDivider(
+                color = Color(0xFFF0F0F0),
+                modifier = Modifier.padding(start = 72.dp)
+            )
                 
-                ProfileItem(
-                    icon = Icons.Default.Payments,
-                    title = "Purchase History",
-                    value = "View past purchases",
-                    onClick = {}
-                )
+            ProfileItem(
+                icon = Icons.Default.Payments,
+                title = "Purchase History",
+                value = "View past purchases",
+                onClick = {}
+            )
 
-                HorizontalDivider(
-                    color = Color(0xFFF0F0F0),
-                    modifier = Modifier.padding(start = 72.dp)
-                )
+            HorizontalDivider(
+                color = Color(0xFFF0F0F0),
+                modifier = Modifier.padding(start = 72.dp)
+            )
 
-                ProfileItem(
-                    icon = Icons.Default.CreditCard,
-                    title = "Payment Method",
-                    value = "Visa Card **** 2341",
-                    onClick = {}
-                )
-            }
+            ProfileItem(
+                icon = Icons.Default.CreditCard,
+                title = "Payment Method",
+                value = "Visa Card **** 2341",
+                onClick = {}
+            )
         }
     }
 
@@ -162,8 +160,8 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
     var passwordContainsLNS by remember { mutableStateOf(false) }
     var enableButton by remember { mutableStateOf(true) }
 
-    BackBar(title = "Change Password", onBack) { innerPadding ->
-        Column(modifier = Modifier.fillMaxSize().padding(innerPadding).consumeWindowInsets(innerPadding).verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
+    BackBar(title = "Change Password", onBack) {
+        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
             OutlinedTextField(
                 value = currentPassword,
                 onValueChange = { text -> currentPassword = text },
