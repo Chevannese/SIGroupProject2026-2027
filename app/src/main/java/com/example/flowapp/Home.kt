@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
 
 @Composable
-fun Home(trn: String = "123456789") {
+fun Home(trn: String) {
     var showCardDialog by remember { mutableStateOf(false) }
     var savedCard by remember { mutableStateOf<String?>(null) }
     val client = remember { Client() }
@@ -91,6 +91,6 @@ fun Home(trn: String = "123456789") {
 @Composable
 fun HomePreview() {
     FlowAppTheme {
-        Home()
+        Home(trn = "123456789")
     }
 }

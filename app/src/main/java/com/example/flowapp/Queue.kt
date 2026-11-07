@@ -6,11 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -32,13 +28,13 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun Queues(
+    trn: String,
     onBack: () -> Unit = {},
     startTab: Int = 0
 ) {
     val context = LocalContext.current
 
-    // Currently signed-in customer
-    val trn = "123456789"
+
 
     var tickets by rememberSaveable {
         mutableStateOf(emptyList<Ticket>())
@@ -77,19 +73,21 @@ fun Queues(
         }
 
         when (tab) {
-            0 -> QueueTab()
+            0 -> QueueTab(trn)
             1 -> TicketsScreen(tickets = tickets)
         }
         }
     }
 
-
-@Composable fun QueueTab() {
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable fun QueueTab(trn: String, onGetQueue: () -> Unit = {}) {
     val services = listOf("Phone Service", "Internet Service")
     val branches = listOf("Portmore", "Kingston")
 
     var service by rememberSaveable { mutableStateOf(services[0]) }
     var branch by rememberSaveable { mutableStateOf(branches[0]) }
+    var showCard by rememberSaveable { mutableStateOf(false) }
+    var showAddCard by rememberSaveable { mutableStateOf(false) }
 
     Column() {
         Spacer(Modifier.height(28.dp))
@@ -112,7 +110,19 @@ fun Queues(
 
         Spacer(Modifier.height(28.dp))
 
-        Button(onClick = {}, modifier = Modifier.scale(1.2f).align(Alignment.CenterHorizontally)) {
+        Button(
+            onClick = {
+                val client = Client()
+                val card = client.cards(trn)
+
+                if (card == null) {
+                    showCard = true
+                }
+                else {
+                    toast("TODO: Proceed to queue")
+                }
+            },
+            modifier = Modifier.scale(1.2f).align(Alignment.CenterHorizontally)) {
             Text(
                 text = "Get Queue Number",
                 fontWeight = FontWeight.Bold,
@@ -120,7 +130,27 @@ fun Queues(
             )
         }
     }
+
+    if (showCard) {
+        BasicAlertDialog(onDismissRequest = {}) {
+            Column {
+                Text("No Card found")
+
+                TextButton(onClick = {
+                    showCard = false
+                    showAddCard = true
+                }) {
+                    Text("Add Card")
+                }
+            }
+        }
+    }
+
+    if (showAddCard) {
+        AddCard(onBack = { showAddCard = false }, trn = trn)
+    }
 }
+
 
 
 
@@ -128,7 +158,7 @@ fun Queues(
 @Composable
 fun QueuesPreview() {
     FlowAppTheme {
-        Queues()
+        Queues(trn = "123456789")
     }
 }
 
@@ -136,6 +166,6 @@ fun QueuesPreview() {
 @Composable
 fun TicketPreview() {
     FlowAppTheme {
-        Queues(startTab = 1)
+        Queues(trn = "123456789", startTab = 1)
     }
 }

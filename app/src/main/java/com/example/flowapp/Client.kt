@@ -561,6 +561,7 @@ class Client() {
                         return split[1]
                     }
                 }
+                return null
             }
         }
         catch (e: Exception) {

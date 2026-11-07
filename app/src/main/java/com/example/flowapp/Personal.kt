@@ -63,7 +63,7 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
     var changePassword by remember { mutableStateOf(false) }
     val client = Client()
     var user = client.user(trn)
-
+    val savedCard = client.cards(trn)
     if (user == null) {
         user = User.default()
     }
@@ -129,7 +129,7 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
             ProfileItem(
                 icon = Icons.Default.CreditCard,
                 title = "Payment Method",
-                value = "Visa Card **** 2341",
+                value = savedCard?.takeLast(4)?.let { "Visa Card **** $it" } ?: "No card saved",
                 onClick = {}
             )
         }
