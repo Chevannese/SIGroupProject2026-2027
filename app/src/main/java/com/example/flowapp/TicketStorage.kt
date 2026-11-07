@@ -17,7 +17,6 @@ fun ticketToString(ticket: Ticket): String {
         ticket.custID,
         ticket.service,
         ticket.branch,
-        ticket.queueNumber,
         ticket.paymentMethod,
         ticket.paymentStatus,
         ticket.ticketStatus,
