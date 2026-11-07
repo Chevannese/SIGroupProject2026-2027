@@ -49,12 +49,12 @@ fun Queues(
     }
 
     LaunchedEffect(trn) {
-        //tickets = withContext(Dispatchers.IO) {
+        tickets = withContext(Dispatchers.IO) {
 
-         //   initializeDefaultTickets(context, trn)
+            initializeDefaultTickets(context, trn)
 
-          //  getCustomerTickets(context, trn)}
-
+            getCustomerTickets(context, trn)
+        }
     }
 
     Column(modifier = Modifier.padding(20.dp)) {
