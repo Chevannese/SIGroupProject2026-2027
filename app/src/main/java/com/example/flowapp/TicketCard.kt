@@ -5,11 +5,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import java.text.SimpleDateFormat
-import java.util.Locale
+
 import androidx.compose.ui.platform.LocalLocale
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.flowapp.ui.theme.FlowAppTheme
+
 import java.time.format.DateTimeFormatter
 
 @Composable
