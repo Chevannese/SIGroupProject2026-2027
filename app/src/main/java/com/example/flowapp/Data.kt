@@ -1,31 +1,24 @@
 package com.example.flowapp
-import java.io.File
 import java.time.LocalDateTime
 
+data class Ticket(
+    val ticketNo: String,
+    val custID: String,
+    val service: String,
+    val branch: String,
 
+    val paymentMethod: String,
+    val paymentStatus: String,
+    val ticketStatus: String,
 
+    val cost: Double,
+    val totalPaid: Double,
 
-
-
-data class QueueEntry(
-    val queueNumber: Int,
-    val ticket: Ticket,
-
-    val joinedAt: LocalDateTime = LocalDateTime.now(),
-
-    var serviceStartTime: LocalDateTime? = null,
-    var serviceEndTime: LocalDateTime? = null,
-
-    var status: QueueStatus = QueueStatus.WAITING
+    val created: LocalDateTime = LocalDateTime.now(),
+    val serviceStartTime: LocalDateTime? = null,
+    val serviceEndTime: LocalDateTime? = null,
+    val serviceTime: Int = 0
 )
-
-enum class QueueStatus {
-    WAITING,
-    SERVING,
-    COMPLETED
-}
-
-
 
 
 

@@ -489,7 +489,7 @@ class Client() {
     }
 
     fun tickets(trn: String): List<Ticket> {
-        val tickets = mutableListOf<Ticket>()
+        val tickets = ArrayList<Ticket>()
 
         try {
             val file = File(context.filesDir, "tickets.txt")
@@ -499,24 +499,30 @@ class Client() {
                     val split = line.split(",")
                     if (split[0] == trn) {
                         tickets.add(
+
                             Ticket(
                                 ticketNo = split[1],
                                 custID = split[2],
                                 service = split[3],
                                 branch = split[4],
-                                queueNumber = split[5].toInt(),
-                                paymentMethod = split[6],
-                                paymentStatus = split[7],
-                                ticketStatus = split[8],
-                                cost = split[9].toDouble(),
-                                totalPaid = split[10].toDouble(),
-                                created = Date(split[11].toLong())
+
+                                paymentMethod = split[5],
+                                paymentStatus = split[6],
+                                ticketStatus = split[7],
+
+                                cost = split[8].toDouble(),
+                                totalPaid = split[9].toDouble(),
+
+                                created = LocalDateTime.parse(split[10]),
+                                serviceStartTime = split[11].takeIf { it.isNotBlank() }?.let { LocalDateTime.parse(it) },
+                                serviceEndTime = split[12].takeIf { it.isNotBlank() }?.let { LocalDateTime.parse(it) },
+                                serviceTime = split[13].toInt()
+
                             )
                         )
                     }
                 }
             }
-
         }
         catch (e: Exception) {
             Log.d("ERROR", e.message.toString())
