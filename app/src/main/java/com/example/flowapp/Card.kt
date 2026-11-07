@@ -29,7 +29,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
@@ -39,9 +44,14 @@ fun AddCard(onBack: () -> Unit = {}, trn: String) {
     var ccNumber by remember { mutableStateOf("") }
     var expDate by remember { mutableStateOf("") }
     var cvv by remember { mutableStateOf("") }
-    var showCalendar = false
+    var showCalendar by remember { mutableStateOf(false) }
 
     var validCardNumber by remember { mutableStateOf(false) }
+    val validExpiry = expDate.length == 4 && run {
+        val month = expDate.take(2).toInt()
+        val year = 2000 + expDate.takeLast(2).toInt()
+        month in 1..12 && !java.time.YearMonth.of(year, month).isBefore(java.time.YearMonth.now())
+    }
 
     BackBar(
         title = "Card Details",
@@ -94,35 +104,41 @@ fun AddCard(onBack: () -> Unit = {}, trn: String) {
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
                 Spacer(Modifier.height(20.dp))
-                Row(horizontalArrangement = Arrangement.SpaceEvenly) {
-                    Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Column(Modifier.weight(1f)) {
                         Text("Expiry Date")
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = { expDate = it },
+                            value = expDate,
+                            onValueChange = { expDate = it.filter { c -> c.isDigit() }.take(4) },
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = { Text("MM/YY") },
                             leadingIcon = {
-                                IconButton(onClick = { showCalendar = !showCalendar }) {
-                                    Icon(
-                                        imageVector = Icons.Default.DateRange,
-                                        contentDescription = "Select date"
-                                    )
+                                Icon(Icons.Default.DateRange, contentDescription = "Expiry date")
+                            },
+                            supportingText = {
+                                if (expDate.length == 4 && !validExpiry) {
+                                    Text("Invalid expiry date", color = Color.Red)
                                 }
-                            }
+                            },
+                            singleLine = true,
+                            visualTransformation = ExpiryTransformation(),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
                     }
-                    Column {
+                    Column(Modifier.weight(1f)) {
                         Text("CVV")
                         OutlinedTextField(
                             value = cvv,
-                            onValueChange = { cvv = it },
-                            leadingIcon = {
-                                IconButton(onClick = { }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Lock,
-                                        contentDescription = "Select date"
-                                    )
-                                }
-                            }
+                            onValueChange = { cvv = it.filter { c -> c.isDigit() }.take(3) },
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = { Text("123") },
+                            singleLine = true,
+                            visualTransformation = PasswordVisualTransformation(),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "CVV") }
                         )
                     }
                 }
@@ -130,7 +146,7 @@ fun AddCard(onBack: () -> Unit = {}, trn: String) {
                 Button(
                     onClick = {
                         val client = Client()
-                        val response = client.add_card(trn, ccNumber)
+                        val response = client.add_card(trn, ccNumber.takeLast(4))
 
                         when (response) {
                             false -> toast("Error adding card")
@@ -140,13 +156,36 @@ fun AddCard(onBack: () -> Unit = {}, trn: String) {
                             }
                         }
                     },
-                    Modifier.align(Alignment.CenterHorizontally).fillMaxWidth()
+                    modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth(),
+                    enabled = validCardNumber && validExpiry && cvv.length == 3
                 ) {
                     Text("Add Card")
                 }
             }
         }
     )
+}
+
+
+class ExpiryTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val digits = text.text
+        val formatted = if (digits.length > 2) {
+            digits.take(2) + "/" + digits.drop(2)
+        } else {
+            digits
+        }
+
+        val mapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int =
+                if (offset <= 2) offset else offset + 1
+
+            override fun transformedToOriginal(offset: Int): Int =
+                if (offset <= 2) offset else offset - 1
+        }
+
+        return TransformedText(AnnotatedString(formatted), mapping)
+    }
 }
 
 @Preview

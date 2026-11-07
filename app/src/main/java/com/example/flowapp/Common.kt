@@ -124,5 +124,5 @@ fun BackBar(title: String, onBack: () -> Unit, content: @Composable () -> Unit =
 }
 
 fun toast(text: String) {
-    Toast.makeText(MainActivity.instance.applicationContext, "Error adding card", Toast.LENGTH_SHORT).show()
+    Toast.makeText(MainActivity.instance.applicationContext, text, Toast.LENGTH_SHORT).show()
 }
