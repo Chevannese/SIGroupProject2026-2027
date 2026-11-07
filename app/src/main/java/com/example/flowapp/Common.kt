@@ -1,5 +1,6 @@
 package com.example.flowapp
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
@@ -43,7 +44,7 @@ import com.example.flowapp.ui.theme.flowColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BackBar(title: String, onBack: () -> Unit, content: @Composable (innerPadding: PaddingValues) -> Unit = {}) {
+fun BackBar(title: String, onBack: () -> Unit, content: @Composable () -> Unit = {}) {
     BackHandler(enabled = true) {
         onBack()
     }
@@ -66,7 +67,9 @@ fun BackBar(title: String, onBack: () -> Unit, content: @Composable (innerPaddin
             )
         }
     ) { innerPadding ->
-        content(innerPadding)
+        Box(modifier = Modifier.padding(innerPadding)) {
+            content()
+        }
     }
 }
 
@@ -118,4 +121,8 @@ fun BackBar(title: String, onBack: () -> Unit, content: @Composable (innerPaddin
             }
         }
     }
+}
+
+fun toast(text: String) {
+    Toast.makeText(MainActivity.instance.applicationContext, "Error adding card", Toast.LENGTH_SHORT).show()
 }
