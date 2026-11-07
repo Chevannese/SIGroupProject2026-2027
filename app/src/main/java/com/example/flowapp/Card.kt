@@ -32,66 +32,120 @@ import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
 
 @Composable
-fun AddCard() {
+fun AddCard(onBack: () -> Unit = {}, trn: String) {
     var ccNumber by remember { mutableStateOf("") }
     var expDate by remember { mutableStateOf("") }
     var cvv by remember { mutableStateOf("") }
     var showCalendar = false
 
-    Column(Modifier.fillMaxSize().background(Color.White).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp)) {
-        Row(Modifier.fillMaxWidth().border(2.dp, Color.Blue, RoundedCornerShape(20.dp)).padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceEvenly) {
-                Icon(imageVector = Icons.Default.CreditCard, contentDescription = "Add Card", Modifier.size(50.dp))
-                Text("Card")
-            }
-            Checkbox(checked = true, onCheckedChange = { },)
-        }
-        Spacer(Modifier.height(20.dp))
+    var validCardNumber by remember { mutableStateOf(false) }
 
-        Text("Saved Card", Modifier.fillMaxSize())
-        OutlinedTextField("", {}, leadingIcon = { Icon(Icons.Default.CreditCard, "cc") }, modifier = Modifier.fillMaxSize())
-        Spacer(Modifier.height(20.dp))
-        Text("Card Number", modifier = Modifier.fillMaxSize())
-        OutlinedTextField(ccNumber, { ccNumber = it }, placeholder = { Text("0000 0000 0000 0000") }, modifier = Modifier.fillMaxSize())
+    BackBar(
+        title = "Card Details",
+        onBack = onBack,
+        content = {
+            Column(Modifier.fillMaxSize().background(Color.White).verticalScroll(rememberScrollState()).padding(20.dp)) {
+                Row(
+                    Modifier.fillMaxWidth().border(2.dp, Color.Blue, RoundedCornerShape(20.dp))
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CreditCard,
+                            contentDescription = "Add Card",
+                            Modifier.size(50.dp)
+                        )
+                        Text("Card")
+                    }
+                    Checkbox(checked = true, onCheckedChange = { },)
+                }
+                Spacer(Modifier.height(20.dp))
 
-        Row(horizontalArrangement = Arrangement.SpaceEvenly) {
-            Column {
-                Text("Expiry Date")
+                Text("Saved Card", Modifier.fillMaxSize())
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = { expDate = it },
-                    leadingIcon = {
-                        IconButton(onClick = { showCalendar = !showCalendar }) {
-                            Icon(imageVector = Icons.Default.DateRange, contentDescription = "Select date")
+                    "",
+                    {},
+                    leadingIcon = { Icon(Icons.Default.CreditCard, "cc") },
+                    modifier = Modifier.fillMaxSize()
+                )
+                Spacer(Modifier.height(20.dp))
+                Text("Card Number", modifier = Modifier.fillMaxSize())
+                OutlinedTextField(
+                    ccNumber,
+                    {
+                        ccNumber = it
+                        validCardNumber = ccNumber.all { it.isDigit() } && ccNumber.length == 16
+                    },
+                    placeholder = { Text("0000 0000 0000 0000") },
+                    modifier = Modifier.fillMaxSize(),
+                    supportingText = {
+                        if (!validCardNumber) {
+                            Text("Invalid card number", color = Color.Red)
                         }
                     }
                 )
-            }
-            Column {
-                Text("CVV")
-                OutlinedTextField(
-                    value = cvv,
-                    onValueChange = { cvv = it },
-                    leadingIcon = {
-                        IconButton(onClick = {  }) {
-                            Icon(imageVector = Icons.Default.Lock, contentDescription = "Select date")
-                        }
+                Spacer(Modifier.height(20.dp))
+                Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+                    Column {
+                        Text("Expiry Date")
+                        OutlinedTextField(
+                            value = "",
+                            onValueChange = { expDate = it },
+                            leadingIcon = {
+                                IconButton(onClick = { showCalendar = !showCalendar }) {
+                                    Icon(
+                                        imageVector = Icons.Default.DateRange,
+                                        contentDescription = "Select date"
+                                    )
+                                }
+                            }
+                        )
                     }
-                )
+                    Column {
+                        Text("CVV")
+                        OutlinedTextField(
+                            value = cvv,
+                            onValueChange = { cvv = it },
+                            leadingIcon = {
+                                IconButton(onClick = { }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Lock,
+                                        contentDescription = "Select date"
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+                Spacer(Modifier.height(20.dp))
+                Button(
+                    onClick = {
+                        val client = Client()
+                        val response = client.add_card(trn, ccNumber)
+
+                        when (response) {
+                            false -> toast("Error adding card")
+                            true -> toast("Card added")
+                        }
+                    },
+                    Modifier.align(Alignment.CenterHorizontally).fillMaxWidth()
+                ) {
+                    Text("Add Card")
+                }
             }
         }
-        Spacer(Modifier.height(20.dp))
-
-        Button(onClick = {}, Modifier.align(Alignment.CenterHorizontally).fillMaxWidth(),) {
-            Text("Pay Now")
-        }
-    }
+    )
 }
 
 @Preview
 @Composable
 fun CardPreview() {
     FlowAppTheme {
-        AddCard()
+        AddCard(trn = "123456789")
     }
 }
