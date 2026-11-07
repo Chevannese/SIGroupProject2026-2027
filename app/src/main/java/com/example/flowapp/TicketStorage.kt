@@ -88,10 +88,15 @@ fun saveTicket(context: Context, ticket: Ticket) {
 }
 
 // Initialize default tickets
+
+
 fun initializeDefaultTickets(
     context: Context,
     trn: String
 ) {
+    // Only initialize default tickets for this customer
+    if (trn != "123456789") return
+
     val existingTickets = getAllTickets(context)
 
     val start = LocalDateTime.now()
@@ -141,7 +146,7 @@ fun initializeDefaultTickets(
     defaultTickets.forEach { ticket ->
         val alreadyExists = existingTickets.any {
             it.ticketNo == ticket.ticketNo &&
-                    it.custID == trn
+                    it.custID == "123456789"
         }
 
         if (!alreadyExists) {
@@ -149,3 +154,5 @@ fun initializeDefaultTickets(
         }
     }
 }
+
+
