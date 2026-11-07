@@ -39,10 +39,7 @@ fun TicketCard(ticket: Ticket) {
                     style = MaterialTheme.typography.titleMedium
                 )
 
-                Text(
-                    "Queue #${ticket.queueNumber}",
-                    style = MaterialTheme.typography.titleMedium
-                )
+
             }
 
             Text("Service: ${ticket.service}")
