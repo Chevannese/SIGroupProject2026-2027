@@ -100,7 +100,7 @@ fun initializeDefaultTickets(
     val defaultTickets = listOf(
         Ticket(
             ticketNo = "TKT001",
-            custID = trn,
+            custID = "123456789",
             service = "Phone Service",
             branch = "Portmore",
             paymentMethod = "Cash",
@@ -113,7 +113,7 @@ fun initializeDefaultTickets(
 
         Ticket(
             ticketNo = "TKT002",
-            custID = trn,
+            custID = "123456789",
             service = "Internet Service",
             branch = "Kingston",
             paymentMethod = "Card",
@@ -126,7 +126,7 @@ fun initializeDefaultTickets(
 
         Ticket(
             ticketNo = "TKT003",
-            custID = trn,
+            custID = "123456789",
             service = "Phone Service",
             branch = "Kingston",
             paymentMethod = "Cash",
