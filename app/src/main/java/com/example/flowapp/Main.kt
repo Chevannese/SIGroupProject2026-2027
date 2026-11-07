@@ -75,7 +75,7 @@ fun Main(onLogoutClick: () -> Unit, trn: String) {
         Box(modifier = Modifier.padding(innerPadding)) {
             when (tab) {
                 0 -> Home(trn = trn)
-                1 -> Queues()
+                1 -> Queues(trn = trn)
                 2 -> Payments()
             }
         }

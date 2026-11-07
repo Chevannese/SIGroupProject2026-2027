@@ -29,9 +29,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
+import androidx.compose.runtime.remember
 @Composable
 fun Queues(
+    trn:String,
     onBack: () -> Unit = {},
     startTab: Int = 0
 ) {
@@ -123,12 +124,11 @@ fun Queues(
 }
 
 
-
 @Preview
 @Composable
 fun QueuesPreview() {
     FlowAppTheme {
-        Queues()
+        Queues(trn = "123456789")
     }
 }
 
@@ -136,6 +136,6 @@ fun QueuesPreview() {
 @Composable
 fun TicketPreview() {
     FlowAppTheme {
-        Queues(startTab = 1)
+        Queues(trn = "123456789", startTab = 1)
     }
 }
