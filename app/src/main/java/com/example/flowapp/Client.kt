@@ -524,6 +524,45 @@ class Client() {
 
         return tickets
     }
+
+    /**
+     * Do not use this function without checking if the card already exists
+     * @param trn The TRN of the user
+     * @param card The credit card number to add
+     */
+    fun add_card(trn: String, card: String): Boolean {
+        try {
+            val file = File(context.filesDir, "cards.txt")
+            file.appendText("$trn,$card\n")
+            return true
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+        }
+
+        return false
+    }
+
+    fun cards(trn: String): String? {
+        try {
+            val file = File(context.filesDir, "cards.txt")
+
+            if (file.exists()) {
+                for (line in file.readLines()) {
+                    val split = line.split(",")
+
+                    if (split[0] == trn) {
+                        return split[1]
+                    }
+                }
+            }
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+        }
+
+        return null
+    }
 }
 
 
