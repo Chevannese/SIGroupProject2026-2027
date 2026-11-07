@@ -134,7 +134,10 @@ fun AddCard(onBack: () -> Unit = {}, trn: String) {
 
                         when (response) {
                             false -> toast("Error adding card")
-                            true -> toast("Card added")
+                            true -> {
+                                toast("Card added")
+                                onBack()
+                            }
                         }
                     },
                     Modifier.align(Alignment.CenterHorizontally).fillMaxWidth()
