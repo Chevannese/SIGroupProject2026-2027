@@ -121,11 +121,6 @@ fun Profile(onBack: () -> Unit = {}, onLogoutClick: () -> Unit = {}, onDetails: 
 }
 
 @Composable
-fun Home() {
-    Text(text = "Home Screen", style = MaterialTheme.typography.headlineMedium)
-}
-
-@Composable
 fun Appointments() {
     Text(text = "Appointments Screen", style = MaterialTheme.typography.headlineMedium)
 }
