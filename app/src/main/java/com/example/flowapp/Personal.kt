@@ -170,7 +170,7 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done,
+                    imeAction = ImeAction.Next,
                 ),
             )
 
@@ -200,7 +200,7 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done,
+                    imeAction = ImeAction.Next,
                 ),
             )
 
