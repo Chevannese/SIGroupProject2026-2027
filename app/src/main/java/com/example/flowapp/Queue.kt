@@ -48,35 +48,42 @@ fun Queues(
         mutableIntStateOf(startTab)
     }
 
-    initializeDefaultTickets(context, trn)
+    LaunchedEffect(trn) {
+        tickets = withContext(Dispatchers.IO) {
 
-    getAllTickets(context).filter { ticket -> ticket.custID == trn }
+            initializeDefaultTickets(context, trn)
 
-//    LaunchedEffect(trn) {
-//        tickets = withContext(Dispatchers.IO) {
-//
-//            initializeDefaultTickets(context, trn)
-//
-//            getAllTickets(context).filter { ticket -> ticket.custID == trn }
-//        }
-//    }
+            getCustomerTickets(context, trn)
+        }
+    }
 
     Column(modifier = Modifier.padding(20.dp)) {
 
         Spacer(Modifier.height(20.dp))
 
-        PrimaryTabRow(selectedTabIndex = tab, /* modifier = Modifier.clip(RoundedCornerShape(20.dp)) */) {
-            Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text("Get a ticket") })
+        PrimaryTabRow(
+            selectedTabIndex = tab,
+            modifier = Modifier.clip(RoundedCornerShape(20.dp))
+        ) {
+            Tab(
+                selected = tab == 0,
+                onClick = { tab = 0 },
+                text = { Text("Get a ticket") }
+            )
 
-            Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text("My Ticket") })
+            Tab(
+                selected = tab == 1,
+                onClick = { tab = 1 },
+                text = { Text("My Ticket") }
+            )
         }
 
         when (tab) {
             0 -> QueueTab()
             1 -> TicketsScreen(tickets = tickets)
         }
+        }
     }
-}
 
 
 @Composable fun QueueTab() {
