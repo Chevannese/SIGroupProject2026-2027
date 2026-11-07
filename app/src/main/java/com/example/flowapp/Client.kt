@@ -531,6 +531,154 @@ class Client() {
         return tickets
     }
 
+
+    fun getTicketFile(context: Context): File {
+        return File(context.filesDir, "tickets.txt")
+    }
+
+    // Convert a ticket into a text record
+    fun ticketToString(ticket: Ticket): String {
+        return listOf(
+            ticket.ticketNo,
+            ticket.custID,
+            ticket.service,
+            ticket.branch,
+            ticket.paymentMethod,
+            ticket.paymentStatus,
+            ticket.ticketStatus,
+            ticket.cost,
+            ticket.totalPaid,
+            ticket.created,
+            ticket.serviceStartTime ?: "",
+            ticket.serviceEndTime ?: "",
+            ticket.serviceTime
+        ).joinToString(",")
+    }
+
+    // Convert a text record back into a Ticket
+    fun stringToTicket(line: String): Ticket? {
+        return try {
+            val data = line.split(",", limit = 13)
+
+            if (data.size != 13 || data[0] == "ticketNo") {
+                return null
+            }
+
+            Ticket(
+                ticketNo = data[0],
+                custID = data[1],
+                service = data[2],
+                branch = data[3],
+                paymentMethod = data[4],
+                paymentStatus = data[5],
+                ticketStatus = data[6],
+                cost = data[7].toDouble(),
+                totalPaid = data[8].toDouble(),
+                created = LocalDateTime.parse(data[9]),
+                serviceStartTime = data[10]
+                    .takeIf { it.isNotBlank() }
+                    ?.let { LocalDateTime.parse(it) },
+                serviceEndTime = data[11]
+                    .takeIf { it.isNotBlank() }
+                    ?.let { LocalDateTime.parse(it) },
+                serviceTime = data[12].toInt()
+            )
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    // Retrieve all tickets
+    fun getAllTickets(context: Context): List<Ticket> {
+        val file = getTicketFile(context)
+
+        if (!file.exists()) return emptyList()
+
+        return file.readLines().mapNotNull {
+            stringToTicket(it)
+        }
+    }
+
+    // Retrieve tickets belonging to a specific customer
+    fun getCustomerTickets(context: Context, trn: String): List<Ticket> {
+
+        val file = File(context.filesDir, "tickets.txt")
+
+        // Check if file exists
+        if (!file.exists()) {
+            file.createNewFile()
+            println("tickets.txt was created because it didn't exist.")
+        }
+
+        // Display file information
+        println("File path: ${file.absolutePath}")
+        println("File exists: ${file.exists()}")
+        println("File contents:\n${file.readText()}")
+
+        // Convert text records into Ticket objects
+        val allTickets = file.readLines()
+            .filter { it.isNotBlank() }
+            .mapNotNull { stringToTicket(it) }
+
+        println("Total tickets loaded: ${allTickets.size}")
+
+        // Filter tickets by customer TRN
+        val customerTickets = allTickets.filter {
+            it.custID == trn
+        }
+
+        println("TRN being searched: $trn")
+        println("Customer tickets found: ${customerTickets.size}")
+
+        return customerTickets
+    }
+
+    // Append a ticket to tickets.txt
+    fun saveTicket(context: Context, ticket: Ticket) {
+        val file = getTicketFile(context)
+
+        file.appendText(ticketToString(ticket) + "\n")
+    }
+
+    fun createTicket(
+        trn: String,
+        service: String,
+        branch: String
+    ): Ticket {
+        val existingTickets = getAllTickets(context)
+
+        // Generate the next ticket number
+        val nextNumber = (existingTickets.mapNotNull {
+            it.ticketNo.removePrefix("TKT").toIntOrNull()
+        }.maxOrNull() ?: 0) + 1
+
+        val ticket = Ticket(
+            ticketNo = "TKT${nextNumber.toString().padStart(3, '0')}",
+            custID = trn,
+            service = service,
+            branch = branch,
+            paymentMethod = "Card",
+            paymentStatus = "Unpaid",
+            ticketStatus = "Waiting",
+            cost = when (service) {
+                "Phone Service" -> 500.0
+                "Internet Service" -> 1000.0
+                else -> 0.0
+            },
+            totalPaid = 0.0,
+            created = LocalDateTime.now(),
+            serviceStartTime = null,
+            serviceEndTime = null,
+            serviceTime = 10
+        )
+
+        saveTicket(context, ticket)
+
+        return ticket
+    }
+
     /**
      * Do not use this function without checking if the card already exists
      * @param trn The TRN of the user

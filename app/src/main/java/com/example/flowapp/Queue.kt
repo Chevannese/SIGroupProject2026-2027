@@ -8,6 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,7 +32,7 @@ fun Queues(
 ) {
     val context = LocalContext.current
 
-    var tickets by rememberSaveable {
+    var tickets by remember {
         mutableStateOf(emptyList<Ticket>())
     }
 
@@ -41,7 +42,8 @@ fun Queues(
 
     LaunchedEffect(trn) {
         tickets = withContext(Dispatchers.IO) {
-            getCustomerTickets(context, trn)
+            var client = Client()
+            client.getCustomerTickets(context, trn)
         }
     }
 
@@ -66,7 +68,13 @@ fun Queues(
         }
 
         when (tab) {
-            0 -> QueueTab(trn)
+            0 -> QueueTab(
+                trn = trn,
+                onTicketCreated = { newTicket ->
+                    tickets = tickets + newTicket
+                    tab = 1
+                }
+            )
             1 -> TicketsScreen(tickets = tickets)
         }
     }
@@ -74,7 +82,10 @@ fun Queues(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QueueTab(trn: String, onGetQueue: () -> Unit = {}) {
+fun QueueTab(
+    trn: String,
+    onTicketCreated: (Ticket) -> Unit = {}
+) {
     val services = listOf("Phone Service", "Internet Service")
     val branches = listOf("Portmore", "Kingston")
 
@@ -113,10 +124,19 @@ fun QueueTab(trn: String, onGetQueue: () -> Unit = {}) {
                     if (card.isNullOrBlank()) {
                         showCard = true
                     } else {
-                        toast("TODO: Proceed to queue")
+                        val newTicket = client.createTicket(
+                            trn = trn,
+                            service = service,
+                            branch = branch
+                        )
+
+                        onTicketCreated(newTicket)
+                        toast("Ticket created successfully!")
                     }
                 },
-                modifier = Modifier.scale(1.2f).align(Alignment.CenterHorizontally)
+                modifier = Modifier
+                    .scale(1.2f)
+                    .align(Alignment.CenterHorizontally)
             ) {
                 Text(
                     text = "Get Queue Number",
