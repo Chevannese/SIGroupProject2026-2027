@@ -248,6 +248,18 @@ class MainActivity : ComponentActivity() {
             updatePassword.isEnabled = true
 
             when (response) {
+                UpdatePassword.CODE_SHORT ->
+                    Toast.makeText(
+                        applicationContext,
+                        "Code too short. Verification Code should contain 6 digits",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                UpdatePassword.CODE_LONG ->
+                    Toast.makeText(
+                        applicationContext,
+                        "Code too long. Verification Code should contain 6 digits",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 UpdatePassword.EMPTY_FIELD ->
                     Toast.makeText(
                         applicationContext,

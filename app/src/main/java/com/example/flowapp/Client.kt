@@ -50,6 +50,8 @@ enum class UpdatePassword
     PASSWORD_SHORT,
     PASSWORD_LONG,
     PASSWORD_MISMATCH,
+    CODE_SHORT,
+    CODE_LONG,
     INVALID_CODE,
     OK,
     INVALID_PASSWORD,
@@ -400,7 +402,8 @@ class Client() {
         if (listOf(verifyCode, password, confirmPassword).any { it.isBlank() }) {
             return UpdatePassword.EMPTY_FIELD
         }
-
+        if (verifyCode.length <6) return UpdatePassword.CODE_SHORT
+        if (verifyCode.length >6) return UpdatePassword.CODE_LONG
         if (password.length < 8) return UpdatePassword.PASSWORD_SHORT
         if (password.length > 30) return UpdatePassword.PASSWORD_LONG
         if (password != confirmPassword) return UpdatePassword.PASSWORD_MISMATCH
