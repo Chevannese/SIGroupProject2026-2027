@@ -33,8 +33,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.LocalDateTime
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun Payments(trn: String) {
@@ -43,7 +41,6 @@ fun Payments(trn: String) {
 
     val tickets = Client().getCustomerTickets(trn = trn)
     val displayTickets = tickets.map { t -> t.ticketNo }
-    var selected by remember { mutableStateOf(displayTickets[0]) }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         DropdownField(
