@@ -111,6 +111,7 @@ fun BackBar(title: String, onBack: () -> Unit, content: @Composable () -> Unit =
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 for (option in options) {
                     DropdownMenuItem(
+                        modifier = Modifier.fillMaxWidth(),
                         text = { Text(option) },
                         onClick = {
                             onSelected(option)
