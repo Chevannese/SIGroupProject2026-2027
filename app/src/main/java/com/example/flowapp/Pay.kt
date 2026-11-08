@@ -244,7 +244,7 @@ fun Pay(ticket: Ticket, trn: String, onDismissRequest: () -> Unit) {
                                 val client = Client()
                                 val response = client.makePayment(ticket.ticketNo, amountDue)
 
-                                error = !response
+                                error = response == false
                                 processing = 2
                             }
                         }
