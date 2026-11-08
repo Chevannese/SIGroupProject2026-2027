@@ -125,11 +125,6 @@ fun Appointments() {
     Text(text = "Appointments Screen", style = MaterialTheme.typography.headlineMedium)
 }
 
-@Composable
-fun Payments(trn:String) {
-    Text(text = "Payments Screen", style = MaterialTheme.typography.headlineMedium)
-}
-
 @Preview
 @Composable fun MainPreview() {
     FlowAppTheme()  {

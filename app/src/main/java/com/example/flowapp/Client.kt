@@ -714,7 +714,7 @@ class Client() {
     }
 
     // Retrieve all tickets
-    fun getAllTickets(context: Context): List<Ticket> {
+    fun getAllTickets(context: Context = this.context): List<Ticket> {
         val file = getTicketFile(context)
 
         if (!file.exists()) return emptyList()
@@ -725,8 +725,7 @@ class Client() {
     }
 
     // Retrieve tickets belonging to a specific customer
-    fun getCustomerTickets(context: Context, trn: String): List<Ticket> {
-
+    fun getCustomerTickets(context: Context = this.context, trn: String): List<Ticket> {
         val file = File(context.filesDir, "tickets.txt")
 
         // Check if file exists

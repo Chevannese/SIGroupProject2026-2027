@@ -28,6 +28,32 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.seconds
 
+@Composable
+fun Payments(trn: String) {
+    var ticket by remember { mutableStateOf("") }
+    var showPay by remember { mutableStateOf(false) }
+
+    val tickets = Client().getCustomerTickets(trn = trn)
+    val displayTickets = tickets.map { t -> t.ticketNo }
+    var selected by remember { mutableStateOf(displayTickets[0]) }
+
+    Column {
+        DropdownField(
+            "Ticket",
+            displayTickets,
+            ticket,
+            { ticket = it }
+        )
+
+        Button(onClick = { showPay = true }) {
+            Text("Pay")
+        }
+    }
+
+    if (showPay) {
+        Pay(ticket, trn, onDismissRequest = { showPay = false })
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
