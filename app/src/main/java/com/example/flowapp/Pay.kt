@@ -141,7 +141,7 @@ fun Pay(ticket: Ticket, trn: String, onDismissRequest: () -> Unit) {
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                text = "Ticket #${ticket}",
+                                text = "Ticket #${ticket.ticketNo}",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
