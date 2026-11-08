@@ -8,8 +8,16 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -37,7 +45,7 @@ fun Payments(trn: String) {
     val displayTickets = tickets.map { t -> t.ticketNo }
     var selected by remember { mutableStateOf(displayTickets[0]) }
 
-    Column {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         DropdownField(
             "Ticket",
             displayTickets,
@@ -64,7 +72,7 @@ fun Pay(ticket: String, trn: String, onDismissRequest: () -> Unit) {
 
     // TODO: delete these later and switch to data from a ticket
     var remainingBalance by remember { mutableDoubleStateOf(0.0) }
-    var amount by remember { mutableDoubleStateOf(0.0) }
+    var amount: Double by remember { mutableDoubleStateOf(0.0) }
 
     ModalBottomSheet(onDismissRequest = onDismissRequest) {
         if (processing == 0) {
@@ -166,15 +174,17 @@ fun Pay(ticket: String, trn: String, onDismissRequest: () -> Unit) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Amount Paying:",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "$${"%.2f".format(remainingBalance)}",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
+                    OutlinedTextField(
+                        label = { Text("Amount paying:") },
+                        value = "$%.2f".format(remainingBalance),
+                        onValueChange = {
+                            val amountValue = it.toDoubleOrNull()
+                            when (amountValue) {
+                                null -> toast("Invalid amount")
+                                else -> amount = amountValue
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                     )
                 }
 
@@ -186,7 +196,7 @@ fun Pay(ticket: String, trn: String, onDismissRequest: () -> Unit) {
                                 // TODO: Update ticket remaining amount
                                 processing = 1
                                 val client = Client()
-                                val response = client.makePayment(ticket, amount)
+                                val response = client.makePayment(ticket, amount ?: 0.0)
 
                                 error = !response
                                 processing = 2
