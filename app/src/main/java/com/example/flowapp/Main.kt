@@ -76,7 +76,7 @@ fun Main(onLogoutClick: () -> Unit, trn: String) {
             when (tab) {
                 0 -> Home(trn = trn)
                 1 -> Queues(trn = trn)
-                2 -> Payments(trn = trn)
+                2 -> Payments(trn = trn, padding = innerPadding)
             }
         }
 
