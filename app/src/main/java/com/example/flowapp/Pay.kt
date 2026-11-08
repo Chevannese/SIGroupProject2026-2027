@@ -45,12 +45,21 @@ fun Payments(trn: String, padding: PaddingValues = PaddingValues.Zero) {
         mutableStateOf(!Client().cards(trn).isNullOrBlank())
     }
 
-    val tickets = Client().getCustomerTickets(trn = trn)
-        .filter {
-            it.ticketStatus in listOf(
+    val client = Client()
+
+    val receipts = client.getCustomerReceipts(trn)
+
+    val tickets = client.getCustomerTickets(trn = trn)
+        .filter { ticket ->
+
+            val receipt = receipts.find {
+                it.ticketNo == ticket.ticketNo
+            }
+
+            ticket.ticketStatus in listOf(
                 "Being Served",
                 "Served"
-            ) && it.paymentStatus != "Fully Paid"
+            ) && receipt?.paymentStatus != "Fully Paid"
         }
 
     var ticketDisplay by remember(trn) {
@@ -63,6 +72,10 @@ fun Payments(trn: String, padding: PaddingValues = PaddingValues.Zero) {
     val selectedTicket = tickets.find {
         it.ticketNo == ticketDisplay
     } ?: tickets.firstOrNull()
+
+    val selectedReceipt = receipts.find {
+        it.ticketNo == selectedTicket?.ticketNo
+    }
 
     if (tickets.isEmpty()) {
 
@@ -117,11 +130,15 @@ fun Payments(trn: String, padding: PaddingValues = PaddingValues.Zero) {
         )
     }
 
-    if (showPay && selectedTicket != null) {
+    if (
+        showPay &&
+        selectedTicket != null &&
+        selectedReceipt != null
+    ) {
 
         Pay(
             selectedTicket,
-            trn,
+            selectedReceipt,
             onDismissRequest = {
                 showPay = false
                 hasCard = !Client().cards(trn).isNullOrBlank()
@@ -132,15 +149,16 @@ fun Payments(trn: String, padding: PaddingValues = PaddingValues.Zero) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Pay(ticket: Ticket, trn: String, onDismissRequest: () -> Unit) {
+fun Pay(
+    ticket: Ticket,
+    receipt: Receipt,
+    onDismissRequest: () -> Unit
+){
     var processing by remember { mutableIntStateOf(2) }
     var error by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    // TODO: delete these later and switch to data from a ticket
-    var amount: Double by remember { mutableDoubleStateOf(0.0) }
-    var amountDue by remember { mutableDoubleStateOf(ticket.cost - ticket.totalPaid) }
-    var remainingBalance by remember { mutableDoubleStateOf(amountDue - amount) }
+    val amountDue = receipt.cost - receipt.totalPaid
 
     ModalBottomSheet(onDismissRequest = onDismissRequest) {
         if (processing == 0) {
@@ -228,7 +246,7 @@ fun Pay(ticket: Ticket, trn: String, onDismissRequest: () -> Unit) {
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                text = "Payment Card",
+                                text = receipt.paymentMethod,
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold
                             )
@@ -250,40 +268,7 @@ fun Pay(ticket: Ticket, trn: String, onDismissRequest: () -> Unit) {
                     )
                 }
 
-                /*
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        label = { Text("Amount paying:") },
-                        value = "$%.2f".format(amount),
-                        onValueChange = {
-                            val amountValue = it.toDoubleOrNull()
-                            if (amountValue != null) {
-                                amount = amountValue
-                                remainingBalance = amountDue - amount
-                            }
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-                    )
-                }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        label = { Text("Amount Remaining") },
-                        onValueChange = {},
-                        value = "$%.2f".format(remainingBalance),
-                        enabled = false,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-                    )
-                }
-                */
 
                 // Pay Button
                 Button(
@@ -311,16 +296,4 @@ fun Pay(ticket: Ticket, trn: String, onDismissRequest: () -> Unit) {
     }
 }
 
-/*
-@Preview(showBackground = true)
-@Composable
-fun PayPreview() {
-    FlowAppTheme {
-        Pay(
-            ticket = "34567",
-            trn = "123456789",
-            onDismissRequest = {}
-        )
-    }
-}
-*/
+
