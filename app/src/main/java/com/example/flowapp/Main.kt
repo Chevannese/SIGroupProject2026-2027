@@ -76,7 +76,7 @@ fun Main(onLogoutClick: () -> Unit, trn: String) {
             when (tab) {
                 0 -> Home(trn = trn)
                 1 -> Queues(trn = trn)
-                2 -> Payments()
+                2 -> Payments(trn = trn)
             }
         }
 
@@ -126,7 +126,7 @@ fun Appointments() {
 }
 
 @Composable
-fun Payments() {
+fun Payments(trn:String) {
     Text(text = "Payments Screen", style = MaterialTheme.typography.headlineMedium)
 }
 

@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import com.example.flowapp.ui.theme.FlowAppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun Queues(
@@ -40,10 +42,22 @@ fun Queues(
         mutableIntStateOf(startTab)
     }
 
-    LaunchedEffect(trn) {
-        tickets = withContext(Dispatchers.IO) {
-            var client = Client()
-            client.getCustomerTickets(context, trn)
+    LaunchedEffect(tab, trn) {
+        if (tab == 1) {
+            tickets = withContext(Dispatchers.IO) {
+                val client = Client()
+
+                val branches = client.getAllTickets(context)
+                    .filter { it.ticketStatus == "Being Served" }
+                    .map { it.branch }
+                    .distinct()
+
+                branches.forEach { branch ->
+                    client.updateQueue(branch)
+                }
+
+                client.getCustomerTickets(context, trn)
+            }
         }
     }
 
@@ -71,10 +85,14 @@ fun Queues(
             0 -> QueueTab(
                 trn = trn,
                 onTicketCreated = { newTicket ->
-                    tickets = tickets + newTicket
+                    tickets = tickets.filterNot {
+                        it.ticketNo == newTicket.ticketNo
+                    } + newTicket
+
                     tab = 1
                 }
             )
+
             1 -> TicketsScreen(tickets = tickets)
         }
     }
@@ -86,6 +104,8 @@ fun QueueTab(
     trn: String,
     onTicketCreated: (Ticket) -> Unit = {}
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
     val services = listOf("Phone Service", "Internet Service")
     val branches = listOf("Portmore", "Kingston")
 
@@ -119,19 +139,44 @@ fun QueueTab(
             Button(
                 onClick = {
                     val client = Client()
-                    val card = client.cards(trn)
 
-                    if (card.isNullOrBlank()) {
-                        showCard = true
+                    // Check for an existing active ticket.
+                    if (client.hasActiveTicket(trn)) {
+                        toast("You already have an active ticket!")
                     } else {
-                        val newTicket = client.createTicket(
-                            trn = trn,
-                            service = service,
-                            branch = branch
-                        )
 
-                        onTicketCreated(newTicket)
-                        toast("Ticket created successfully!")
+                        // Check whether the customer has a saved payment method.
+                        val card = client.cards(trn)
+
+                        if (card.isNullOrBlank()) {
+                            showCard = true
+                        } else {
+
+                            val newTicket = client.createTicket(
+                                trn = trn,
+                                service = service,
+                                branch = branch
+                            )
+
+                            if (newTicket == null) {
+                                toast("You already have an active ticket!")
+                            } else {
+
+                                // Reload the ticket to get its latest status.
+                                coroutineScope.launch {
+                                    val updatedTicket = withContext(Dispatchers.IO) {
+                                        client.getAllTickets(context).firstOrNull {
+                                            it.ticketNo == newTicket.ticketNo
+                                        }
+                                    }
+
+                                    if (updatedTicket != null) {
+                                        onTicketCreated(updatedTicket)
+                                        toast("Ticket created successfully!")
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 modifier = Modifier

@@ -488,49 +488,172 @@ class Client() {
         }
     }
 
-    fun tickets(trn: String): List<Ticket> {
-        val tickets = ArrayList<Ticket>()
 
-        try {
-            val file = File(context.filesDir, "tickets.txt")
+    private fun saveAllTickets(tickets: List<Ticket>) {
+        val file = getTicketFile(context)
 
-            if (file.exists()) {
-                for (line in file.readLines()) {
-                    val split = line.split(",")
-                    if (split[0] == trn) {
-                        tickets.add(
+        file.writeText(
+            tickets.joinToString("\n") { ticketToString(it) }
+        )
 
-                            Ticket(
-                                ticketNo = split[1],
-                                custID = split[2],
-                                service = split[3],
-                                branch = split[4],
-
-                                paymentMethod = split[5],
-                                paymentStatus = split[6],
-                                ticketStatus = split[7],
-
-                                cost = split[8].toDouble(),
-                                totalPaid = split[9].toDouble(),
-
-                                created = LocalDateTime.parse(split[10]),
-                                serviceStartTime = split[11].takeIf { it.isNotBlank() }?.let { LocalDateTime.parse(it) },
-                                serviceEndTime = split[12].takeIf { it.isNotBlank() }?.let { LocalDateTime.parse(it) },
-                                serviceTime = split[13].toInt()
-
-                            )
-                        )
-                    }
-                }
-            }
+        if (tickets.isNotEmpty()) {
+            file.appendText("\n")
         }
-        catch (e: Exception) {
-            Log.d("ERROR", e.message.toString())
-        }
-
-        return tickets
     }
 
+    fun hasActiveTicket(trn: String): Boolean {
+        return getAllTickets(context).any { ticket ->
+            ticket.custID == trn &&
+                    ticket.ticketStatus in listOf(
+                "Waiting",
+                "Being Served",
+                "Served"
+            )
+        }
+    }
+
+    fun createTicket(
+        trn: String,
+        service: String,
+        branch: String
+    ): Ticket? {
+
+        if (hasActiveTicket(trn)) {
+            return null
+        }
+
+        val existingTickets = getAllTickets(context)
+
+        val nextNumber = (existingTickets.mapNotNull {
+            it.ticketNo.removePrefix("TKT").toIntOrNull()
+        }.maxOrNull() ?: 0) + 1
+
+        val ticket = Ticket(
+            ticketNo = "TKT${nextNumber.toString().padStart(3, '0')}",
+            custID = trn,
+            service = service,
+            branch = branch,
+            paymentMethod = "Card",
+            paymentStatus = "Unpaid",
+            ticketStatus = "Waiting",
+            cost = when (service) {
+                "Phone Service" -> 500.0
+                "Internet Service" -> 1000.0
+                else -> 0.0
+            },
+            totalPaid = 0.0,
+            created = LocalDateTime.now(),
+            serviceStartTime = null,
+            serviceEndTime = null,
+            serviceTime = 10
+        )
+
+        saveTicket(context, ticket)
+
+        // Check whether this ticket can start immediately.
+        startNextTicket(branch)
+
+        return ticket
+    }
+
+    fun markNoShow(ticketNo: String): Boolean {
+
+        val tickets = getAllTickets(context)
+
+        val ticket = tickets.find {
+            it.ticketNo == ticketNo
+        } ?: return false
+
+        if (
+            ticket.ticketStatus != "Being Served" ||
+            ticket.totalPaid > 0.0 ||
+            ticket.serviceEndTime == null ||
+            LocalDateTime.now().isBefore(ticket.serviceEndTime)
+        ) {
+            return false
+        }
+
+        val updatedTickets = tickets.map {
+            if (it.ticketNo == ticketNo) {
+                it.copy(ticketStatus = "No Show")
+            } else {
+                it
+            }
+        }
+
+        saveAllTickets(updatedTickets)
+
+        return true
+    }
+
+    fun updateQueue(branch: String) {
+
+        val tickets = getAllTickets(context)
+        val now = LocalDateTime.now()
+
+        val updatedTickets = tickets.map { ticket ->
+
+            if (
+                ticket.branch == branch &&
+                ticket.ticketStatus == "Being Served" &&
+                ticket.serviceEndTime != null &&
+                !now.isBefore(ticket.serviceEndTime)
+            ) {
+                if (ticket.totalPaid <= 0.0) {
+                    ticket.copy(ticketStatus = "No Show")
+                } else {
+                    ticket.copy(ticketStatus = "Served")
+                }
+            } else {
+                ticket
+            }
+        }
+
+        saveAllTickets(updatedTickets)
+
+        // Start the next ticket if the current service period has ended.
+        startNextTicket(branch)
+    }
+
+    fun startNextTicket(branch: String) {
+
+        val tickets = getAllTickets(context)
+
+        // Do not start another ticket while one is being served.
+        val currentlyServing = tickets.any {
+            it.branch == branch &&
+                    it.ticketStatus == "Being Served"
+        }
+
+        if (currentlyServing) return
+
+        // Find the next waiting ticket.
+        val nextTicket = tickets
+            .filter {
+                it.branch == branch &&
+                        it.ticketStatus == "Waiting"
+            }
+            .minByOrNull { it.created }
+            ?: return
+
+        val now = LocalDateTime.now()
+
+        val updatedTickets = tickets.map { ticket ->
+            if (ticket.ticketNo == nextTicket.ticketNo) {
+                ticket.copy(
+                    ticketStatus = "Being Served",
+                    serviceStartTime = now,
+                    serviceEndTime = now.plusMinutes(
+                        ticket.serviceTime.toLong()
+                    )
+                )
+            } else {
+                ticket
+            }
+        }
+
+        saveAllTickets(updatedTickets)
+    }
 
     fun getTicketFile(context: Context): File {
         return File(context.filesDir, "tickets.txt")
@@ -641,42 +764,100 @@ class Client() {
 
         file.appendText(ticketToString(ticket) + "\n")
     }
+    fun cancelTicket(ticketNo: String): Boolean {
 
-    fun createTicket(
-        trn: String,
-        service: String,
-        branch: String
-    ): Ticket {
-        val existingTickets = getAllTickets(context)
+        val tickets = getAllTickets(context)
 
-        // Generate the next ticket number
-        val nextNumber = (existingTickets.mapNotNull {
-            it.ticketNo.removePrefix("TKT").toIntOrNull()
-        }.maxOrNull() ?: 0) + 1
+        val ticket = tickets.find {
+            it.ticketNo == ticketNo
+        } ?: return false
 
-        val ticket = Ticket(
-            ticketNo = "TKT${nextNumber.toString().padStart(3, '0')}",
-            custID = trn,
-            service = service,
-            branch = branch,
-            paymentMethod = "Card",
-            paymentStatus = "Unpaid",
-            ticketStatus = "Waiting",
-            cost = when (service) {
-                "Phone Service" -> 500.0
-                "Internet Service" -> 1000.0
-                else -> 0.0
-            },
-            totalPaid = 0.0,
-            created = LocalDateTime.now(),
-            serviceStartTime = null,
-            serviceEndTime = null,
-            serviceTime = 10
-        )
+        if (
+            ticket.ticketStatus != "Waiting" ||
+            ticket.totalPaid > 0.0
+        ) {
+            return false
+        }
 
-        saveTicket(context, ticket)
+        val updatedTickets = tickets.filter {
+            it.ticketNo != ticketNo
+        }
 
-        return ticket
+        saveAllTickets(updatedTickets)
+
+        startNextTicket(ticket.branch)
+
+        return true
+    }
+    fun makePayment(
+        ticketNo: String,
+        amount: Double
+    ): Boolean {
+
+        if (amount <= 0.0) return false
+
+        val tickets = getAllTickets(context)
+
+        val ticket = tickets.find {
+            it.ticketNo == ticketNo
+        } ?: return false
+
+        // Only these ticket statuses allow payment.
+        if (
+            ticket.ticketStatus !in listOf(
+                "Being Served",
+                "Served"
+            )
+        ) {
+            return false
+        }
+
+        val remainingBalance = ticket.cost - ticket.totalPaid
+
+        // Reject payments that exceed the remaining balance.
+        if (amount > remainingBalance) return false
+
+        val newTotalPaid = ticket.totalPaid + amount
+
+        val fullyPaid = newTotalPaid >= ticket.cost
+
+        val now = LocalDateTime.now()
+
+        val updatedTickets = tickets.map { currentTicket ->
+
+            if (currentTicket.ticketNo == ticketNo) {
+
+                currentTicket.copy(
+                    totalPaid = newTotalPaid,
+                    paymentStatus = if (fullyPaid) {
+                        "Fully Paid"
+                    } else {
+                        "Partially Paid"
+                    },
+                    ticketStatus = if (fullyPaid) {
+                        "Completed"
+                    } else {
+                        currentTicket.ticketStatus
+                    },
+                    serviceEndTime = if (fullyPaid) {
+                        now
+                    } else {
+                        currentTicket.serviceEndTime
+                    }
+                )
+
+            } else {
+                currentTicket
+            }
+        }
+
+        saveAllTickets(updatedTickets)
+
+        if (fullyPaid) {
+            startNextTicket(ticket.branch)
+        }
+
+        return true
     }
 
     /**
@@ -719,6 +900,8 @@ class Client() {
         return null
     }
 }
+
+
 
 
 // so like if you have a password variable, to get the hash you type password.hash256()
