@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun Payments(trn: String) {
+fun Payments(trn: String, padding: PaddingValues = PaddingValues.Zero) {
     var showPay by remember { mutableStateOf(false) }
 
     val tickets = Client().getCustomerTickets(trn = trn).filter { it.ticketStatus != "No Show" }
@@ -46,7 +46,7 @@ fun Payments(trn: String) {
     var showAddCard by remember { mutableStateOf(false) }
 
     if (hasCard) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(modifier = Modifier.padding(padding), horizontalAlignment = Alignment.CenterHorizontally) {
             DropdownField(
                 "Ticket",
                 displayTickets,
@@ -56,10 +56,6 @@ fun Payments(trn: String) {
                     ticket = tickets.find { t -> t.ticketNo == it}!!
                 }
             )
-
-            Card {
-                Text(ticket.toString())
-            }
 
             Button(onClick = { showPay = true }) {
                 Text("Pay")
