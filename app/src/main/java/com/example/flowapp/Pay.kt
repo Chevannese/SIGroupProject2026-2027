@@ -33,49 +33,98 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
 @Composable
 fun Payments(trn: String, padding: PaddingValues = PaddingValues.Zero) {
-    var showPay by remember { mutableStateOf(false) }
 
-    val tickets = Client().getCustomerTickets(trn = trn).filter { it.ticketStatus != "No Show" }
-    val displayTickets = tickets.map { t -> t.ticketNo }
-    var ticketDisplay by remember { mutableStateOf(tickets[0].ticketNo) }
-    var ticket by remember { mutableStateOf(tickets[0]) }
-    var hasCard by remember { mutableStateOf(!Client().cards(trn).isNullOrBlank()) }
+    var showPay by remember { mutableStateOf(false) }
     var showAddCard by remember { mutableStateOf(false) }
 
-    if (hasCard) {
-        Column(modifier = Modifier.padding(padding), horizontalAlignment = Alignment.CenterHorizontally) {
-            DropdownField(
-                "Ticket",
-                displayTickets,
-                ticketDisplay,
-                {
-                    ticketDisplay = it
-                    ticket = tickets.find { t -> t.ticketNo == it}!!
+    var hasCard by remember {
+        mutableStateOf(!Client().cards(trn).isNullOrBlank())
+    }
+
+    val tickets = Client().getCustomerTickets(trn = trn)
+        .filter {
+            it.ticketStatus in listOf(
+                "Being Served",
+                "Served"
+            ) && it.paymentStatus != "Fully Paid"
+        }
+
+    var ticketDisplay by remember(trn) {
+        mutableStateOf("")
+    }
+
+    // Retrieve the selected ticket.
+    // If the previously selected ticket is unavailable,
+    // automatically select the first available ticket.
+    val selectedTicket = tickets.find {
+        it.ticketNo == ticketDisplay
+    } ?: tickets.firstOrNull()
+
+    if (tickets.isEmpty()) {
+
+        Text("No tickets available for payment")
+
+    } else {
+
+        if (hasCard) {
+
+            Column(
+                modifier = Modifier.padding(padding),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                DropdownField(
+                    "Ticket",
+                    tickets.map { it.ticketNo },
+                    selectedTicket!!.ticketNo,
+                    {
+                        ticketDisplay = it
+                    }
+                )
+
+                Button(
+                    onClick = { showPay = true }
+                ) {
+                    Text("Pay")
                 }
-            )
+            }
 
-            Button(onClick = { showPay = true }) {
-                Text("Pay")
+        } else {
+
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Text("No card information found")
+
+                Button(
+                    onClick = { showAddCard = true }
+                ) {
+                    Text("Add Card")
+                }
             }
         }
     }
-    else {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text("No card information found")
 
-            Button(onClick = { showAddCard = true }) {
-                Text("Add Card")
-            }
-        }
-    }
     if (showAddCard) {
-        AddCard(onBack = { showAddCard = false }, trn = trn)
+        AddCard(
+            onBack = { showAddCard = false },
+            trn = trn
+        )
     }
-    if (showPay) {
-        Pay(ticket, trn, onDismissRequest = { showPay = false; hasCard = !Client().cards(trn).isNullOrBlank()})
+
+    if (showPay && selectedTicket != null) {
+
+        Pay(
+            selectedTicket,
+            trn,
+            onDismissRequest = {
+                showPay = false
+                hasCard = !Client().cards(trn).isNullOrBlank()
+            }
+        )
     }
 }
 
@@ -238,21 +287,21 @@ fun Pay(ticket: Ticket, trn: String, onDismissRequest: () -> Unit) {
                 Button(
                     onClick = {
                         scope.launch {
-                            withContext(Dispatchers.IO) {
-                                // TODO: Update ticket remaining amount
-                                processing = 1
-                                val client = Client()
-                                val response = client.makePayment(ticket.ticketNo, amountDue)
 
-                                error = response == false
-                                processing = 2
+                            processing = 0
+
+                            val client = Client()
+
+                            val response = withContext(Dispatchers.IO) {
+                                client.makePayment(ticket.ticketNo, amountDue)
                             }
+
+                            error = !response
+                            processing = 1
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                    shape = RoundedCornerShape(12.dp)
+                    }
                 ) {
-                    Text(text = "Pay", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text("Make Payment")
                 }
             }
         }
