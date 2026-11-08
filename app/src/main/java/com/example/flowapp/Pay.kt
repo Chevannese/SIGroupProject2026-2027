@@ -38,33 +38,48 @@ import kotlinx.coroutines.withContext
 fun Payments(trn: String) {
     var showPay by remember { mutableStateOf(false) }
 
-    val tickets = Client().getCustomerTickets(trn = trn)
+    val tickets = Client().getCustomerTickets(trn = trn).filter { it.ticketStatus != "No Show" }
     val displayTickets = tickets.map { t -> t.ticketNo }
     var ticketDisplay by remember { mutableStateOf(tickets[0].ticketNo) }
     var ticket by remember { mutableStateOf(tickets[0]) }
+    var hasCard by remember { mutableStateOf(!Client().cards(trn).isNullOrBlank()) }
+    var showAddCard by remember { mutableStateOf(false) }
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        DropdownField(
-            "Ticket",
-            displayTickets,
-            ticketDisplay,
-            {
-                ticketDisplay = it
-                ticket = tickets.find { t -> t.ticketNo == it}!!
+    if (hasCard) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            DropdownField(
+                "Ticket",
+                displayTickets,
+                ticketDisplay,
+                {
+                    ticketDisplay = it
+                    ticket = tickets.find { t -> t.ticketNo == it}!!
+                }
+            )
+
+            Card {
+                Text(ticket.toString())
             }
-        )
 
-        Card {
-            Text(ticket.toString())
-        }
-
-        Button(onClick = { showPay = true }) {
-            Text("Pay")
+            Button(onClick = { showPay = true }) {
+                Text("Pay")
+            }
         }
     }
+    else {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text("No card information found")
 
+            Button(onClick = { showAddCard = true }) {
+                Text("Add Card")
+            }
+        }
+    }
+    if (showAddCard) {
+        AddCard(onBack = { showAddCard = false }, trn = trn)
+    }
     if (showPay) {
-        Pay(ticket, trn, onDismissRequest = { showPay = false })
+        Pay(ticket, trn, onDismissRequest = { showPay = false; hasCard = !Client().cards(trn).isNullOrBlank()})
     }
 }
 
@@ -188,6 +203,7 @@ fun Pay(ticket: Ticket, trn: String, onDismissRequest: () -> Unit) {
                     )
                 }
 
+                /*
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -220,6 +236,7 @@ fun Pay(ticket: Ticket, trn: String, onDismissRequest: () -> Unit) {
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                     )
                 }
+                */
 
                 // Pay Button
                 Button(

@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
 
 @Composable
-fun AddCard(onBack: () -> Unit = {}, trn: String) {
+fun AddCard(onBack: () -> Unit = {}, onAdd: () -> Unit = {}, trn: String) {
     var ccNumber by remember { mutableStateOf("") }
     var expDate by remember { mutableStateOf("") }
     var cvv by remember { mutableStateOf("") }
@@ -153,6 +153,7 @@ fun AddCard(onBack: () -> Unit = {}, trn: String) {
                             true -> {
                                 toast("Card added")
                                 onBack()
+                                onAdd()
                             }
                         }
                     },
