@@ -41,16 +41,6 @@ fun TicketCard(ticket: Ticket) {
 
             Text("Status: ${ticket.ticketStatus.replace('_', ' ')}")
 
-            Text(
-                "Payment: ${ticket.paymentStatus.replace('_', ' ')} " +
-                        "(${ticket.paymentMethod})"
-            )
-
-            Text(
-                "Cost: $${"%.2f".format(ticket.cost)} | " +
-                        "Paid: $${"%.2f".format(ticket.totalPaid)}"
-            )
-
             HorizontalDivider()
 
             Text(

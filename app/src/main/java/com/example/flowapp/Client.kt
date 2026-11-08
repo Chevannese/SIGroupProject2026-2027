@@ -959,6 +959,43 @@ class Client() {
         }
     }
 
+    fun cancelTicket(ticketNo: String): Boolean {
+
+        val tickets = getAllTickets(context)
+
+        val ticket = tickets.find {
+            it.ticketNo == ticketNo
+        } ?: return false
+
+        val receipt = getReceipt(ticketNo) ?: return false
+
+        // Only unpaid waiting tickets can be cancelled.
+        if (
+            ticket.ticketStatus != "Waiting" ||
+            receipt.totalPaid > 0.0
+        ) {
+            return false
+        }
+
+        // Update ticket status instead of deleting it.
+        val updatedTickets = tickets.map {
+            if (it.ticketNo == ticketNo) {
+                it.copy(ticketStatus = "Cancelled")
+            } else {
+                it
+            }
+        }
+
+        saveAllTickets(updatedTickets)
+
+        // Keep the receipt unchanged.
+        // It remains stored in receipt_records.txt.
+
+        startNextTicket(ticket.branch)
+
+        return true
+    }
+
 
     /**
      * Do not use this function without checking if the card already exists
