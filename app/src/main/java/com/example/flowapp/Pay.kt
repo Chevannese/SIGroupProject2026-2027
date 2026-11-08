@@ -246,7 +246,7 @@ fun Pay(ticket: Ticket, trn: String, onDismissRequest: () -> Unit) {
                                 // TODO: Update ticket remaining amount
                                 processing = 1
                                 val client = Client()
-                                val response = client.makePayment(ticket.ticketNo, amount ?: 0.0)
+                                val response = client.makePayment(ticket.ticketNo, amountDue)
 
                                 error = !response
                                 processing = 2
