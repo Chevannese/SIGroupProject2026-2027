@@ -33,6 +33,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.time.Duration.Companion.seconds
+
 @Composable
 fun Payments(trn: String, padding: PaddingValues = PaddingValues.Zero) {
 
@@ -293,6 +295,7 @@ fun Pay(ticket: Ticket, trn: String, onDismissRequest: () -> Unit) {
                             val client = Client()
 
                             val response = withContext(Dispatchers.IO) {
+                                delay(6.seconds)
                                 client.makePayment(ticket.ticketNo, amountDue)
                             }
 
