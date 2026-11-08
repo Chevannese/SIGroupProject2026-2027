@@ -36,19 +36,27 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun Payments(trn: String) {
-    var ticket by remember { mutableStateOf("") }
     var showPay by remember { mutableStateOf(false) }
 
     val tickets = Client().getCustomerTickets(trn = trn)
     val displayTickets = tickets.map { t -> t.ticketNo }
+    var ticketDisplay by remember { mutableStateOf(tickets[0].ticketNo) }
+    var ticket by remember { mutableStateOf(tickets[0]) }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         DropdownField(
             "Ticket",
             displayTickets,
-            ticket,
-            { ticket = it }
+            ticketDisplay,
+            {
+                ticketDisplay = it
+                ticket = tickets.find { t -> t.ticketNo == it}!!
+            }
         )
+
+        Card {
+            Text(ticket.toString())
+        }
 
         Button(onClick = { showPay = true }) {
             Text("Pay")
@@ -62,14 +70,15 @@ fun Payments(trn: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Pay(ticket: String, trn: String, onDismissRequest: () -> Unit) {
+fun Pay(ticket: Ticket, trn: String, onDismissRequest: () -> Unit) {
     var processing by remember { mutableIntStateOf(2) }
     var error by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     // TODO: delete these later and switch to data from a ticket
-    var remainingBalance by remember { mutableDoubleStateOf(0.0) }
     var amount: Double by remember { mutableDoubleStateOf(0.0) }
+    var amountDue by remember { mutableDoubleStateOf(ticket.cost - ticket.totalPaid) }
+    var remainingBalance by remember { mutableDoubleStateOf(amountDue - amount) }
 
     ModalBottomSheet(onDismissRequest = onDismissRequest) {
         if (processing == 0) {
@@ -172,15 +181,42 @@ fun Pay(ticket: String, trn: String, onDismissRequest: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     OutlinedTextField(
+                        label = { Text("Amount Due") },
+                        onValueChange = {},
+                        value = "$%.2f".format(amountDue),
+                        enabled = false,
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
                         label = { Text("Amount paying:") },
-                        value = "$%.2f".format(remainingBalance),
+                        value = "$%.2f".format(amount),
                         onValueChange = {
                             val amountValue = it.toDoubleOrNull()
-                            when (amountValue) {
-                                null -> toast("Invalid amount")
-                                else -> amount = amountValue
+                            if (amountValue != null) {
+                                amount = amountValue
+                                remainingBalance = amountDue - amount
                             }
                         },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        label = { Text("Amount Remaining") },
+                        onValueChange = {},
+                        value = "$%.2f".format(remainingBalance),
+                        enabled = false,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                     )
                 }
@@ -193,7 +229,7 @@ fun Pay(ticket: String, trn: String, onDismissRequest: () -> Unit) {
                                 // TODO: Update ticket remaining amount
                                 processing = 1
                                 val client = Client()
-                                val response = client.makePayment(ticket, amount ?: 0.0)
+                                val response = client.makePayment(ticket.ticketNo, amount ?: 0.0)
 
                                 error = !response
                                 processing = 2
@@ -210,6 +246,7 @@ fun Pay(ticket: String, trn: String, onDismissRequest: () -> Unit) {
     }
 }
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun PayPreview() {
@@ -221,3 +258,4 @@ fun PayPreview() {
         )
     }
 }
+*/
