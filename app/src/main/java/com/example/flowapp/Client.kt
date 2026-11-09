@@ -17,31 +17,12 @@ import kotlin.time.Clock
 import java.util.Locale
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
-import java.util.Date
 
-// mail stuff
-/*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import javax.mail.Authenticator
-import javax.mail.Message
-import javax.mail.PasswordAuthentication
-import javax.mail.Session
-import javax.mail.Transport
-import javax.mail.internet.InternetAddress
-import javax.mail.internet.MimeMessage
-import java.util.Properties
-*/
 
 enum class LoginCode {
     OK,
     NOT_FOUND,
     ERROR
-}
-
-enum class EmailCheck {
-    VALID,
-    INVALID
 }
 
 enum class UpdatePassword
@@ -75,20 +56,6 @@ enum class RegisterCode {
     PASSWORD_INVALID
 }
 
-enum class RecoveryCode {
-    OK,
-    INVALID_CODE,
-    INVALID_PASSWORD,
-    ERROR
-}
-
-enum class ValidateEmail {
-    EXIST,
-
-    NOT_EXISTS,
-
-    ERROR
-}
 
 @OptIn(ExperimentalTime::class)
 class Client() {
@@ -1037,9 +1004,6 @@ class Client() {
         return null
     }
 }
-
-
-
 
 // so like if you have a password variable, to get the hash you type password.hash256()
 fun String.hash256(): String {
