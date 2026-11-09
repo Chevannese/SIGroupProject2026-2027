@@ -304,7 +304,7 @@ class MainActivity : ComponentActivity() {
                 UpdatePassword.INVALID_PASSWORD ->
                     Toast.makeText(
                         applicationContext,
-                        "Invalid password",
+                        "Password should contain letters, numbers, and special character",
                         Toast.LENGTH_SHORT
                     ).show()
                 UpdatePassword.OK -> {
