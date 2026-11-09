@@ -190,7 +190,7 @@ class Client() {
             return RegisterCode.TRN_INVALID
         else if (!email.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$")))
             return RegisterCode.EMAIL_INVALID
-        else if (phone.isEmpty() || !phone.isDigitsOnly() || phone.length > 12 || phone.length <7)
+        else if (phone.isEmpty() || !phone.isDigitsOnly() || phone.length > 11 || phone.length <10)
             return RegisterCode.PHONE_INVALID
         else if (password.length < 8)
             return RegisterCode.PASSWORD_SHORT
