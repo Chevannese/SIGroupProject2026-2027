@@ -753,6 +753,44 @@ class Client() {
         startNextTicket(branch)
     }
 
+    fun getAllCards(context: Context): List<PaymentCard> {
+
+        val file = File(context.filesDir, "cards.txt")
+
+        if (!file.exists()) return emptyList()
+
+        return file.readLines().mapNotNull { line ->
+
+            val parts = line.split(",")
+
+            if (parts.size != 3) return@mapNotNull null
+
+            try {
+                PaymentCard(
+                    trn = parts[0].trim(),
+                    lastFourDigits = parts[1].trim(),
+                    balance = parts[2].trim().toDouble()
+                )
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+
+    fun saveAllCards(cards: List<PaymentCard>) {
+
+        val file = File(context.filesDir, "cards.txt")
+
+        file.writeText(
+            cards.joinToString("\n") { card ->
+                "${card.trn},${card.lastFourDigits},${card.balance}"
+            }
+        )
+    }
+
+
+
     fun makePayment(
         ticketNo: String,
         amount: Double

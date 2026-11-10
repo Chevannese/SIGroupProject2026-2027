@@ -22,6 +22,12 @@ data class Receipt(
     val totalPaid: Double = 0.0
 )
 
+data class PaymentCard(
+    val trn: String,
+    val lastFourDigits: String,
+    val balance: Double
+)
+
 
 
 data class User(val trn: String, val email: String, val phone: String, val name: String, val password: String) {
