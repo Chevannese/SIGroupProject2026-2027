@@ -96,6 +96,18 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
                 onClick = {}
             )
 
+            ProfileItem(
+                icon = Icons.Default.Phone,
+                title = "Phone",
+                value = user.phone,
+                onClick = {}
+            )
+
+            HorizontalDivider(
+                color = Color(0xFFF0F0F0),
+                modifier = Modifier.padding(start = 72.dp)
+            )
+
             HorizontalDivider(
                 color = Color(0xFFF0F0F0),
                 modifier = Modifier.padding(start = 72.dp)
