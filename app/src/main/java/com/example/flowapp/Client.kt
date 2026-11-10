@@ -110,7 +110,7 @@ class Client() {
     ): ChangeOldPassword {
 
         // Check for empty fields
-        if (listOf(trn, oldPassword, newPassword, confirmPassword).any { it.isBlank() }) {
+        if (listOf(oldPassword, newPassword, confirmPassword).any { it.isBlank() }) {
             return ChangeOldPassword.EMPTY_FIELD
         }
 
