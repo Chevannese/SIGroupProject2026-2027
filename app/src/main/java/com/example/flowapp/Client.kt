@@ -793,7 +793,8 @@ class Client() {
 
     fun makePayment(
         ticketNo: String,
-        amount: Double
+        amount: Double,
+        cardLastFourDigits: String
     ): Boolean {
 
         if (amount <= 0.0) return false
@@ -826,15 +827,44 @@ class Client() {
 
         val remainingBalance = receipt.cost - receipt.totalPaid
 
-        // Reject payments that exceed the remaining balance.
+        // Reject payments that exceed the remaining receipt balance.
         if (amount > remainingBalance) return false
 
+        // Retrieve the customer's cards.
+        val cards = getAllCards(context)
+
+        // Find the card belonging to the ticket's customer.
+        val card = cards.find {
+            it.trn == ticket.custID &&
+                    it.lastFourDigits == cardLastFourDigits
+        } ?: return false
+
+        // Check whether the card has sufficient funds.
+        if (card.balance < amount) return false
+
+        // Deduct the payment from the card.
+        val updatedCards = cards.map { currentCard ->
+
+            if (
+                currentCard.trn == card.trn &&
+                currentCard.lastFourDigits == card.lastFourDigits
+            ) {
+                currentCard.copy(
+                    balance = currentCard.balance - amount
+                )
+            } else {
+                currentCard
+            }
+        }
+
+        // Calculate the new payment total.
         val newTotalPaid = receipt.totalPaid + amount
 
         val fullyPaid = newTotalPaid >= receipt.cost
 
         val now = LocalDateTime.now()
 
+        // Update the receipt.
         val updatedReceipts = receipts.map { currentReceipt ->
 
             if (currentReceipt.ticketNo == ticketNo) {
@@ -853,8 +883,11 @@ class Client() {
             }
         }
 
+        // Save the updated card balances and receipts.
+        saveAllCards(updatedCards)
         saveAllReceipts(updatedReceipts)
 
+        // If the receipt is fully paid, complete the ticket.
         if (fullyPaid) {
 
             val updatedTickets = tickets.map { currentTicket ->
@@ -873,6 +906,7 @@ class Client() {
 
             saveAllTickets(updatedTickets)
 
+            // Start serving the next customer.
             startNextTicket(ticket.branch)
         }
 

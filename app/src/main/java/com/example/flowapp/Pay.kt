@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
@@ -140,6 +141,8 @@ fun Payments(
 }
 
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Pay(
@@ -148,6 +151,16 @@ fun Pay(
     hasCard: Boolean,
     onDismissRequest: () -> Unit
 ) {
+
+    val context = LocalContext.current
+    val client = remember { Client() }
+
+    // Retrieve the customer's card using their TRN.
+    val customerCard = remember(ticket.custID) {
+        client.getAllCards(context).find {
+            it.trn == ticket.custID
+        }
+    }
 
     var processing by remember {
         mutableIntStateOf(2)
@@ -179,7 +192,8 @@ fun Pay(
     val canPay =
         ticket.ticketStatus in listOf("Being Served", "Served") &&
                 receipt.paymentStatus != "Fully Paid" &&
-                hasCard
+                hasCard &&
+                customerCard != null
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest
@@ -187,8 +201,11 @@ fun Pay(
 
         if (processing == 0) {
 
+            // Loading Indicator
             Box(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
@@ -200,6 +217,7 @@ fun Pay(
 
         } else if (processing == 1) {
 
+            // Payment Result
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -209,7 +227,7 @@ fun Pay(
 
                 if (error) {
                     Text(
-                        "An error occurred",
+                        "An error occurred. Payment failed.",
                         style = MaterialTheme.typography.titleLarge
                     )
                 } else {
@@ -298,7 +316,7 @@ fun Pay(
                     }
                 }
 
-                // Card Information
+                // Payment Card Information
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
@@ -324,9 +342,30 @@ fun Pay(
                             Spacer(Modifier.width(8.dp))
 
                             Text(
-                                text = receipt.paymentMethod,
-                                style = MaterialTheme.typography.titleSmall,
+                                text = "Payment Card",
+                                style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        if (customerCard != null) {
+
+                            Text(
+                                text = "Flow Card •••• ${customerCard.lastFourDigits}"
+                            )
+
+                            Text(
+                                text = "Available Balance: \$%.2f".format(
+                                    customerCard.balance
+                                ),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+
+                        } else {
+
+                            Text(
+                                text = "No payment card found.",
+                                color = MaterialTheme.colorScheme.error
                             )
                         }
                     }
@@ -354,9 +393,11 @@ fun Pay(
                                 processing = 0
 
                                 val response = withContext(Dispatchers.IO) {
-                                    Client().makePayment(
-                                        ticket.ticketNo,
-                                        amountDue
+
+                                    client.makePayment(
+                                        ticketNo = ticket.ticketNo,
+                                        amount = amountDue,
+                                        cardLastFourDigits = customerCard!!.lastFourDigits
                                     )
                                 }
 
@@ -368,6 +409,13 @@ fun Pay(
                     ) {
                         Text("Make Payment")
                     }
+
+                } else if (customerCard == null || !hasCard) {
+
+                    Text(
+                        text = "A payment card is required before making a payment.",
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
 
                 // Cancel Ticket Button
@@ -418,7 +466,7 @@ fun Pay(
                         scope.launch {
 
                             val response = withContext(Dispatchers.IO) {
-                                Client().cancelTicket(ticket.ticketNo)
+                                client.cancelTicket(ticket.ticketNo)
                             }
 
                             if (response) {
@@ -475,3 +523,4 @@ fun Pay(
         )
     }
 }
+
