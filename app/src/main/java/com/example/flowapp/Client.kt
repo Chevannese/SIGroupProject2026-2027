@@ -39,6 +39,17 @@ enum class UpdatePassword
     ERROR
 }
 
+enum class ChangeOldPassword {
+    EMPTY_FIELD,
+    PASSWORD_SHORT,
+    PASSWORD_LONG,
+    PASSWORD_MISMATCH,
+    SAME_PASSWORD,
+    OK,
+    INVALID_PASSWORD,
+    ERROR
+}
+
 enum class RegisterCode {
     OK,
     EMPTY_FIELD,
@@ -96,15 +107,34 @@ class Client() {
         oldPassword: String,
         newPassword: String,
         confirmPassword: String
-    ): UpdatePassword {
-        when (validate(password = newPassword, confirmPassword = confirmPassword)) {
-            RegisterCode.EMPTY_FIELD -> return UpdatePassword.EMPTY_FIELD
-            RegisterCode.PASSWORD_SHORT -> return UpdatePassword.PASSWORD_SHORT
-            RegisterCode.PASSWORD_LONG -> return UpdatePassword.PASSWORD_LONG
-            RegisterCode.PASSWORD_MISMATCH -> return UpdatePassword.PASSWORD_MISMATCH
-            else -> {}
+    ): ChangeOldPassword {
+
+        // Check for empty fields
+        if (listOf(trn, oldPassword, newPassword, confirmPassword).any { it.isBlank() }) {
+            return ChangeOldPassword.EMPTY_FIELD
         }
 
+        // Check password length
+        if (newPassword.length < 8) {
+            return ChangeOldPassword.PASSWORD_SHORT
+        }
+
+        if (newPassword.length > 30) {
+            return ChangeOldPassword.PASSWORD_LONG
+        }
+
+        // Check password confirmation
+        if (newPassword != confirmPassword) {
+            return ChangeOldPassword.PASSWORD_MISMATCH
+        }
+
+        // Check if new password is the same as old password
+        if (oldPassword.hash256() == newPassword.hash256()) {
+            return ChangeOldPassword.SAME_PASSWORD
+        }
+        if (newPassword.any { it.isLetter() } || !newPassword.any { it.isDigit() } || !newPassword.any { it == '!' || it == '@' || it == '#' || it == '$' || it == '%' || it == '^' || it == '&' || it == '*' }) {
+            return ChangeOldPassword.INVALID_PASSWORD
+        }
 
         try {
             val file = File(context.filesDir, "users.txt")
@@ -115,7 +145,10 @@ class Client() {
                 for (line in file.readLines()) {
                     val split = line.split(",")
 
-                    if (split[0] == trn && split[4] == oldPassword.hash256()) {
+                    if (split.size >= 5 &&
+                        split[0] == trn &&
+                        split[4] == oldPassword.hash256()
+                    ) {
                         updated.appendLine(
                             "%s,%s,%s,%s,%s".format(
                                 split[0],
@@ -125,6 +158,7 @@ class Client() {
                                 newPassword.hash256()
                             )
                         )
+
                         changed = true
                     } else {
                         updated.appendLine(line)
@@ -132,17 +166,17 @@ class Client() {
                 }
             }
 
-            file.writeText(updated.toString())
-
             if (changed) {
-                return UpdatePassword.OK
+                file.writeText(updated.toString())
+                return ChangeOldPassword.OK
             }
+
         } catch (e: Exception) {
             Log.d("ERROR", e.message.toString())
-            return UpdatePassword.ERROR
+            return ChangeOldPassword.ERROR
         }
 
-        return UpdatePassword.INVALID_PASSWORD
+        return ChangeOldPassword.INVALID_PASSWORD
     }
 
     fun login(trn: String, password: String): LoginCode {
