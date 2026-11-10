@@ -1,8 +1,6 @@
 package com.example.flowapp
 
-import android.provider.ContactsContract
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -10,7 +8,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
@@ -74,7 +71,7 @@ fun Main(onLogoutClick: () -> Unit, trn: String) {
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (tab) {
-                0 -> Home(trn = trn)
+                0 -> Home(trn = trn, onChangeTab = { tab = it })
                 1 -> Queues(trn = trn)
                 2 -> Payments(trn = trn, padding = innerPadding)
             }
