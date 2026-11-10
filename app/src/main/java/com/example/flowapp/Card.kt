@@ -44,7 +44,6 @@ fun AddCard(onBack: () -> Unit = {}, onAdd: () -> Unit = {}, trn: String) {
     var ccNumber by remember { mutableStateOf("") }
     var expDate by remember { mutableStateOf("") }
     var cvv by remember { mutableStateOf("") }
-    var showCalendar by remember { mutableStateOf(false) }
 
     var validCardNumber by remember { mutableStateOf(false) }
     val validExpiry = expDate.length == 4 && run {
