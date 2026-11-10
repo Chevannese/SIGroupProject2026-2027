@@ -239,7 +239,7 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                         ChangeOldPassword.EMPTY_FIELD -> Toast.makeText(MainActivity.instance.applicationContext, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                         ChangeOldPassword.PASSWORD_SHORT -> Toast.makeText(MainActivity.instance.applicationContext, "Password should not be less than 8 characters", Toast.LENGTH_SHORT).show()
                         ChangeOldPassword.PASSWORD_LONG -> Toast.makeText(MainActivity.instance.applicationContext, "Password should not be greater than 30 characters", Toast.LENGTH_SHORT).show()
-                        ChangeOldPassword.SAME_PASSWORD -> Toast.makeText(MainActivity.instance.applicationContext, "Your new password cannot be the same as your current password", Toast.LENGTH_SHORT).show()
+                        ChangeOldPassword.SAME_PASSWORD -> Toast.makeText(MainActivity.instance.applicationContext, "Old password cannot be your new password", Toast.LENGTH_SHORT).show()
                         ChangeOldPassword.INVALID_PASSWORD -> Toast.makeText(MainActivity.instance.applicationContext, "Invalid password\nPassword must contain letters, numbers and a special character", Toast.LENGTH_SHORT).show()
                         ChangeOldPassword.PASSWORD_MISMATCH -> Toast.makeText(MainActivity.instance.applicationContext, "Passwords do not match", Toast.LENGTH_SHORT).show()
                         ChangeOldPassword.OK -> {
