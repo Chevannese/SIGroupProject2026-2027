@@ -50,7 +50,6 @@ dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.cardview)
-    implementation(libs.androidx.compose.foundation.desktop)
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -79,8 +78,6 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.57.1")
     implementation(libs.androidx.compose.material3)
     implementation("androidx.compose.material:material-icons-extended")
-    //Hopefully this does not crash it
-
     implementation("com.sun.mail:android-mail:1.6.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
 
