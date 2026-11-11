@@ -61,9 +61,15 @@ fun ProfileItem(icon: ImageVector, title: String, value: String, menu: Boolean =
 @Composable
 fun Personal(onBack: () -> Unit = {}, trn: String) {
     var changePassword by remember { mutableStateOf(false) }
+    var showAddCard by remember { mutableStateOf(false) }
     val client = Client()
     var user = client.user(trn)
     val savedCard = client.cards(trn)
+    var paymentMethodClick = {}
+
+    if (savedCard == null) {
+        paymentMethodClick = { showAddCard = true }
+    }
     if (user == null) {
         user = User.default()
     }
@@ -142,7 +148,7 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
                 icon = Icons.Default.CreditCard,
                 title = "Payment Method",
                 value = savedCard?.takeLast(4)?.let { "Visa Card **** $it" } ?: "No card saved",
-                onClick = {}
+                onClick = paymentMethodClick
             )
         }
     }
