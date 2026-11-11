@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.FlowApp" parent="android:Theme.Material.Light.NoActionBar">
-        <item name = "colorPrimary">@color/dark_blue</item>
-        <item name = "colorPrimaryVariant">@color/dark_blue</item>
+    <style name="Theme.FlowApp" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/dark_blue</item>
+        <item name="colorPrimaryVariant">@color/dark_blue</item>
     </style>
+
 </resources>

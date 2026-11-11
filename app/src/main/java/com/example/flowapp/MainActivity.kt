@@ -3,11 +3,14 @@ package com.example.flowapp
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.widget.*
 import androidx.activity.*
 import androidx.activity.compose.*
 import com.example.flowapp.ui.theme.FlowAppTheme
+import com.google.android.material.textfield.TextInputEditText
 import java.io.File
 import java.security.SecureRandom
 import java.util.Locale
@@ -81,12 +84,12 @@ class MainActivity : ComponentActivity() {
         val trn: EditText = findViewById(R.id.trn)
         val email: EditText = findViewById(R.id.reg_email)
         val phone: EditText = findViewById(R.id.reg_phone)
-        val password: EditText = findViewById(R.id.reg_password)
-        val confirmPassword: EditText = findViewById(R.id.reg_confirmPass)
+        val password: TextInputEditText = findViewById(R.id.reg_password)
+        val confirmPassword: TextInputEditText = findViewById(R.id.reg_confirmPass)
         val toLogin: TextView = findViewById(R.id.accExist)
         val register: Button = findViewById(R.id.registerBtn)
 
-        //phone.addTextChangedListener(PhoneDashWatcher())
+
 
         toLogin.setOnClickListener {
             showLogin()
