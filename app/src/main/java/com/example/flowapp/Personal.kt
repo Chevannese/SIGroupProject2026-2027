@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
@@ -191,6 +192,9 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
     var passwordsMatch by remember { mutableStateOf(false) }
     var passwordContainsLNS by remember { mutableStateOf(false) }
     var enableButton by remember { mutableStateOf(true) }
+    var passwordHidden by remember { mutableStateOf(true) }
+    var passwordHidden2 by remember { mutableStateOf(true) }
+    var passwordHidden3 by remember { mutableStateOf(true) }
 
     BackBar(title = "Change Password", onBack) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -199,7 +203,24 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                 onValueChange = { text -> currentPassword = text },
                 placeholder = { Text("Old Password") },
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation =
+                    if (passwordHidden) {
+                        PasswordVisualTransformation()
+                    }
+                    else {
+                        VisualTransformation.None
+                    }
+                ,
+                trailingIcon = {
+                    IconButton(onClick = { passwordHidden = !passwordHidden }) {
+                        Icon(
+                            imageVector =
+                                if (passwordHidden) Icons.Filled.Visibility
+                                else Icons.Filled.VisibilityOff,
+                            contentDescription = "toggle password visibilty"
+                        )
+                    }
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Next,
@@ -229,7 +250,24 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                     }
                 },
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation =
+                    if (passwordHidden2) {
+                        PasswordVisualTransformation()
+                    }
+                    else {
+                        VisualTransformation.None
+                    }
+                ,
+                trailingIcon = {
+                    IconButton(onClick = { passwordHidden2 = !passwordHidden2 }) {
+                        Icon(
+                            imageVector =
+                                if (passwordHidden2) Icons.Filled.Visibility
+                                else Icons.Filled.VisibilityOff,
+                            contentDescription = "toggle password visibilty"
+                        )
+                    }
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Next,
@@ -251,7 +289,24 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                     }
                 },
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation =
+                    if (passwordHidden3) {
+                        PasswordVisualTransformation()
+                    }
+                    else {
+                        VisualTransformation.None
+                    }
+                ,
+                trailingIcon = {
+                    IconButton(onClick = { passwordHidden3 = !passwordHidden3 }) {
+                        Icon(
+                            imageVector =
+                                if (passwordHidden3) Icons.Filled.Visibility
+                                else Icons.Filled.VisibilityOff,
+                            contentDescription = "toggle password visibilty"
+                        )
+                    }
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done,
