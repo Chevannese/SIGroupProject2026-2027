@@ -79,9 +79,16 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
 
         Spacer(modifier = Modifier.height(24.dp))
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(10.dp),) {
+            modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+
+            ProfileItem(
+                icon = com.example.flowapp.ui.icons.id_card,
+                title = "TRN",
+                value = user.trn,
+                onClick = {}
+            )
 
             ProfileItem(
                 icon = Icons.Default.Person,
