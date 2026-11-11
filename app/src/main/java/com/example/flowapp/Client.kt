@@ -1109,6 +1109,31 @@ class Client() {
 
         return null
     }
+
+    fun removeCard(trn: String): Boolean {
+        try {
+            val file = File(context.filesDir, "cards.txt")
+            val updated = StringBuilder()
+
+            if (file.exists()) {
+                for (line in file.readLines()) {
+                    val split = line.split(",")
+
+                    if (split[0] != trn) {
+                        updated.appendLine(line)
+                    }
+                }
+            }
+
+            file.writeText(updated.toString())
+            return true
+        }
+        catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+        }
+
+        return false
+    }
 }
 
 // so like if you have a password variable, to get the hash you type password.hash256()

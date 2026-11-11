@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.flowapp.ui.icons.id_card
 import com.example.flowapp.ui.theme.FlowAppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -63,13 +64,16 @@ fun ProfileItem(icon: ImageVector, title: String, value: String, menu: Boolean =
 fun Personal(onBack: () -> Unit = {}, trn: String) {
     var changePassword by remember { mutableStateOf(false) }
     var showAddCard by remember { mutableStateOf(false) }
+    var showSavedCard by remember { mutableStateOf(false) }
     val client = Client()
     var user = client.user(trn)
     var savedCard by remember { mutableStateOf(client.cards(trn)) }
-    var paymentMethodClick = {}
-
+    var paymentMethodClick =
     if (savedCard == null) {
-        paymentMethodClick = { showAddCard = true }
+        { showAddCard = true }
+    }
+    else {
+        { showSavedCard = true }
     }
     if (user == null) {
         user = User.default()
@@ -85,7 +89,7 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
         ) {
 
             ProfileItem(
-                icon = com.example.flowapp.ui.icons.id_card,
+                icon = id_card,
                 title = "TRN",
                 value = user.trn,
                 onClick = {}
@@ -155,7 +159,7 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
             ProfileItem(
                 icon = Icons.Default.CreditCard,
                 title = "Payment Method",
-                value = savedCard?.takeLast(4)?.let { "Visa Card **** $it" } ?: "No card saved",
+                value = savedCard?.takeLast(4)?.let { "VISA Card ending with $it" } ?: "No card saved",
                 onClick = paymentMethodClick
             )
         }
@@ -170,6 +174,31 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
             onAdd = { savedCard = client.cards(trn) },
             trn = trn
         )
+    }
+    if (showSavedCard) {
+        ModalBottomSheet({ showSavedCard = false }) {
+            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(imageVector = Icons.Default.CreditCard, null)
+                Text("Saved VISA Card")
+                Text("**** **** **** $savedCard")
+
+                TextButton(
+                    onClick = {
+                        val client = Client()
+                        val response = client.removeCard(trn)
+                        when (response) {
+                            true -> toast("Card successfully remove")
+                            false -> toast("ERROR: Card could not be removed")
+                        }
+
+                        showSavedCard = false
+                        savedCard = null
+                    }
+                ) {
+                    Text("Remove Card")
+                }
+            }
+        }
     }
 }
 

@@ -7,10 +7,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -42,37 +45,44 @@ import com.example.flowapp.ui.theme.FlowAppTheme
 fun Home(trn: String, onChangeTab: (Int) -> Unit) {
     var showCardDialog by remember { mutableStateOf(false) }
     var savedCard by remember { mutableStateOf<String?>(null) }
+    val scroll = rememberScrollState()
     //val client = remember { Client() }
 
-    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-        HomeButton(
-            "Join the queue",
-            "Get a ticket for a branch or service",
-            Icons.Default.People,
-            Color(132, 180, 243, 255),
-            onClick = {}
-        )
-        HomeButton(
-            "Book an appointment",
-            "Schedule an in person or home visit",
-            Icons.Default.CalendarMonth,
-            Color(160, 234, 161, 255),
-            onClick = {}
-        )
-        HomeButton(
-            "Make a payment",
-            "Pay your bill easily and securely",
-            Icons.Default.CalendarMonth,
-            Color(245, 245, 165, 255),
-            onClick = { onChangeTab(2) }
-        )
-        HomeButton(
-            "View Services",
-            "Explore all available services",
-            Icons.Default.HomeRepairService,
-            Color(217, 165, 245, 255),
-            onClick = { onChangeTab(2) }
-        )
+    Box {
+        Column(
+            modifier = Modifier.fillMaxSize().verticalScroll(scroll),
+        ) {
+            HomeButton(
+                "Join the queue",
+                "Get a ticket for a branch or service",
+                Icons.Default.People,
+                Color(132, 180, 243, 255),
+                onClick = {}
+            )
+            HomeButton(
+                "Book an appointment",
+                "Schedule an in person or home visit",
+                Icons.Default.CalendarMonth,
+                Color(160, 234, 161, 255),
+                onClick = {}
+            )
+            HomeButton(
+                "Make a payment",
+                "Pay your bill easily and securely",
+                Icons.Default.CalendarMonth,
+                Color(245, 245, 165, 255),
+                onClick = { onChangeTab(2) }
+            )
+            HomeButton(
+                "View Services",
+                "Explore all available services",
+                Icons.Default.HomeRepairService,
+                Color(217, 165, 245, 255),
+                onClick = { onChangeTab(2) }
+            )
+
+        }
+
     }
 
 
@@ -122,7 +132,7 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
 
 @Composable fun HomeButton(title: String, text: String, icon: ImageVector, colour: Color = Color.Black, onClick: () -> Unit) {
     Spacer(modifier = Modifier.size(20.dp))
-    Card(onClick = onClick, colors = CardDefaults.cardColors(containerColor = colour.copy(alpha = 0.2f))) {
+    Card(onClick = onClick, colors = CardDefaults.cardColors(containerColor = colour.copy(alpha = 0.2f)), modifier = Modifier.fillMaxWidth()) {
         Column {
             Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(
