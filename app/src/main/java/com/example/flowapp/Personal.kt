@@ -64,7 +64,7 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
     var showAddCard by remember { mutableStateOf(false) }
     val client = Client()
     var user = client.user(trn)
-    val savedCard = client.cards(trn)
+    var savedCard by remember { mutableStateOf(client.cards(trn)) }
     var paymentMethodClick = {}
 
     if (savedCard == null) {
@@ -155,6 +155,13 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
 
     if (changePassword) {
         ChangePassword( onBack = { changePassword = false }, trn)
+    }
+    if (showAddCard) {
+        AddCard(
+            onBack = { showAddCard = false },
+            onAdd = { savedCard = client.cards(trn) },
+            trn = trn
+        )
     }
 }
 
