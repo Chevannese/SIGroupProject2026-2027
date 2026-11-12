@@ -345,7 +345,7 @@ fun Pay(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Surcharge (15%)")
+                            Text("GCT (15%)")
                             Text("$%.2f".format(receipt.surcharge))
                         }
 
