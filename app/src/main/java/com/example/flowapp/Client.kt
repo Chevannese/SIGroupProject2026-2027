@@ -753,7 +753,7 @@ class Client() {
         startNextTicket(branch)
     }
 
-    fun getAllCards(context: Context): List<PaymentCard> {
+    fun getAllCards(context: Context = this.context): List<PaymentCard> {
 
         val file = File(context.filesDir, "cards.txt")
 

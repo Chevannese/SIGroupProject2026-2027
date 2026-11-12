@@ -1,6 +1,8 @@
 package com.example.flowapp
 
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +21,7 @@ import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.HomeRepairService
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.AlertDialog
@@ -37,21 +40,56 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
+
 
 @Composable
 fun Home(trn: String, onChangeTab: (Int) -> Unit) {
     var showCardDialog by remember { mutableStateOf(false) }
     var savedCard by remember { mutableStateOf<String?>(null) }
     val scroll = rememberScrollState()
-    //val client = remember { Client() }
+
+    val customerCard = remember(trn) {
+        try {
+            Client().getAllCards().find { it.trn == trn }
+        }
+        catch (e: Exception) {
+            null
+        }
+    }
+    val balanceText = customerCard?.let { "$%.2f".format(it.balance) } ?: "$0.00"
 
     Box {
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(scroll),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "Account Balance",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = balanceText,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+
             HomeButton(
                 "Join the queue",
                 "Get a ticket for a branch or service",
@@ -59,6 +97,7 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                 Color(132, 180, 243, 255),
                 onClick = {}
             )
+
             HomeButton(
                 "Book an appointment",
                 "Schedule an in person or home visit",
@@ -66,6 +105,7 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                 Color(160, 234, 161, 255),
                 onClick = {}
             )
+
             HomeButton(
                 "Make a payment",
                 "Pay your bill easily and securely",
@@ -73,6 +113,7 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                 Color(245, 245, 165, 255),
                 onClick = { onChangeTab(2) }
             )
+
             HomeButton(
                 "View Services",
                 "Explore all available services",
@@ -81,8 +122,18 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                 onClick = { onChangeTab(2) }
             )
 
+            HomeButton(
+                "Give Feedback",
+                "Share your thoughts and problems with us",
+                Icons.Default.Feedback,
+                Color(245, 165, 165, 255),
+                {
+                    MainActivity.instance.setContentView(R.layout.feedback)
+                }
+            )
         }
 
+        //Box(modifier = Modifier.size(5.dp, 20.dp).align(Alignment.End))
     }
 
 
@@ -132,31 +183,35 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
 
 @Composable fun HomeButton(title: String, text: String, icon: ImageVector, colour: Color = Color.Black, onClick: () -> Unit) {
     Spacer(modifier = Modifier.size(20.dp))
-    Card(onClick = onClick, colors = CardDefaults.cardColors(containerColor = colour.copy(alpha = 0.2f)), modifier = Modifier.fillMaxWidth()) {
-        Column {
-            Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(70.dp).background(colour, CircleShape).padding(10.dp)
-                )
-                Spacer(modifier = Modifier.size(10.dp))
-                Column {
-                    Text(title, style = MaterialTheme.typography.titleLarge)
-                    Text(text, style = MaterialTheme.typography.bodyMedium)
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(containerColor = colour.copy(alpha = 0.2f)),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+    ) {
+            Column {
+                Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(70.dp).background(colour, CircleShape).padding(10.dp)
+                    )
+                    Spacer(modifier = Modifier.size(10.dp))
+                    Column {
+                        Text(title, style = MaterialTheme.typography.titleLarge)
+                        Text(text, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+                Box(modifier = Modifier.padding(10.dp).align(Alignment.End).background(Color(0.0f, 0.0f, 0.0f, 0.2f),
+                    CircleShape
+                )) {
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        modifier = Modifier.size(50.dp).background(colour, CircleShape).padding(10.dp)
+                    )
                 }
             }
-            Box(modifier = Modifier.padding(10.dp).align(Alignment.End).background(Color(0.0f, 0.0f, 0.0f, 0.2f),
-                CircleShape
-            )) {
-                Icon(
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = null,
-                    modifier = Modifier.size(50.dp).background(colour, CircleShape).padding(10.dp)
-                )
-            }
         }
-    }
 }
 
 // preview home
