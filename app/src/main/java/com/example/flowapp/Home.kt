@@ -70,12 +70,8 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -157,7 +153,7 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                         val ratingValue = rating.rating.roundToInt()
 
                         // TODO: Actually send feedback
-                        toast("Feedback not sent yet submitted but here is the rating entered $ratingValue")
+                        toast("Feedback submission not implemented yet\nHowever here is the rating entered $ratingValue")
                         MainActivity.instance.showMain(trn)
                     }
                 }
