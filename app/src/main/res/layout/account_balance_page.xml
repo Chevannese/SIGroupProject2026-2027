@@ -14,7 +14,7 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/backToProfile"
+            android:id="@+id/account_balance_back_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="start"
