@@ -14,8 +14,8 @@ import com.example.flowapp.ui.theme.FlowAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Main(onLogoutClick: () -> Unit, trn: String) {
-    var tab by remember { mutableIntStateOf(0) }
+fun Main(onLogoutClick: () -> Unit, trn: String, startTab: Int = 0) {
+    var tab by remember { mutableIntStateOf(startTab) }
     var showProfile by remember { mutableStateOf(false) }
     var showDetailedProfile by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()

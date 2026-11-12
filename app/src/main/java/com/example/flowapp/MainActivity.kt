@@ -64,13 +64,15 @@ class MainActivity : ComponentActivity() {
             when (response) {
                 LoginCode.NOT_FOUND -> Toast.makeText(applicationContext, "TRN or password is incorrect", Toast.LENGTH_SHORT).show()
                 LoginCode.ERROR -> Toast.makeText(applicationContext, "Unknown error logging in", Toast.LENGTH_SHORT).show()
-                LoginCode.OK -> {
-                    setContent {
-                        FlowAppTheme() {
-                            Main(onLogoutClick = { showLogin() }, trn = trn.text.toString())
-                        }
-                    }
-                }
+                LoginCode.OK -> showMain(trn.text.toString())
+            }
+        }
+    }
+
+    fun showMain(trn: String) {
+        setContent {
+            FlowAppTheme {
+                Main(onLogoutClick = { showLogin() }, trn = trn)
             }
         }
     }
