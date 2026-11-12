@@ -161,7 +161,7 @@
             android:id="@+id/reg_confirmPass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
+            android:hint="@string/confirmPass"
             android:inputType="textPassword"
             android:gravity="center"
             android:textSize="18sp"

@@ -228,8 +228,8 @@ class MainActivity : ComponentActivity() {
         setContentView(R.layout.enter_code)
 
         val back: ImageButton = findViewById(R.id.back)
-        val password: EditText = findViewById(R.id.password)
-        val confirmPassword: EditText = findViewById(R.id.confirmPass)
+        val password: TextInputEditText = findViewById(R.id.password)
+        val confirmPassword: TextInputEditText = findViewById(R.id.confirmPass)
         val verifyCode: EditText = findViewById(R.id.verifyCode)
         val updatePassword: Button = findViewById(R.id.changePassBtn)
 
