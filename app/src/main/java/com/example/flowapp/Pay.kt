@@ -274,6 +274,7 @@ fun Pay(ticket: Ticket, receipt: Receipt, hasCard: Boolean, onDismissRequest: ()
 
                         HorizontalDivider()
 
+                        /*
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(
                                 "Amount Due",
@@ -286,6 +287,8 @@ fun Pay(ticket: Ticket, receipt: Receipt, hasCard: Boolean, onDismissRequest: ()
                                 color = MaterialTheme.colorScheme.primary
                             )
                         }
+                        
+                         */
                     }
                 }
 
