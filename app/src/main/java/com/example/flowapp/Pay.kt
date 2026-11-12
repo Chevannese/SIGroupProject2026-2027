@@ -180,8 +180,7 @@ fun Pay(
 
     val scope = rememberCoroutineScope()
 
-    val amountDue = receipt.cost - receipt.totalPaid
-
+    val amountDue = receipt.subTotal - receipt.totalPaid
     // Only unpaid tickets that are waiting can be cancelled.
     val canCancel =
         ticket.ticketStatus == "Waiting" &&
@@ -316,56 +315,79 @@ fun Pay(
                     }
                 }
 
-                // Payment Card Information
+                // Payment Breakdown
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                 ) {
-
                     Column(
                         modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
 
+                        Text(
+                            text = "Payment Breakdown",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+
                         Row(
-                            verticalAlignment = Alignment.CenterVertically
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
+                            Text("Service Cost")
+                            Text("$%.2f".format(receipt.cost))
+                        }
 
-                            Icon(
-                                Icons.Default.CreditCard,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("GCT (15%)")
+                            Text("$%.2f".format(receipt.surcharge))
+                        }
 
-                            Spacer(Modifier.width(8.dp))
+                        HorizontalDivider()
 
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
                             Text(
-                                text = "Payment Card",
-                                style = MaterialTheme.typography.titleMedium,
+                                "Subtotal",
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "$%.2f".format(receipt.subTotal),
                                 fontWeight = FontWeight.Bold
                             )
                         }
 
-                        if (customerCard != null) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Total Paid")
+                            Text("$%.2f".format(receipt.totalPaid))
+                        }
 
+                        HorizontalDivider()
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
                             Text(
-                                text = "Flow Card •••• ${customerCard.lastFourDigits}"
+                                "Amount Due",
+                                fontWeight = FontWeight.Bold
                             )
 
                             Text(
-                                text = "Available Balance: \$%.2f".format(
-                                    customerCard.balance
-                                ),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-
-                        } else {
-
-                            Text(
-                                text = "No payment card found.",
-                                color = MaterialTheme.colorScheme.error
+                                "$%.2f".format(amountDue),
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
