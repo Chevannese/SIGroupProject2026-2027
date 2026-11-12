@@ -99,14 +99,6 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
             )
 
             HomeButton(
-                "Book an appointment",
-                "Schedule an in person or home visit",
-                Icons.Default.CalendarMonth,
-                Color(160, 234, 161, 255),
-                onClick = {}
-            )
-
-            HomeButton(
                 "Make a payment",
                 "Pay your bill easily and securely",
                 Icons.Default.CalendarMonth,
