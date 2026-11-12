@@ -2,6 +2,8 @@
 package com.example.flowapp
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CreditCard
@@ -154,6 +156,7 @@ fun Pay(
 
     val context = LocalContext.current
     val client = remember { Client() }
+    val scroll = rememberScrollState()
 
     // Retrieve the customer's card using their TRN.
     val customerCard = remember(ticket.custID) {
@@ -190,9 +193,9 @@ fun Pay(
     // can be paid.
     val canPay =
         ticket.ticketStatus in listOf("Being Served", "Served") &&
-                receipt.paymentStatus != "Fully Paid" &&
-                hasCard &&
-                customerCard != null
+        receipt.paymentStatus != "Fully Paid" &&
+        hasCard &&
+        customerCard != null
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest
@@ -202,9 +205,7 @@ fun Pay(
 
             // Loading Indicator
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
+                modifier = Modifier.fillMaxWidth().padding(24.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
@@ -218,27 +219,23 @@ fun Pay(
 
             // Payment Result
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
+                modifier = Modifier.fillMaxWidth().padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
                 if (error) {
                     Text(
-                        "An error occurred. Payment failed.",
+                        text = "An error occurred. Payment failed.",
                         style = MaterialTheme.typography.titleLarge
                     )
                 } else {
                     Text(
-                        "Payment Successful",
+                        text = "Payment Successful",
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
 
-                TextButton(
-                    onClick = onDismissRequest
-                ) {
+                TextButton(onClick = onDismissRequest) {
                     Text("Close")
                 }
             }
@@ -246,14 +243,9 @@ fun Pay(
         } else if (processing == 2) {
 
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .padding(bottom = 32.dp),
-
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(bottom = 32.dp).verticalScroll(scroll),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-
                 // Header
                 Row(
                     modifier = Modifier.fillMaxWidth(),
