@@ -61,7 +61,7 @@ class EmailSender {
 }
 
 fun emailFeedback(
-    fullName: String,
+    trn: String,
     feedback: String, rating: Int,
 
 ) {
@@ -83,9 +83,7 @@ fun emailFeedback(
             }
         }
     )
-
-
-
+    
     val message = MimeMessage(session).apply {
         setFrom(InternetAddress("chevannese.ellis@monahighschooljm.org"))
 
@@ -100,7 +98,7 @@ fun emailFeedback(
             """
             Customer Feedback - Flow Real Time Scheduling App
 
-            Customer Name: $fullName
+            Customer ID: $trn
             Rating: $rating / 5 Stars
 
             Feedback:
