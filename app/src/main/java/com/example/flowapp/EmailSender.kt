@@ -1,5 +1,6 @@
 package com.example.flowapp
 
+import java.time.LocalDateTime
 import java.util.Properties
 import javax.mail.Authenticator
 import javax.mail.Message
@@ -58,3 +59,59 @@ class EmailSender {
         Transport.send(message)
     }
 }
+
+fun emailFeedback(
+    fullName: String,
+    feedback: String, rating: Int,
+
+) {
+    val properties = Properties().apply {
+        put("mail.smtp.host", "mail.smtp2go.com")
+        put("mail.smtp.port", "587")
+        put("mail.smtp.auth", "true")
+        put("mail.smtp.starttls.enable", "true")
+    }
+
+    val session = Session.getInstance(
+        properties,
+        object : Authenticator() {
+            override fun getPasswordAuthentication(): PasswordAuthentication {
+                return PasswordAuthentication(
+                    "Flow Service",
+                    "H2i3nxWrF3Nl7IfT"
+                )
+            }
+        }
+    )
+
+
+
+    val message = MimeMessage(session).apply {
+        setFrom(InternetAddress("chevannese.ellis@monahighschooljm.org"))
+
+        setRecipients(
+            Message.RecipientType.TO,
+            InternetAddress.parse("chevanneseellis@gmail.com")
+        )
+
+        subject = "Flow Service - Customer Feedback"
+
+        setText(
+            """
+            Customer Feedback - Flow Real Time Scheduling App
+
+            Customer Name: $fullName
+            Rating: $rating / 5 Stars
+
+            Feedback:
+            $feedback
+
+            
+            """.trimIndent()
+        )
+    }
+
+    // Send the email OUTSIDE the apply block.
+    Transport.send(message)
+}
+

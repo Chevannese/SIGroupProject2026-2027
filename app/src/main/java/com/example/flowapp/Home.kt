@@ -45,6 +45,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 
@@ -94,7 +98,7 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                     IconButton(
                         onClick = {
                             MainActivity.instance.setContentView(R.layout.account_balance_page)
-                            val back = MainActivity.instance.findViewById<Button>(R.layout.account_balance_back_button)
+                            val back = MainActivity.instance.findViewById<ImageButton>(R.id.account_balance_back_button)
 
                             back.setOnClickListener {
                                 MainActivity.instance.showMain(trn)
@@ -159,17 +163,32 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                         val ratingValue = rating.rating.roundToInt()
 
                         if (text.isBlank() || ratingValue == 0) {
-                            toast("Feedback submission not implemented yet\nHowever here is the rating entered $ratingValue")
+                            toast("Feedback and star rating are required.")
                         }
-                        else{
-                            toast("Rating: $ratingValue Text: $text")
-                            MainActivity.instance.showMain(trn)
+                        else {
+
+
+                            CoroutineScope(Dispatchers.Main).launch {
+                                try {
+                                    withContext(Dispatchers.IO) {
+                                        emailFeedback(trn, text, ratingValue)
+                                    }
+
+                                    toast("Feedback submitted successfully.")
+                                    MainActivity.instance.showMain(trn)
+
+                                } catch (e: Exception) {
+                                    toast("Unable to submit feedback. Please try again.")
+                                    e.printStackTrace()
+                                }
+                            }
                         }
-
-
-
-
                     }
+
+
+
+
+
                 }
             )
         }
