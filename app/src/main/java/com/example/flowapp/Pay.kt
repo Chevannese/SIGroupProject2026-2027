@@ -237,18 +237,7 @@ fun Pay(ticket: Ticket, receipt: Receipt, hasCard: Boolean, onDismissRequest: ()
                         Text("Service: ${ticket.service}")
                         Text("Branch: ${ticket.branch}")
                         Text("Status: ${ticket.ticketStatus}")
-                    }
-                }
 
-                // Payment Breakdown
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
                         Text(
                             text = "Payment Breakdown",
                             style = MaterialTheme.typography.titleMedium,
