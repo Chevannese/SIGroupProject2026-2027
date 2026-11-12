@@ -43,7 +43,7 @@
     <string name="balanceAmt">Balance Cound not be Found</string>
     <string name="viewTransaction">View Transaction History</string>
     <string name="amountMoney">$</string>
-    <string name="accountStatus">Account Status</string>
+    <string name="accountStatus">Account Active</string>
     <string name="transactions">Transactions</string>
     <string name="incoming">Incoming</string>
     <string name="outgoing">Outgoing</string>
@@ -66,6 +66,7 @@
     <string name="date">Date/Time:</string>
     <string name="viewDetails">View\nDetails</string>
     <string name="service">Services</string>
+    <string name="noPayments">No payments available</string>
 
 
 </resources>
