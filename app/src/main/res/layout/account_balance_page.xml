@@ -100,30 +100,10 @@
         </LinearLayout>
     </LinearLayout>
 
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <Switch
-            android:id="@+id/freezeBtn"
-            android:background="@drawable/light_green_round_corner_button"
-            android:layout_width="151dp"
-            android:layout_height="51dp"
-            android:textStyle="bold"
-            android:layout_gravity="center"
-            android:text="@string/freeze"
-            android:textOff="@string/unfreeze"
-            android:textOn="@string/freeze" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="end|center_vertical"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <ImageButton
@@ -145,19 +125,6 @@
                 android:textStyle="bold"/>
         </LinearLayout>
 
-    </LinearLayout>
-    <Button
-        android:id="@+id/viewHistory"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:background="@drawable/title_of_page_design"
-        android:text="@string/viewTransaction"
-        android:textColor="@color/dark_blue"
-        android:textStyle="bold" />
-
-
-
     <TextView
         android:id="@+id/transactionTextView"
         android:layout_width="wrap_content"
@@ -167,7 +134,6 @@
         android:textColor="@color/dark_blue"
         android:textSize="20sp"
         android:textStyle="bold" />
-
     <!-- Filter buttons in one evenly spaced row -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -202,6 +168,37 @@
             style="?android:attr/buttonBarButtonStyle"
             android:text="@string/amount" />
     </LinearLayout>
+
+    <!-- Payment History List -->
+    <ScrollView
+        android:id="@+id/paymentScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/paymentListContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Displayed when there are no payments -->
+            <TextView
+                android:id="@+id/noPaymentsText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="20dp"
+                android:text="@string/noPayments"
+                android:textColor="@color/dark_gray"
+                android:textSize="15sp"
+                android:visibility="visible" />
+
+        </LinearLayout>
+
+    </ScrollView>
 
 
 </LinearLayout>
