@@ -505,6 +505,8 @@ class Client() {
             receipt.paymentMethod,
             receipt.paymentStatus,
             receipt.cost,
+            receipt.surcharge,
+            receipt.subTotal,
             receipt.totalPaid
         ).joinToString(",")
     }
@@ -512,21 +514,35 @@ class Client() {
     // Convert text record into Receipt
     fun stringToReceipt(line: String): Receipt? {
         return try {
-            val data = line.split(",", limit = 7)
+            val data = line.split(",", limit = 9)
 
-            if (data.size != 7 || data[0] == "receiptNo") {
-                return null
+            if (data[0] == "receiptNo") return null
+
+            when (data.size) {
+                7 -> Receipt(
+                    receiptNo = data[0],
+                    ticketNo = data[1],
+                    trn = data[2],
+                    paymentMethod = data[3],
+                    paymentStatus = data[4],
+                    cost = data[5].toDouble(),
+                    totalPaid = data[6].toDouble()
+                )
+
+                9 -> Receipt(
+                    receiptNo = data[0],
+                    ticketNo = data[1],
+                    trn = data[2],
+                    paymentMethod = data[3],
+                    paymentStatus = data[4],
+                    cost = data[5].toDouble(),
+                    surcharge = data[6].toDouble(),
+                    subTotal = data[7].toDouble(),
+                    totalPaid = data[8].toDouble()
+                )
+
+                else -> null
             }
-
-            Receipt(
-                receiptNo = data[0],
-                ticketNo = data[1],
-                trn = data[2],
-                paymentMethod = data[3],
-                paymentStatus = data[4],
-                cost = data[5].toDouble(),
-                totalPaid = data[6].toDouble()
-            )
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -665,6 +681,9 @@ class Client() {
             serviceTime = 10
         )
 
+        val surcharge = 0.15 * cost
+        val subTotal = cost + surcharge
+
         val receipt = Receipt(
             receiptNo = receiptNo,
             ticketNo = ticketNo,
@@ -672,6 +691,8 @@ class Client() {
             paymentMethod = "Card",
             paymentStatus = "Unpaid",
             cost = cost,
+            surcharge = surcharge,
+            subTotal = subTotal,
             totalPaid = 0.0
         )
 
@@ -825,8 +846,7 @@ class Client() {
             return false
         }
 
-        val remainingBalance = receipt.cost - receipt.totalPaid
-
+        val remainingBalance = receipt.subTotal - receipt.totalPaid
         // Reject payments that exceed the remaining receipt balance.
         if (amount > remainingBalance) return false
 
@@ -860,8 +880,7 @@ class Client() {
         // Calculate the new payment total.
         val newTotalPaid = receipt.totalPaid + amount
 
-        val fullyPaid = newTotalPaid >= receipt.cost
-
+        val fullyPaid = newTotalPaid >= receipt.subTotal
         val now = LocalDateTime.now()
 
         // Update the receipt.

@@ -19,8 +19,8 @@ data class Receipt(
     val paymentMethod: String,
     val paymentStatus: String,
     val cost: Double,
-    //val surcharge: Double = 0.0,
-    //val subTotal: Double = 0.0,
+    val surcharge: Double = 0.0,
+    val subTotal: Double = 0.0,
     val totalPaid: Double = 0.0
 )
 
