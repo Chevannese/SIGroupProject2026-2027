@@ -311,7 +311,7 @@ fun Pay(ticket: Ticket, receipt: Receipt, hasCard: Boolean, onDismissRequest: ()
 
                 // Make Payment Button
                 if (canPay) {
-                    Button(
+                    TextButton(
                         onClick = {
                             scope.launch {
                                 processing = 0
@@ -335,9 +335,8 @@ fun Pay(ticket: Ticket, receipt: Receipt, hasCard: Boolean, onDismissRequest: ()
                         color = MaterialTheme.colorScheme.error
                     )
                 }
-
                 // Cancel Ticket Button
-                if (canCancel) {
+                else if (canCancel) {
                     OutlinedButton(
                         onClick = { showCancelConfirmation = true },
                         modifier = Modifier.fillMaxWidth(),
