@@ -1,5 +1,9 @@
 package com.example.flowapp
 
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.RatingBar
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -121,6 +126,23 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                 Color(245, 165, 165, 255),
                 {
                     MainActivity.instance.setContentView(R.layout.feedback)
+                    val submit = MainActivity.instance.findViewById<Button>(R.id.feedback_submit_btn)
+                    val feedback = MainActivity.instance.findViewById<EditText>(R.id.enter_feedback)
+                    val rating = MainActivity.instance.findViewById<RatingBar>(R.id.rating)
+                    val back = MainActivity.instance.findViewById<ImageButton>(R.id.feedback_back_button)
+
+                    back.setOnClickListener {
+                        MainActivity.instance.showMain(trn)
+                    }
+
+                    submit.setOnClickListener {
+                        val text = feedback.text.toString()
+                        val ratingValue = rating.rating.roundToInt()
+
+                        // TODO: Actually send feedback
+                        toast("Feedback not sent yet submitted but here is the rating entered $ratingValue")
+                        MainActivity.instance.showMain(trn)
+                    }
                 }
             )
         }
