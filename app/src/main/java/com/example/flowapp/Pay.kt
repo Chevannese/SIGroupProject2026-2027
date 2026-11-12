@@ -129,6 +129,10 @@ fun Pay(ticket: Ticket, receipt: Receipt, hasCard: Boolean, onDismissRequest: ()
 
     var error by remember { mutableStateOf(false) }
 
+    var updatedReceipt by remember {
+        mutableStateOf(receipt)
+    }
+
     var showCancelConfirmation by remember { mutableStateOf(false) }
 
     var cancelError by remember { mutableStateOf(false) }
@@ -164,23 +168,178 @@ fun Pay(ticket: Ticket, receipt: Receipt, hasCard: Boolean, onDismissRequest: ()
         else if (processing == 1) {
             // Payment Result
             Column(
-                modifier = Modifier.fillMaxWidth().padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp)
+                    .verticalScroll(scroll),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+
                 if (error) {
                     Text(
                         text = "An error occurred. Payment failed.",
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
                 else {
                     Text(
                         text = "Payment Successful",
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2E7D32)
                     )
+
+                    // Receipt Information
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Receipt,
+                                    contentDescription = "Receipt"
+                                )
+
+                                Spacer(Modifier.width(8.dp))
+
+                                Text(
+                                    text = "Payment Receipt",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            HorizontalDivider()
+
+                            // Receipt Details
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Receipt Number")
+                                Text(updatedReceipt.receiptNo)
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Ticket Number")
+                                Text(updatedReceipt.ticketNo)
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("TRN")
+                                Text(updatedReceipt.trn)
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Payment Method")
+                                Text(updatedReceipt.paymentMethod)
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Payment Status")
+                                Text(updatedReceipt.paymentStatus)
+                            }
+
+                            HorizontalDivider()
+
+                            Text(
+                                text = "Payment Breakdown",
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Service Cost")
+                                Text("$%.2f".format(updatedReceipt.cost))
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("GCT (15%)")
+                                Text("$%.2f".format(updatedReceipt.surcharge))
+                            }
+
+                            HorizontalDivider()
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    "Subtotal",
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Text(
+                                    "$%.2f".format(updatedReceipt.subTotal),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Total Paid")
+
+                                Text(
+                                    "$%.2f".format(updatedReceipt.totalPaid),
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF2E7D32)
+                                )
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Amount Remaining")
+
+                                Text(
+                                    "$%.2f".format(
+                                        updatedReceipt.subTotal - updatedReceipt.totalPaid
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
 
-                TextButton(onClick = onDismissRequest) {
+                TextButton(
+                    onClick = onDismissRequest,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
                     Text("Close")
                 }
             }
@@ -308,11 +467,25 @@ fun Pay(ticket: Ticket, receipt: Receipt, hasCard: Boolean, onDismissRequest: ()
                         onClick = {
                             scope.launch {
                                 processing = 0
+
                                 val response = withContext(Dispatchers.IO) {
-                                    client.makePayment(ticket.ticketNo, amountDue, customerCard!!.lastFourDigits)
+                                    client.makePayment(
+                                        ticket.ticketNo,
+                                        amountDue,
+                                        customerCard!!.lastFourDigits
+                                    )
                                 }
 
                                 error = !response
+
+                                if (response) {
+                                    updatedReceipt = withContext(Dispatchers.IO) {
+                                        client.getCustomerReceipts(ticket.custID)
+                                            .find { it.ticketNo == ticket.ticketNo }
+                                            ?: receipt
+                                    }
+                                }
+
                                 processing = 1
                             }
                         },

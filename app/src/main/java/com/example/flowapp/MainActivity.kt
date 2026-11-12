@@ -221,9 +221,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
-
-
     private fun showEnterPassPage(emailString: String) {
         setContentView(R.layout.enter_code)
 
