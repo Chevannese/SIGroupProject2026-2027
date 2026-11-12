@@ -65,6 +65,7 @@
     <string name="paymentStatus">Payment Status</string>
     <string name="date">Date/Time:</string>
     <string name="viewDetails">View\nDetails</string>
+    <string name="service">Service</string>
 
 
 </resources>
