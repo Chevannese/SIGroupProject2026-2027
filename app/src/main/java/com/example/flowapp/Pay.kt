@@ -186,7 +186,7 @@ fun Pay(ticket: Ticket, receipt: Receipt, hasCard: Boolean, onDismissRequest: ()
         }
         else if (processing == 2) {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(bottom = 32.dp).verticalScroll(scroll),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(bottom = 32.dp)/*.verticalScroll(scroll)*/,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Header
@@ -287,7 +287,7 @@ fun Pay(ticket: Ticket, receipt: Receipt, hasCard: Boolean, onDismissRequest: ()
                                 color = MaterialTheme.colorScheme.primary
                             )
                         }
-                        
+
                          */
                     }
                 }
