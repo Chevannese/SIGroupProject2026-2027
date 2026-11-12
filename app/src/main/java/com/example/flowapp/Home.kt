@@ -152,9 +152,17 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                         val text = feedback.text.toString()
                         val ratingValue = rating.rating.roundToInt()
 
-                        // TODO: Actually send feedback
-                        toast("Feedback submission not implemented yet\nHowever here is the rating entered $ratingValue")
-                        MainActivity.instance.showMain(trn)
+                        if (text.isBlank() || ratingValue == 0) {
+                            toast("Feedback submission not implemented yet\nHowever here is the rating entered $ratingValue")
+                        }
+                        else{
+                            toast("Rating: $ratingValue Text: $text")
+                            MainActivity.instance.showMain(trn)
+                        }
+
+
+
+
                     }
                 }
             )
