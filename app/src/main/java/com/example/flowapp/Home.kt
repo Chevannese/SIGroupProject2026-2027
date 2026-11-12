@@ -116,7 +116,14 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                 "Explore all available services",
                 Icons.Default.HomeRepairService,
                 Color(217, 165, 245, 255),
-                onClick = { onChangeTab(2) }
+                onClick = {
+                    MainActivity.instance.setContentView(R.layout.service)
+                    val back = MainActivity.instance.findViewById<ImageButton>(R.id.service_back_button)
+
+                    back.setOnClickListener {
+                        MainActivity.instance.showMain(trn)
+                    }
+                }
             )
 
             HomeButton(
