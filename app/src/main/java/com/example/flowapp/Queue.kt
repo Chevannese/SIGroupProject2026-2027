@@ -165,9 +165,7 @@ fun QueueTab(
                                 // Reload the ticket to get its latest status.
                                 coroutineScope.launch {
                                     val updatedTicket = withContext(Dispatchers.IO) {
-                                        client.getAllTickets(context).firstOrNull {
-                                            it.ticketNo == newTicket.ticketNo
-                                        }
+                                        client.getTicket(newTicket.ticketNo)
                                     }
 
                                     if (updatedTicket != null) {

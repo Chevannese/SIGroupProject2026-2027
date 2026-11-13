@@ -938,8 +938,8 @@ class Client() {
     }
 
     // Retrieve all tickets
-    public fun getAllTickets(context: Context = this.context): List<Ticket> {
         val file = getTicketFile(context)
+    private fun getAllTickets(context: Context = this.context): List<Ticket> {
 
         if (!file.exists()) return emptyList()
 
@@ -957,6 +957,9 @@ class Client() {
             file.createNewFile()
             println("tickets.txt was created because it didn't exist.")
         }
+    public fun getTicket(ticketNo: String): Ticket? {
+        return getAllTickets(context).firstOrNull { it.ticketNo == ticketNo }
+    }
 
         // Display file information
         println("File path: ${file.absolutePath}")
