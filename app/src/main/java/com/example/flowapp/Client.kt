@@ -1079,6 +1079,7 @@ class Client() {
      * @param card The credit card number to add
      */
     public fun add_card(trn: String, card: String): Boolean {
+    public suspend fun addCard(trn: String, card: String): Boolean {
         try {
             val file = File(context.filesDir, "cards.txt")
             file.appendText("$trn,$card,5000\n")
