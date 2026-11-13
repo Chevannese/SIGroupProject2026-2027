@@ -428,7 +428,7 @@ fun ChangePhone(
                 value = currentPhone,
                 onValueChange = {},
                 label = { Text("Current Phone Number") },
-                readOnly = true,
+                enabled = true,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone
