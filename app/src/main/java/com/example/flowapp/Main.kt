@@ -2,6 +2,7 @@ package com.example.flowapp
 
 import android.R
 import android.util.Log
+import android.widget.ImageButton
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -117,7 +118,38 @@ fun Main(onLogoutClick: () -> Unit, trn: String, startTab: Int = 0) {
 
 
     if (showDetailedProfile) {
-        Personal(onBack = { showDetailedProfile = false }, trn = trn)
+        Personal(
+            onBack = {
+                showDetailedProfile = false
+            },
+            trn = trn,
+            onPurchaseHistory = {
+                showDetailedProfile = false
+                showProfile = false
+
+                MainActivity.instance.setContentView(
+                    com.example.flowapp.R.layout.account_balance_page
+                )
+
+                MainActivity.instance.loadAccountBalance(trn)
+
+                val refreshBtn = MainActivity.instance.findViewById<ImageButton>(
+                    com.example.flowapp.R.id.refresh
+                )
+
+                refreshBtn.setOnClickListener {
+                    toast("Refreshed Accounts Page")
+                }
+
+                val back = MainActivity.instance.findViewById<ImageButton>(
+                    com.example.flowapp.R.id.account_balance_back_button
+                )
+
+                back.setOnClickListener {
+                    MainActivity.instance.showMain(trn)
+                }
+            }
+        )
     }
 }
 

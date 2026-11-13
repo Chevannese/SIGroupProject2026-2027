@@ -61,7 +61,11 @@ fun ProfileItem(icon: ImageVector, title: String, value: String, menu: Boolean =
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Personal(onBack: () -> Unit = {}, trn: String) {
+fun Personal(
+    onBack: () -> Unit = {},
+    trn: String,
+    onPurchaseHistory: () -> Unit = {}
+) {
     var changePassword by remember { mutableStateOf(false) }
     var changePhone by remember { mutableStateOf(false) }
     var showAddCard by remember { mutableStateOf(false) }
@@ -154,7 +158,10 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
                 icon = Icons.Default.Payments,
                 title = "Purchase History",
                 value = "View past purchases",
-                onClick = {}
+                menu = true,
+                onClick = {
+                    onPurchaseHistory()
+                }
             )
 
             HorizontalDivider(
