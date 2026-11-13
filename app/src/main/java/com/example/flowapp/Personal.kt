@@ -61,7 +61,11 @@ fun ProfileItem(icon: ImageVector, title: String, value: String, menu: Boolean =
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Personal(onBack: () -> Unit = {}, trn: String) {
+fun Personal(
+    onBack: () -> Unit = {},
+    trn: String,
+    onPurchaseHistory: () -> Unit = {}
+) {
     var changePassword by remember { mutableStateOf(false) }
     var changePhone by remember { mutableStateOf(false) }
     var showAddCard by remember { mutableStateOf(false) }
@@ -149,12 +153,15 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
                 color = Color(0xFFF0F0F0),
                 modifier = Modifier.padding(start = 72.dp)
             )
-                
+
             ProfileItem(
                 icon = Icons.Default.Payments,
                 title = "Purchase History",
                 value = "View past purchases",
-                onClick = {}
+                menu = true,
+                onClick = {
+                    onPurchaseHistory()
+                }
             )
 
             HorizontalDivider(
@@ -381,7 +388,7 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                             confirmPassword = ""
                         }
                         ChangeOldPassword.ERROR -> Toast.makeText(MainActivity.instance.applicationContext, "An error occurred", Toast.LENGTH_SHORT).show()
-                        
+
                     }
 
                     enableButton = true

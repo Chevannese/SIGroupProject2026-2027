@@ -117,7 +117,18 @@ fun Main(onLogoutClick: () -> Unit, trn: String, startTab: Int = 0) {
 
 
     if (showDetailedProfile) {
-        Personal(onBack = { showDetailedProfile = false }, trn = trn)
+        Personal(
+            onBack = {
+                showDetailedProfile = false
+            },
+            trn = trn,
+            onPurchaseHistory = {
+                showDetailedProfile = false
+                showProfile = false
+
+                MainActivity.instance.setContentView(R.layout.account_balance_page)
+            }
+        )
     }
 }
 
@@ -144,10 +155,6 @@ fun Profile(onBack: () -> Unit = {}, onLogoutClick: () -> Unit = {}, onDetails: 
     }
 }
 
-@Composable
-fun Appointments() {
-    Text(text = "Appointments Screen", style = MaterialTheme.typography.headlineMedium)
-}
 
 @Preview
 @Composable fun MainPreview() {
