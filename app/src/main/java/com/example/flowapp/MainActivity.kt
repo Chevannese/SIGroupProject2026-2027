@@ -349,7 +349,6 @@ class MainActivity : ComponentActivity() {
         // Find the views.
         val cardNumber = findViewById<TextView>(R.id.cardNumTextField)
         val balance = findViewById<TextView>(R.id.amount)
-        val accountStatus = findViewById<TextView>(R.id.accountStatus)
 
         val paymentList = findViewById<LinearLayout>(
             R.id.paymentListContainer
@@ -365,12 +364,10 @@ class MainActivity : ComponentActivity() {
 
             balance.text = "$%.2f".format(card.balance)
 
-            accountStatus.text = "Active"
         }
         else {
             cardNumber.text = "No Card Linked"
             balance.text = "$0.00"
-            accountStatus.text = "No Card Available"
         }
 
         // Clear previous receipt information.
@@ -466,7 +463,6 @@ class MainActivity : ComponentActivity() {
             // Find the views.
             val cardNumber = findViewById<TextView>(R.id.cardNumTextField)
             val balance = findViewById<TextView>(R.id.amount)
-            val accountStatus = findViewById<TextView>(R.id.accountStatus)
 
             val paymentList = findViewById<LinearLayout>(
                 R.id.paymentListContainer
@@ -482,12 +478,10 @@ class MainActivity : ComponentActivity() {
 
                 balance.text = "$%.2f".format(card.balance)
 
-                accountStatus.text = "Active"
             }
             else {
                 cardNumber.text = "No Card Linked"
                 balance.text = "$0.00"
-                accountStatus.text = "No Card Available"
             }
 
             // Clear previous receipt information.
