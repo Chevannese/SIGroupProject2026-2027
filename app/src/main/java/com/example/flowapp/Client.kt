@@ -76,7 +76,7 @@ class Client() {
         throw IllegalStateException("MainActivity has not been initialized yet.")
     }
 
-    fun user(trn: String): User? {
+    public fun user(trn: String): User? {
         try {
             val file = File(context.filesDir, "users.txt")
 
@@ -102,7 +102,7 @@ class Client() {
         return null
     }
 
-    fun changePassword(
+    public fun changePassword(
         trn: String,
         oldPassword: String,
         newPassword: String,
@@ -179,7 +179,7 @@ class Client() {
         return ChangeOldPassword.INVALID_PASSWORD
     }
 
-    fun login(trn: String, password: String): LoginCode {
+    public fun login(trn: String, password: String): LoginCode {
         try {
             val file = File(context.filesDir, "users.txt")
             Log.d("FILE", "File opened: " + file.path.toString())
@@ -208,7 +208,7 @@ class Client() {
         }
     }
 
-    fun validate(
+    private fun validate(
         trn: String = "123456789",
         name: String = "Joe Mama",
         password: String = "mypass123!",
@@ -238,7 +238,7 @@ class Client() {
         else return null
     }
 
-    fun register(
+    public fun register(
         trn: String,
         name: String,
         password: String,
@@ -286,7 +286,7 @@ class Client() {
         }
     }
 
-    fun checkEmailAddress(email: String): LoginCode {
+    public fun checkEmailAddress(email: String): LoginCode {
         try {
             val file = File(context.filesDir, "users.txt")
 
@@ -312,7 +312,7 @@ class Client() {
         }
     }
 
-    fun codeExists(code: String): Boolean {
+    private fun codeExists(code: String): Boolean {
         try {
             val file = File(context.filesDir, "recovery_codes.txt")
 
@@ -333,7 +333,7 @@ class Client() {
         return false
     }
 
-    fun writeVerifyCodeToFile(email: String, code: String): Boolean {
+    public fun writeVerifyCodeToFile(email: String, code: String): Boolean {
         try {
             val userFile = File(context.filesDir, "users.txt")
             val recoveryFile = File(context.filesDir, "recovery_codes.txt")
@@ -393,7 +393,7 @@ class Client() {
         }
     }
 
-    fun updatePassword(
+    public fun updatePassword(
         email: String,
         verifyCode: String,
         password: String,
@@ -497,7 +497,7 @@ class Client() {
     }
 
     // Convert Receipt into a text record
-    fun receiptToString(receipt: Receipt): String {
+    private fun receiptToString(receipt: Receipt): String {
         return listOf(
             receipt.receiptNo,
             receipt.ticketNo,
@@ -510,7 +510,7 @@ class Client() {
     }
 
     // Convert text record into Receipt
-    fun stringToReceipt(line: String): Receipt? {
+    private fun stringToReceipt(line: String): Receipt? {
         return try {
             val data = line.split(",", limit = 7)
 
@@ -535,7 +535,7 @@ class Client() {
     }
 
     // Retrieve all receipts
-    fun getAllReceipts(context: Context = this.context): List<Receipt> {
+    private fun getAllReceipts(context: Context = this.context): List<Receipt> {
         val file = getReceiptFile(context)
 
         if (!file.exists()) return emptyList()
@@ -557,27 +557,27 @@ class Client() {
     }
 
     // Append a receipt
-    fun saveReceipt(context: Context, receipt: Receipt) {
+    private fun saveReceipt(context: Context, receipt: Receipt) {
         getReceiptFile(context).appendText(
             receiptToString(receipt) + "\n"
         )
     }
 
     // Retrieve a receipt using its ticket number
-    fun getReceipt(ticketNo: String): Receipt? {
+    private fun getReceipt(ticketNo: String): Receipt? {
         return getAllReceipts(context).find {
             it.ticketNo == ticketNo
         }
     }
 
     // Retrieve receipts belonging to a customer
-    fun getCustomerReceipts(trn: String): List<Receipt> {
+    public fun getCustomerReceipts(trn: String): List<Receipt> {
         return getAllReceipts(context).filter {
             it.trn == trn
         }
     }
 
-    fun ticketToString(ticket: Ticket): String {
+    private fun ticketToString(ticket: Ticket): String {
         return listOf(
             ticket.ticketNo,
             ticket.custID,
@@ -591,7 +591,7 @@ class Client() {
         ).joinToString(",")
     }
 
-    fun stringToTicket(line: String): Ticket? {
+    private fun stringToTicket(line: String): Ticket? {
         return try {
             val data = line.split(",", limit = 9)
 
@@ -621,7 +621,7 @@ class Client() {
         }
     }
 
-    fun createTicket(
+    public fun createTicket(
         trn: String,
         service: String,
         branch: String
@@ -716,7 +716,7 @@ class Client() {
         return true
     }
 
-    fun updateQueue(branch: String) {
+    public fun updateQueue(branch: String) {
 
         val tickets = getAllTickets(context)
         val receipts = getAllReceipts(context)
@@ -753,7 +753,7 @@ class Client() {
         startNextTicket(branch)
     }
 
-    fun getAllCards(context: Context): List<PaymentCard> {
+    public fun getAllCards(context: Context): List<PaymentCard> {
 
         val file = File(context.filesDir, "cards.txt")
 
@@ -778,7 +778,7 @@ class Client() {
     }
 
 
-    fun saveAllCards(cards: List<PaymentCard>) {
+    private fun saveAllCards(cards: List<PaymentCard>) {
 
         val file = File(context.filesDir, "cards.txt")
 
@@ -791,7 +791,7 @@ class Client() {
 
 
 
-    fun makePayment(
+    public fun makePayment(
         ticketNo: String,
         amount: Double,
         cardLastFourDigits: String
@@ -926,19 +926,19 @@ class Client() {
             file.appendText("\n")
         }
     }
-    fun getTicketFile(context: Context): File {
+    private fun getTicketFile(context: Context): File {
         return File(context.filesDir, "tickets.txt")
     }
 
     // Append a ticket to tickets.txt
-    fun saveTicket(context: Context, ticket: Ticket) {
+    private fun saveTicket(context: Context, ticket: Ticket) {
         val file = getTicketFile(context)
 
         file.appendText(ticketToString(ticket) + "\n")
     }
 
     // Retrieve all tickets
-    fun getAllTickets(context: Context = this.context): List<Ticket> {
+    public fun getAllTickets(context: Context = this.context): List<Ticket> {
         val file = getTicketFile(context)
 
         if (!file.exists()) return emptyList()
@@ -949,7 +949,7 @@ class Client() {
     }
 
     // Retrieve tickets belonging to a specific customer
-    fun getCustomerTickets(context: Context = this.context, trn: String): List<Ticket> {
+    public fun getCustomerTickets(context: Context = this.context, trn: String): List<Ticket> {
         val file = File(context.filesDir, "tickets.txt")
 
         // Check if file exists
@@ -981,7 +981,7 @@ class Client() {
         return customerTickets
     }
 
-    fun startNextTicket(branch: String) {
+    private fun startNextTicket(branch: String) {
 
         val tickets = getAllTickets(context)
 
@@ -1021,7 +1021,7 @@ class Client() {
         saveAllTickets(updatedTickets)
     }
 
-    fun hasActiveTicket(trn: String): Boolean {
+    public fun hasActiveTicket(trn: String): Boolean {
         return getAllTickets(context).any { ticket ->
             ticket.custID == trn &&
                     ticket.ticketStatus in listOf(
@@ -1032,7 +1032,7 @@ class Client() {
         }
     }
 
-    fun cancelTicket(ticketNo: String): Boolean {
+    public fun cancelTicket(ticketNo: String): Boolean {
 
         val tickets = getAllTickets(context)
 
@@ -1075,7 +1075,7 @@ class Client() {
      * @param trn The TRN of the user
      * @param card The credit card number to add
      */
-    fun add_card(trn: String, card: String): Boolean {
+    public fun add_card(trn: String, card: String): Boolean {
         try {
             val file = File(context.filesDir, "cards.txt")
             file.appendText("$trn,$card,5000\n")
@@ -1088,7 +1088,7 @@ class Client() {
         return false
     }
 
-    fun cards(trn: String): String? {
+    public fun cards(trn: String): String? {
         try {
             val file = File(context.filesDir, "cards.txt")
 
