@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun AddCard(onBack: () -> Unit = {}, onAdd: () -> Unit = {}, trn: String) {
@@ -143,7 +144,11 @@ fun AddCard(onBack: () -> Unit = {}, onAdd: () -> Unit = {}, trn: String) {
                 Button(
                     onClick = {
                         val client = Client()
-                        val response = client.addCard(trn, ccNumber.takeLast(4))
+                        var response: Boolean? = null
+
+                        scope.launch {
+                            response = client.addCard(trn, ccNumber.takeLast(4))
+                        }
 
                         when (response) {
                             false -> toast("Error adding card")
@@ -152,6 +157,7 @@ fun AddCard(onBack: () -> Unit = {}, onAdd: () -> Unit = {}, trn: String) {
                                 onBack()
                                 onAdd()
                             }
+                            null -> toast("ERROR")
                         }
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth(),
