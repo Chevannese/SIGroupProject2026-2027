@@ -82,8 +82,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
-
     private fun showRegister() {
         setContentView(R.layout.register)
         setupRegistrationScroll()

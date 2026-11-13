@@ -22,29 +22,98 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun Payments(trn: String, padding: PaddingValues = PaddingValues.Zero) {
+fun Payments(
+    trn: String,
+    padding: PaddingValues = PaddingValues.Zero
+) {
     var showPay by remember { mutableStateOf(false) }
     var showAddCard by remember { mutableStateOf(false) }
 
-    var hasCard by remember(trn) { mutableStateOf(!Client().cards(trn).isNullOrBlank()) }
+    var hasCard by remember(trn) {
+        mutableStateOf(false)
+    }
 
-    var ticketDisplay by remember(trn) { mutableStateOf("") }
+    var receipts by remember(trn) {
+        mutableStateOf(emptyList<Receipt>())
+    }
 
-    val client = Client()
+    var tickets by remember(trn) {
+        mutableStateOf(emptyList<Ticket>())
+    }
 
-    // Retrieve customer receipts.
-    val receipts = client.getCustomerReceipts(trn)
+    var ticketDisplay by remember(trn) {
+        mutableStateOf("")
+    }
 
-    // Retrieve tickets that can still be paid or cancelled.
-    val tickets = client.getCustomerTickets(trn = trn)
-        .filter { ticket ->
-            val receipt = receipts.find { it.ticketNo == ticket.ticketNo }
+    var isLoading by remember {
+        mutableStateOf(true)
+    }
 
-            ticket.ticketStatus in listOf("Waiting", "Being Served", "Served") && receipt?.paymentStatus != "Fully Paid"
+    var loadError by remember {
+        mutableStateOf(false)
+    }
+
+    val scope = rememberCoroutineScope()
+
+    // Load the customer's receipts, tickets and card information.
+    suspend fun refreshPayments() {
+        isLoading = true
+        loadError = false
+
+        try {
+            val result = withContext(Dispatchers.IO) {
+                val client = Client()
+
+                val customerReceipts =
+                    client.getCustomerReceipts(trn)
+
+                val customerTickets =
+                    client.getCustomerTickets(trn = trn)
+
+                val customerHasCard =
+                    !client.cards(trn).isNullOrBlank()
+
+                Triple(
+                    customerReceipts,
+                    customerTickets,
+                    customerHasCard
+                )
+            }
+
+            receipts = result.first
+
+            // Only show tickets that have a matching receipt
+            // and are still eligible for payment or cancellation.
+            tickets = result.second.filter { ticket ->
+
+                val receipt = result.first.find {
+                    it.ticketNo == ticket.ticketNo
+                }
+
+                ticket.ticketStatus in listOf(
+                    "Waiting",
+                    "Being Served",
+                    "Served"
+                ) &&
+                        receipt != null &&
+                        receipt.paymentStatus != "Fully Paid"
+            }
+
+            hasCard = result.third
+
+        } catch (e: Exception) {
+            loadError = true
+        } finally {
+            isLoading = false
         }
+    }
 
-    // Retrieve the selected ticket.
-    // If it is unavailable, select the first available ticket.
+    // Load data when the Payments Page opens.
+    LaunchedEffect(trn) {
+        refreshPayments()
+    }
+
+    // Find the selected ticket and its corresponding receipt.
     val selectedTicket = tickets.find {
         it.ticketNo == ticketDisplay
     } ?: tickets.firstOrNull()
@@ -53,61 +122,128 @@ fun Payments(trn: String, padding: PaddingValues = PaddingValues.Zero) {
         it.ticketNo == selectedTicket?.ticketNo
     }
 
-    if (tickets.isEmpty()) {
-        Text(
-            text = "No tickets available for payment",
-            modifier = Modifier.padding(padding)
-        )
-    }
-    else {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(padding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(padding),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+
+        // Refresh button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
         ) {
+            TextButton(
+                onClick = {
+                    scope.launch {
+                        refreshPayments()
+                    }
+                },
+                enabled = !isLoading
+            ) {
+                Text("Refresh")
+            }
+        }
+
+        if (isLoading) {
+
+            CircularProgressIndicator()
+
+        } else if (loadError) {
+
+            Text(
+                text = "Unable to load payment information.",
+                color = MaterialTheme.colorScheme.error
+            )
+
+            Button(
+                onClick = {
+                    scope.launch {
+                        refreshPayments()
+                    }
+                }
+            ) {
+                Text("Try Again")
+            }
+
+        } else if (tickets.isEmpty()) {
+
+            Text("No tickets available for payment")
+
+        } else {
 
             DropdownField(
                 label = "Ticket",
                 options = tickets.map { it.ticketNo },
-                selectedTicket!!.ticketNo,
-                onSelected = { ticketDisplay = it }
+                selected = selectedTicket!!.ticketNo,
+                onSelected = {
+                    ticketDisplay = it
+                }
             )
 
-            Button(onClick = { showPay = true }) {
+            Button(
+                onClick = {
+                    showPay = true
+                },
+                enabled = selectedReceipt != null
+            ) {
                 Text("View Ticket")
             }
 
             if (!hasCard) {
+
                 Text("No card information found")
-                Button(onClick = { showAddCard = true }) {
+
+                Button(
+                    onClick = {
+                        showAddCard = true
+                    }
+                ) {
                     Text("Add Card")
                 }
             }
         }
     }
 
+    // Add Card screen
     if (showAddCard) {
         AddCard(
             onBack = {
                 showAddCard = false
-                hasCard = !Client().cards(trn).isNullOrBlank()
+
+                scope.launch {
+                    refreshPayments()
+                }
             },
             trn = trn
         )
     }
 
-    if (showPay && selectedTicket != null && selectedReceipt != null) {
+    // Payment details
+    if (
+        showPay &&
+        selectedTicket != null &&
+        selectedReceipt != null
+    ) {
         Pay(
             ticket = selectedTicket,
             receipt = selectedReceipt,
             hasCard = hasCard,
             onDismissRequest = {
                 showPay = false
-                hasCard = !Client().cards(trn).isNullOrBlank()
+
+                // Reload receipts and tickets after payment
+                // or ticket cancellation.
+                scope.launch {
+                    refreshPayments()
+                }
             }
         )
     }
 }
+
 
 
 
