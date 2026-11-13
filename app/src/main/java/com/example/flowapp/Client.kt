@@ -1170,7 +1170,7 @@ class Client() {
         }
 
         // Validate a 10-digit Jamaican phone number.
-        if (!newPhone.matches(Regex("\\d{10}"))) {
+        if (!newPhone.matches(Regex("\\d{10,11}"))) {
             return ChangePhoneResult.INVALID_PHONE
         }
 

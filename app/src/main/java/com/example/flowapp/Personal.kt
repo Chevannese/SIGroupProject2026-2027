@@ -433,17 +433,17 @@ fun ChangePhone(
             OutlinedTextField(
                 value = newPhone,
                 onValueChange = { input ->
-                    newPhone = input.filter { it.isDigit() }.take(10)
+                    newPhone = input.filter { it.isDigit() }.take(11)
                 },
                 label = { Text("New Phone Number") },
-                placeholder = { Text("Enter 10-digit phone number") },
+                placeholder = { Text("Enter 10 or 11-digit phone number") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Done
                 ),
                 supportingText = {
-                    Text("${newPhone.length}/10 digits")
+                    Text("${newPhone.length}/11 digits (10 or 11 required)")
                 }
             )
 
