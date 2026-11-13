@@ -94,6 +94,10 @@ fun handle_client(socket: Socket) {
     println("Disconnected: $remote")
 }
 
+
+fun eprintln(text: String?) {
+    System.err.println(text.toString())
+}
     }
             serviceStartTime = null,
             serviceEndTime = null,
