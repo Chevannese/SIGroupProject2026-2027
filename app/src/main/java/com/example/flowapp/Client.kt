@@ -16,10 +16,72 @@ import kotlinx.serialization.json.Json
 import android.util.Log
 
 import java.security.MessageDigest
+
+
 // time stuff
+import java.security.SecureRandom
+import java.time.LocalDateTime
+import kotlin.time.Clock
+import java.util.Locale
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 
-@Suppress("RedundantVisibilityModifier")
+data class QueueSnapshot(
+    val customerTicket: Ticket?,
+    val nowServing: Ticket?,
+    val nextInLine: Ticket?,
+    val waitingCount: Int,
+    val customersAhead: Int
+)
+enum class LoginCode {
+    OK,
+    NOT_FOUND,
+    ERROR
+}
+
+enum class UpdatePassword
+{
+    EMPTY_FIELD,
+    PASSWORD_SHORT,
+    PASSWORD_LONG,
+    PASSWORD_MISMATCH,
+    CODE_SHORT,
+    CODE_LONG,
+    INVALID_CODE,
+    OK,
+    INVALID_PASSWORD,
+    ERROR
+}
+
+enum class ChangeOldPassword {
+    EMPTY_FIELD,
+    PASSWORD_SHORT,
+    PASSWORD_LONG,
+    PASSWORD_MISMATCH,
+    SAME_PASSWORD,
+    OK,
+    INVALID_PASSWORD,
+    ERROR
+}
+
+enum class RegisterCode {
+    OK,
+    EMPTY_FIELD,
+    TRN_INVALID,
+    NAME_INVALID,
+    PHONE_INVALID,
+    PASSWORD_LONG,
+    PASSWORD_SHORT,
+    PASSWORD_MISMATCH,
+    EMAIL_INVALID,
+    TRN_EXISTS,
+    EMAIL_EXISTS,
+    PHONE_EXISTS,
+    ERROR,
+    PASSWORD_INVALID
+}
+
+
 @OptIn(ExperimentalTime::class)
 class Client() {
     private val context: Context = if (MainActivity.isInitialized) {

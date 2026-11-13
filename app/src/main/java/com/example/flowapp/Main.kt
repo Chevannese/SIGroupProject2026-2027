@@ -1,6 +1,8 @@
 package com.example.flowapp
 
+import android.R
 import android.util.Log
+import android.widget.ImageButton
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -11,11 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
-
+import androidx.compose.material.icons.filled.People
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Main(onLogoutClick: () -> Unit, trn: String) {
-    var tab by remember { mutableIntStateOf(0) }
+fun Main(onLogoutClick: () -> Unit, trn: String, startTab: Int = 0) {
+    var tab by remember { mutableIntStateOf(startTab) }
     var showProfile by remember { mutableStateOf(false) }
     var showDetailedProfile by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
@@ -33,7 +35,7 @@ fun Main(onLogoutClick: () -> Unit, trn: String) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Flow App")
+                    Text("Flow App" )
                 },
                 actions = {
                     IconButton(onClick = { showProfile = true }) {
@@ -66,14 +68,40 @@ fun Main(onLogoutClick: () -> Unit, trn: String) {
                     icon = { Icon( imageVector = Icons.Default.Wallet, contentDescription = "Payments") },
                     label = { Text("Payments") }
                 )
+                NavigationBarItem(
+                    selected = tab == 3,
+                    onClick = { tab = 3 },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.People,
+                            contentDescription = "Waiting"
+                        )
+                    },
+                    label = { Text("Waiting") }
+                )
             }
         }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (tab) {
-                0 -> Home(trn = trn, onChangeTab = { tab = it })
+                0 -> Home(
+                    trn = trn,
+                    onChangeTab = { tab = it }
+                )
+
                 1 -> Queues(trn = trn)
-                2 -> Payments(trn = trn, padding = innerPadding)
+
+                2 -> Payments(
+                    trn = trn,
+                    padding = innerPadding
+                )
+
+                3 -> Waiting(
+                    trn = trn,
+                    onProceedToPayment = {
+                        tab = 2
+                    }
+                )
             }
         }
 
@@ -90,7 +118,38 @@ fun Main(onLogoutClick: () -> Unit, trn: String) {
 
 
     if (showDetailedProfile) {
-        Personal(onBack = { showDetailedProfile = false }, trn = trn)
+        Personal(
+            onBack = {
+                showDetailedProfile = false
+            },
+            trn = trn,
+            onPurchaseHistory = {
+                showDetailedProfile = false
+                showProfile = false
+
+                MainActivity.instance.setContentView(
+                    com.example.flowapp.R.layout.account_balance_page
+                )
+
+                MainActivity.instance.loadAccountBalance(trn)
+
+                val refreshBtn = MainActivity.instance.findViewById<ImageButton>(
+                    com.example.flowapp.R.id.refresh
+                )
+
+                refreshBtn.setOnClickListener {
+                    toast("Refreshed Accounts Page")
+                }
+
+                val back = MainActivity.instance.findViewById<ImageButton>(
+                    com.example.flowapp.R.id.account_balance_back_button
+                )
+
+                back.setOnClickListener {
+                    MainActivity.instance.showMain(trn)
+                }
+            }
+        )
     }
 }
 
@@ -136,4 +195,3 @@ fun Appointments() {
         Profile()
     }
 }
-

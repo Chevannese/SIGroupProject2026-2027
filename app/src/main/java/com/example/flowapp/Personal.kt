@@ -18,8 +18,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.flowapp.ui.icons.id_card
 import com.example.flowapp.ui.theme.FlowAppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -59,11 +61,27 @@ fun ProfileItem(icon: ImageVector, title: String, value: String, menu: Boolean =
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Personal(onBack: () -> Unit = {}, trn: String) {
+fun Personal(
+    onBack: () -> Unit = {},
+    trn: String,
+    onPurchaseHistory: () -> Unit = {}
+) {
     var changePassword by remember { mutableStateOf(false) }
+    var changePhone by remember { mutableStateOf(false) }
+    var showAddCard by remember { mutableStateOf(false) }
+    var showSavedCard by remember { mutableStateOf(false) }
     val client = Client()
-    var user = client.user(trn)
-    val savedCard = client.cards(trn)
+    var user by remember(trn) {
+        mutableStateOf(client.user(trn) ?: User.default())
+    }
+    var savedCard by remember { mutableStateOf(client.cards(trn)) }
+    var paymentMethodClick =
+        if (savedCard == null) {
+            { showAddCard = true }
+        }
+        else {
+            { showSavedCard = true }
+        }
     if (user == null) {
         user = User.default()
     }
@@ -73,9 +91,16 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
 
         Spacer(modifier = Modifier.height(24.dp))
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(10.dp),) {
+            modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+
+            ProfileItem(
+                icon = id_card,
+                title = "TRN",
+                value = user.trn,
+                onClick = {}
+            )
 
             ProfileItem(
                 icon = Icons.Default.Person,
@@ -100,7 +125,10 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
                 icon = Icons.Default.Phone,
                 title = "Phone",
                 value = user.phone,
-                onClick = {}
+                menu = true,
+                onClick = {
+                    changePhone = true
+                }
             )
 
             HorizontalDivider(
@@ -125,12 +153,15 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
                 color = Color(0xFFF0F0F0),
                 modifier = Modifier.padding(start = 72.dp)
             )
-                
+
             ProfileItem(
                 icon = Icons.Default.Payments,
                 title = "Purchase History",
                 value = "View past purchases",
-                onClick = {}
+                menu = true,
+                onClick = {
+                    onPurchaseHistory()
+                }
             )
 
             HorizontalDivider(
@@ -141,14 +172,56 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
             ProfileItem(
                 icon = Icons.Default.CreditCard,
                 title = "Payment Method",
-                value = savedCard?.takeLast(4)?.let { "Visa Card **** $it" } ?: "No card saved",
-                onClick = {}
+                value = savedCard?.takeLast(4)?.let { "VISA Card ending with $it" } ?: "No card saved",
+                onClick = paymentMethodClick
             )
         }
     }
 
     if (changePassword) {
         ChangePassword( onBack = { changePassword = false }, trn)
+    }
+    if (changePhone) {
+        ChangePhone(
+            onBack = {
+                changePhone = false
+                user = client.user(trn) ?: User.default()
+            },
+            trn = trn,
+            currentPhone = user.phone
+        )
+    }
+    if (showAddCard) {
+        AddCard(
+            onBack = { showAddCard = false },
+            onAdd = { savedCard = client.cards(trn) },
+            trn = trn
+        )
+    }
+    if (showSavedCard) {
+        ModalBottomSheet({ showSavedCard = false }) {
+            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(imageVector = Icons.Default.CreditCard, null)
+                Text("Saved VISA Card")
+                Text("**** **** **** $savedCard")
+
+                TextButton(
+                    onClick = {
+                        val client = Client()
+                        val response = client.removeCard(trn)
+                        when (response) {
+                            true -> toast("Card successfully remove")
+                            false -> toast("ERROR: Card could not be removed")
+                        }
+
+                        showSavedCard = false
+                        savedCard = null
+                    }
+                ) {
+                    Text("Remove Card")
+                }
+            }
+        }
     }
 }
 
@@ -171,6 +244,9 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
     var passwordsMatch by remember { mutableStateOf(false) }
     var passwordContainsLNS by remember { mutableStateOf(false) }
     var enableButton by remember { mutableStateOf(true) }
+    var passwordHidden by remember { mutableStateOf(true) }
+    var passwordHidden2 by remember { mutableStateOf(true) }
+    var passwordHidden3 by remember { mutableStateOf(true) }
 
     BackBar(title = "Change Password", onBack) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -179,7 +255,24 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                 onValueChange = { text -> currentPassword = text },
                 placeholder = { Text("Old Password") },
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation =
+                    if (passwordHidden) {
+                        PasswordVisualTransformation()
+                    }
+                    else {
+                        VisualTransformation.None
+                    }
+                ,
+                trailingIcon = {
+                    IconButton(onClick = { passwordHidden = !passwordHidden }) {
+                        Icon(
+                            imageVector =
+                                if (passwordHidden) Icons.Filled.Visibility
+                                else Icons.Filled.VisibilityOff,
+                            contentDescription = "toggle password visibilty"
+                        )
+                    }
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Next,
@@ -190,7 +283,7 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
             OutlinedTextField(
                 value = newPassword,
                 onValueChange = {
-                    text -> newPassword = text
+                        text -> newPassword = text
                     passwordsMatch = confirmPassword == newPassword
                     password8Chars = newPassword.length >= 8
                     passwordContainsLNS = newPassword.any { it.isLetter() } && newPassword.any { it.isDigit() } && newPassword.any { it == '!' || it == '@' || it == '#' || it == '$' || it == '%' || it == '^' || it == '&' || it == '*' }
@@ -209,7 +302,24 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                     }
                 },
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation =
+                    if (passwordHidden2) {
+                        PasswordVisualTransformation()
+                    }
+                    else {
+                        VisualTransformation.None
+                    }
+                ,
+                trailingIcon = {
+                    IconButton(onClick = { passwordHidden2 = !passwordHidden2 }) {
+                        Icon(
+                            imageVector =
+                                if (passwordHidden2) Icons.Filled.Visibility
+                                else Icons.Filled.VisibilityOff,
+                            contentDescription = "toggle password visibilty"
+                        )
+                    }
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Next,
@@ -220,7 +330,7 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
             OutlinedTextField(
                 value = currentPassword,
                 onValueChange = {
-                    text -> confirmPassword = text
+                        text -> confirmPassword = text
                     passwordsMatch = confirmPassword == newPassword
                 },
                 placeholder = { Text(text = "Confirm Password") },
@@ -231,7 +341,24 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                     }
                 },
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation =
+                    if (passwordHidden3) {
+                        PasswordVisualTransformation()
+                    }
+                    else {
+                        VisualTransformation.None
+                    }
+                ,
+                trailingIcon = {
+                    IconButton(onClick = { passwordHidden3 = !passwordHidden3 }) {
+                        Icon(
+                            imageVector =
+                                if (passwordHidden3) Icons.Filled.Visibility
+                                else Icons.Filled.VisibilityOff,
+                            contentDescription = "toggle password visibilty"
+                        )
+                    }
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done,
@@ -247,6 +374,7 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                     val client = Client()
                     val response = client.changePassword(trn, currentPassword, newPassword, confirmPassword)
 
+
                     when (response) {
                         ChangeOldPassword.EMPTY_FIELD -> Toast.makeText(MainActivity.instance.applicationContext, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                         ChangeOldPassword.PASSWORD_SHORT -> Toast.makeText(MainActivity.instance.applicationContext, "Password should not be less than 8 characters", Toast.LENGTH_SHORT).show()
@@ -260,13 +388,134 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                             confirmPassword = ""
                         }
                         ChangeOldPassword.ERROR -> Toast.makeText(MainActivity.instance.applicationContext, "An error occurred", Toast.LENGTH_SHORT).show()
-                        else -> {}
+
                     }
 
                     enableButton = true
                 }
             ) {
                 Text("Change Password")
+            }
+        }
+    }
+}
+
+@Composable
+fun ChangePhone(
+    onBack: () -> Unit = {},
+    trn: String,
+    currentPhone: String
+) {
+    var newPhone by remember(currentPhone) {
+        mutableStateOf(currentPhone)
+    }
+
+    var enableButton by remember {
+        mutableStateOf(true)
+    }
+
+    BackBar(title = "Change Phone Number", onBack) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            OutlinedTextField(
+                value = currentPhone,
+                onValueChange = {},
+                label = { Text("Current Phone Number") },
+                enabled = true,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Phone
+                )
+            )
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            OutlinedTextField(
+                value = newPhone,
+                onValueChange = { input ->
+                    newPhone = input.filter { it.isDigit() }.take(11)
+                },
+                label = { Text("New Phone Number") },
+                placeholder = { Text("Enter 10 or 11-digit phone number") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Phone,
+                    imeAction = ImeAction.Done
+                ),
+                supportingText = {
+                    Text("${newPhone.length}/11 digits (10 or 11 required)")
+                }
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                enabled = enableButton,
+                onClick = {
+
+                    enableButton = false
+
+                    val response = Client().changePhone(
+                        trn = trn,
+                        newPhone = newPhone
+                    )
+
+                    when (response) {
+
+                        Client.ChangePhoneResult.EMPTY_FIELD -> {
+                            Toast.makeText(
+                                MainActivity.instance.applicationContext,
+                                "Please enter a phone number",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        Client.ChangePhoneResult.INVALID_PHONE -> {
+                            Toast.makeText(
+                                MainActivity.instance.applicationContext,
+                                "Phone number must contain exactly 10 digits",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        Client.ChangePhoneResult.SAME_PHONE -> {
+                            Toast.makeText(
+                                MainActivity.instance.applicationContext,
+                                "This is already your phone number",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        Client.ChangePhoneResult.OK -> {
+                            Toast.makeText(
+                                MainActivity.instance.applicationContext,
+                                "Phone number successfully updated",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            onBack()
+                        }
+
+                        Client.ChangePhoneResult.ERROR -> {
+                            Toast.makeText(
+                                MainActivity.instance.applicationContext,
+                                "An error occurred while updating your phone number",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
+                    enableButton = true
+                }
+            ) {
+                Text("Update Phone Number")
             }
         }
     }

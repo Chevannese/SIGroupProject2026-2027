@@ -50,7 +50,7 @@ dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.cardview)
-    implementation(libs.androidx.compose.foundation.desktop)
+    implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.room3.common)
     implementation(libs.androidx.room3.runtime)
+    implementation(libs.androidx.ui.graphics)
     implementation(libs.firebase.annotations)
     implementation(libs.material)
     testImplementation(libs.junit)
@@ -79,10 +80,8 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.57.1")
     implementation(libs.androidx.compose.material3)
     implementation("androidx.compose.material:material-icons-extended")
-    //Hopefully this does not crash it
-
     implementation("com.sun.mail:android-mail:1.6.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
-
+    implementation("com.google.android.material:material:1.12.0")
 }

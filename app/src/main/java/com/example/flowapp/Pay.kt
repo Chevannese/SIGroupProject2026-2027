@@ -2,6 +2,8 @@
 package com.example.flowapp
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CreditCard
@@ -10,8 +12,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,35 +30,99 @@ fun Payments(
     var showAddCard by remember { mutableStateOf(false) }
 
     var hasCard by remember(trn) {
-        mutableStateOf(!Client().cards(trn).isNullOrBlank())
+        mutableStateOf(false)
+    }
+
+    var receipts by remember(trn) {
+        mutableStateOf(emptyList<Receipt>())
+    }
+
+    var tickets by remember(trn) {
+        mutableStateOf(emptyList<Ticket>())
     }
 
     var ticketDisplay by remember(trn) {
         mutableStateOf("")
     }
 
-    val client = Client()
+    var isLoading by remember {
+        mutableStateOf(true)
+    }
 
-    // Retrieve customer receipts.
-    val receipts = client.getCustomerReceipts(trn)
+    var loadError by remember {
+        mutableStateOf(false)
+    }
 
-    // Retrieve tickets that can still be paid or cancelled.
-    val tickets = client.getCustomerTickets(trn = trn)
-        .filter { ticket ->
+    val scope = rememberCoroutineScope()
 
-            val receipt = receipts.find {
-                it.ticketNo == ticket.ticketNo
+    // Load the customer's receipts, tickets and card information.
+    suspend fun refreshPayments() {
+        isLoading = true
+        loadError = false
+
+        try {
+            val result = withContext(Dispatchers.IO) {
+                val client = Client()
+
+                // Check the customer's tickets for expired service times.
+                val customerTickets =
+                    client.getCustomerTickets(trn = trn)
+
+                customerTickets.forEach { ticket ->
+                    client.markNoShow(ticket.ticketNo)
+                }
+
+                // Reload tickets after checking for No Shows.
+                val updatedTickets =
+                    client.getCustomerTickets(trn = trn)
+
+                val customerReceipts =
+                    client.getCustomerReceipts(trn)
+
+                val customerHasCard =
+                    !client.cards(trn).isNullOrBlank()
+
+                Triple(
+                    customerReceipts,
+                    updatedTickets,
+                    customerHasCard
+                )
             }
 
-            ticket.ticketStatus in listOf(
-                "Waiting",
-                "Being Served",
-                "Served"
-            ) && receipt?.paymentStatus != "Fully Paid"
-        }
+            receipts = result.first
 
-    // Retrieve the selected ticket.
-    // If it is unavailable, select the first available ticket.
+            // Only show tickets that have a matching receipt
+            // and are still eligible for payment or cancellation.
+            tickets = result.second.filter { ticket ->
+
+                val receipt = result.first.find {
+                    it.ticketNo == ticket.ticketNo
+                }
+
+                ticket.ticketStatus in listOf(
+                    "Waiting",
+                    "Being Served",
+                    "Served"
+                ) &&
+                        receipt != null &&
+                        receipt.paymentStatus != "Fully Paid"
+            }
+
+            hasCard = result.third
+
+        } catch (e: Exception) {
+            loadError = true
+        } finally {
+            isLoading = false
+        }
+    }
+
+    // Load data when the Payments Page opens.
+    LaunchedEffect(trn) {
+        refreshPayments()
+    }
+
+    // Find the selected ticket and its corresponding receipt.
     val selectedTicket = tickets.find {
         it.ticketNo == ticketDisplay
     } ?: tickets.firstOrNull()
@@ -63,28 +131,63 @@ fun Payments(
         it.ticketNo == selectedTicket?.ticketNo
     }
 
-    if (tickets.isEmpty()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(padding),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
 
-        Text(
-            text = "No tickets available for payment",
-            modifier = Modifier.padding(padding)
-        )
-
-    } else {
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(padding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        // Refresh button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
         ) {
+            TextButton(
+                onClick = {
+                    scope.launch {
+                        refreshPayments()
+                    }
+                },
+                enabled = !isLoading
+            ) {
+                Text("Refresh")
+            }
+        }
+
+        if (isLoading) {
+
+            CircularProgressIndicator()
+
+        } else if (loadError) {
+
+            Text(
+                text = "Unable to load payment information.",
+                color = MaterialTheme.colorScheme.error
+            )
+
+            Button(
+                onClick = {
+                    scope.launch {
+                        refreshPayments()
+                    }
+                }
+            ) {
+                Text("Try Again")
+            }
+
+        } else if (tickets.isEmpty()) {
+
+            Text("No tickets available for payment")
+
+        } else {
 
             DropdownField(
-                "Ticket",
-                tickets.map { it.ticketNo },
-                selectedTicket!!.ticketNo,
-                {
+                label = "Ticket",
+                options = tickets.map { it.ticketNo },
+                selected = selectedTicket!!.ticketNo,
+                onSelected = {
                     ticketDisplay = it
                 }
             )
@@ -92,7 +195,8 @@ fun Payments(
             Button(
                 onClick = {
                     showPay = true
-                }
+                },
+                enabled = selectedReceipt != null
             ) {
                 Text("View Ticket")
             }
@@ -112,29 +216,38 @@ fun Payments(
         }
     }
 
+    // Add Card screen
     if (showAddCard) {
         AddCard(
             onBack = {
                 showAddCard = false
-                hasCard = !Client().cards(trn).isNullOrBlank()
+
+                scope.launch {
+                    refreshPayments()
+                }
             },
             trn = trn
         )
     }
 
+    // Payment details
     if (
         showPay &&
         selectedTicket != null &&
         selectedReceipt != null
     ) {
-
         Pay(
             ticket = selectedTicket,
             receipt = selectedReceipt,
             hasCard = hasCard,
             onDismissRequest = {
                 showPay = false
-                hasCard = !Client().cards(trn).isNullOrBlank()
+
+                // Reload receipts and tickets after payment
+                // or ticket cancellation.
+                scope.launch {
+                    refreshPayments()
+                }
             }
         )
     }
@@ -143,69 +256,51 @@ fun Payments(
 
 
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Pay(
-    ticket: Ticket,
-    receipt: Receipt,
-    hasCard: Boolean,
-    onDismissRequest: () -> Unit
-) {
-
-    val context = LocalContext.current
+fun Pay(ticket: Ticket, receipt: Receipt, hasCard: Boolean, onDismissRequest: () -> Unit) {
     val client = remember { Client() }
+    val scroll = rememberScrollState()
 
     // Retrieve the customer's card using their TRN.
     val customerCard = remember(ticket.custID) {
-        client.getAllCards(context).find {
+        client.getAllCards().find {
             it.trn == ticket.custID
         }
     }
 
-    var processing by remember {
-        mutableIntStateOf(2)
+    var processing by remember { mutableIntStateOf(2) }
+
+    var error by remember { mutableStateOf(false) }
+
+    var updatedReceipt by remember {
+        mutableStateOf(receipt)
     }
 
-    var error by remember {
-        mutableStateOf(false)
-    }
+    var showCancelConfirmation by remember { mutableStateOf(false) }
 
-    var showCancelConfirmation by remember {
-        mutableStateOf(false)
-    }
-
-    var cancelError by remember {
-        mutableStateOf(false)
-    }
+    var cancelError by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
 
-    val amountDue = receipt.cost - receipt.totalPaid
-
+    val amountDue = receipt.subTotal - receipt.totalPaid
     // Only unpaid tickets that are waiting can be cancelled.
-    val canCancel =
-        ticket.ticketStatus == "Waiting" &&
-                receipt.totalPaid == 0.0
+    val canCancel = ticket.ticketStatus == "Waiting" && receipt.totalPaid == 0.0
 
     // Only tickets currently being served or already served
     // can be paid.
     val canPay =
         ticket.ticketStatus in listOf("Being Served", "Served") &&
-                receipt.paymentStatus != "Fully Paid" &&
-                hasCard &&
-                customerCard != null
+        receipt.paymentStatus != "Fully Paid" &&
+        hasCard &&
+        customerCard != null
 
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest
-    ) {
-
+    ModalBottomSheet(onDismissRequest = onDismissRequest) {
         if (processing == 0) {
-
             // Loading Indicator
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
+                modifier = Modifier.fillMaxWidth().padding(24.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
@@ -214,54 +309,197 @@ fun Pay(
                     trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             }
-
-        } else if (processing == 1) {
-
+        }
+        else if (processing == 1) {
             // Payment Result
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(24.dp)
+                    .verticalScroll(scroll),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
                 if (error) {
                     Text(
-                        "An error occurred. Payment failed.",
-                        style = MaterialTheme.typography.titleLarge
+                        text = "An error occurred. Payment failed.",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.error
                     )
-                } else {
+                }
+                else {
                     Text(
-                        "Payment Successful",
-                        style = MaterialTheme.typography.titleLarge
+                        text = "Payment Successful",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2E7D32)
                     )
+
+                    // Receipt Information
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Receipt,
+                                    contentDescription = "Receipt"
+                                )
+
+                                Spacer(Modifier.width(8.dp))
+
+                                Text(
+                                    text = "Payment Receipt",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            HorizontalDivider()
+
+                            // Receipt Details
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Receipt Number")
+                                Text(updatedReceipt.receiptNo)
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Ticket Number")
+                                Text(updatedReceipt.ticketNo)
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("TRN")
+                                Text(updatedReceipt.trn)
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Payment Method")
+                                Text(updatedReceipt.paymentMethod)
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Payment Status")
+                                Text(updatedReceipt.paymentStatus)
+                            }
+
+                            HorizontalDivider()
+
+                            Text(
+                                text = "Payment Breakdown",
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Service Cost")
+                                Text("$%.2f".format(updatedReceipt.cost))
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("GCT (15%)")
+                                Text("$%.2f".format(updatedReceipt.surcharge))
+                            }
+
+                            HorizontalDivider()
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    "Subtotal",
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Text(
+                                    "$%.2f".format(updatedReceipt.subTotal),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Total Paid")
+
+                                Text(
+                                    "$%.2f".format(updatedReceipt.totalPaid),
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF2E7D32)
+                                )
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Amount Remaining")
+
+                                Text(
+                                    "$%.2f".format(
+                                        updatedReceipt.subTotal - updatedReceipt.totalPaid
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
 
                 TextButton(
-                    onClick = onDismissRequest
+                    onClick = onDismissRequest,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
                     Text("Close")
                 }
             }
-
-        } else if (processing == 2) {
-
+        }
+        else if (processing == 2) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .padding(bottom = 32.dp),
-
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(bottom = 32.dp)/*.verticalScroll(scroll)*/,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-
                 // Header
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     Text(
                         text = "Ticket Details",
                         style = MaterialTheme.typography.headlineSmall,
@@ -281,20 +519,11 @@ fun Pay(
                 // Ticket Information
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
 
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 Icons.Default.Receipt,
                                 contentDescription = null,
@@ -313,69 +542,64 @@ fun Pay(
                         Text("Service: ${ticket.service}")
                         Text("Branch: ${ticket.branch}")
                         Text("Status: ${ticket.ticketStatus}")
-                    }
-                }
 
-                // Payment Card Information
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
+                        Text(
+                            text = "Payment Breakdown",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
 
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Service Cost")
+                            Text("$%.2f".format(receipt.cost))
+                        }
 
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("GCT (15%)")
+                            Text("$%.2f".format(receipt.surcharge))
+                        }
 
-                            Icon(
-                                Icons.Default.CreditCard,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
+                        HorizontalDivider()
 
-                            Spacer(Modifier.width(8.dp))
-
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(
-                                text = "Payment Card",
-                                style = MaterialTheme.typography.titleMedium,
+                                "Subtotal",
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "$%.2f".format(receipt.subTotal),
                                 fontWeight = FontWeight.Bold
                             )
                         }
 
-                        if (customerCard != null) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Total Paid")
+                            Text("$%.2f".format(receipt.totalPaid))
+                        }
 
+                        HorizontalDivider()
+
+                        /*
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(
-                                text = "Flow Card •••• ${customerCard.lastFourDigits}"
+                                "Amount Due",
+                                fontWeight = FontWeight.Bold
                             )
 
                             Text(
-                                text = "Available Balance: \$%.2f".format(
-                                    customerCard.balance
-                                ),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-
-                        } else {
-
-                            Text(
-                                text = "No payment card found.",
-                                color = MaterialTheme.colorScheme.error
+                                "$%.2f".format(amountDue),
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
+
+                         */
                     }
                 }
 
                 // Amount Due
                 OutlinedTextField(
-                    label = {
-                        Text("Amount Due")
-                    },
+                    label = { Text("Amount Due") },
                     onValueChange = {},
                     value = "$%.2f".format(amountDue),
                     enabled = false,
@@ -384,51 +608,53 @@ fun Pay(
 
                 // Make Payment Button
                 if (canPay) {
-
-                    Button(
+                    TextButton(
                         onClick = {
-
                             scope.launch {
-
                                 processing = 0
 
                                 val response = withContext(Dispatchers.IO) {
-
                                     client.makePayment(
-                                        ticketNo = ticket.ticketNo,
-                                        amount = amountDue,
-                                        cardLastFourDigits = customerCard!!.lastFourDigits
+                                        ticket.ticketNo,
+                                        amountDue,
+                                        customerCard!!.lastFourDigits
                                     )
                                 }
 
                                 error = !response
+
+                                if (response) {
+                                    updatedReceipt = withContext(Dispatchers.IO) {
+                                        client.getCustomerReceipts(ticket.custID)
+                                            .find { it.ticketNo == ticket.ticketNo }
+                                            ?: receipt
+                                    }
+                                }
+
                                 processing = 1
                             }
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.textButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
                     ) {
                         Text("Make Payment")
                     }
-
-                } else if (customerCard == null || !hasCard) {
-
+                }
+                else if (customerCard == null || !hasCard) {
                     Text(
                         text = "A payment card is required before making a payment.",
                         color = MaterialTheme.colorScheme.error
                     )
                 }
-
                 // Cancel Ticket Button
-                if (canCancel) {
-
+                else if (canCancel) {
                     OutlinedButton(
-                        onClick = {
-                            showCancelConfirmation = true
-                        },
+                        onClick = { showCancelConfirmation = true },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        )
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                     ) {
                         Text("Cancel Ticket")
                     }
@@ -439,39 +665,30 @@ fun Pay(
 
     // Cancellation Confirmation Dialog
     if (showCancelConfirmation) {
-
         AlertDialog(
             onDismissRequest = {
                 showCancelConfirmation = false
             },
-
             title = {
                 Text("Cancel Ticket?")
             },
-
             text = {
-                Text(
-                    "Are you sure you want to cancel ticket " +
-                            "${ticket.ticketNo}? This action cannot be undone."
-                )
+                Text("Are you sure you want to cancel ticket ${ticket.ticketNo}? This action cannot be undone.")
             },
 
             confirmButton = {
-
                 TextButton(
                     onClick = {
-
                         showCancelConfirmation = false
-
                         scope.launch {
-
                             val response = withContext(Dispatchers.IO) {
                                 client.cancelTicket(ticket.ticketNo)
                             }
 
                             if (response) {
                                 onDismissRequest()
-                            } else {
+                            }
+                            else {
                                 cancelError = true
                             }
                         }
@@ -482,12 +699,7 @@ fun Pay(
             },
 
             dismissButton = {
-
-                TextButton(
-                    onClick = {
-                        showCancelConfirmation = false
-                    }
-                ) {
+                TextButton(onClick = { showCancelConfirmation = false }) {
                     Text("Keep Ticket")
                 }
             }
@@ -496,27 +708,12 @@ fun Pay(
 
     // Cancellation Error Dialog
     if (cancelError) {
-
         AlertDialog(
-            onDismissRequest = {
-                cancelError = false
-            },
-
-            title = {
-                Text("Cancellation Failed")
-            },
-
-            text = {
-                Text("The ticket could not be cancelled.")
-            },
-
+            onDismissRequest = { cancelError = false },
+            title = { Text("Cancellation Failed") },
+            text = { Text("The ticket could not be cancelled.") },
             confirmButton = {
-
-                TextButton(
-                    onClick = {
-                        cancelError = false
-                    }
-                ) {
+                TextButton(onClick = { cancelError = false }) {
                     Text("OK")
                 }
             }
@@ -524,3 +721,8 @@ fun Pay(
     }
 }
 
+@Preview
+@Composable
+fun PaymentPreview() {
+    Payments(trn = "")
+}
