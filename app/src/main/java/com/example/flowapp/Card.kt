@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +41,7 @@ fun AddCard(onBack: () -> Unit = {}, onAdd: () -> Unit = {}, trn: String) {
     var ccNumber by remember { mutableStateOf("") }
     var expDate by remember { mutableStateOf("") }
     var cvv by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
 
     var validCardNumber by remember { mutableStateOf(false) }
     val validExpiry = expDate.length == 4 && run {

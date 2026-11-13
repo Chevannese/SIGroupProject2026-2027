@@ -19,6 +19,10 @@ import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import android.graphics.Typeface
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -64,12 +68,16 @@ class MainActivity : ComponentActivity() {
             val password: EditText = findViewById(R.id.loginPassword)
             val client = Client()
 
-            val response = client.login(trn.text.toString(), password.text.toString())
+            var response: LoginCode? = null
+            login.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
+                response = client.login(trn.text.toString(), password.text.toString())
+            }
 
             when (response) {
                 LoginCode.NOT_FOUND -> Toast.makeText(applicationContext, "TRN or password is incorrect", Toast.LENGTH_SHORT).show()
                 LoginCode.ERROR -> Toast.makeText(applicationContext, "Unknown error logging in", Toast.LENGTH_SHORT).show()
                 LoginCode.OK -> showMain(trn.text.toString())
+                null -> TODO()
             }
         }
     }

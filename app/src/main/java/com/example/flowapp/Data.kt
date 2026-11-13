@@ -106,6 +106,16 @@ enum class ChangeOldPassword {
     ERROR
 }
 
+
+
+enum class ChangePhoneResult {
+    EMPTY_FIELD,
+    INVALID_PHONE,
+    SAME_PHONE,
+    OK,
+    ERROR
+}
+
 enum class RegisterCode {
     OK,
     EMPTY_FIELD,
