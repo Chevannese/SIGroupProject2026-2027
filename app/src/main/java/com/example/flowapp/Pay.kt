@@ -64,18 +64,27 @@ fun Payments(
             val result = withContext(Dispatchers.IO) {
                 val client = Client()
 
-                val customerReceipts =
-                    client.getCustomerReceipts(trn)
-
+                // Check the customer's tickets for expired service times.
                 val customerTickets =
                     client.getCustomerTickets(trn = trn)
+
+                customerTickets.forEach { ticket ->
+                    client.markNoShow(ticket.ticketNo)
+                }
+
+                // Reload tickets after checking for No Shows.
+                val updatedTickets =
+                    client.getCustomerTickets(trn = trn)
+
+                val customerReceipts =
+                    client.getCustomerReceipts(trn)
 
                 val customerHasCard =
                     !client.cards(trn).isNullOrBlank()
 
                 Triple(
                     customerReceipts,
-                    customerTickets,
+                    updatedTickets,
                     customerHasCard
                 )
             }

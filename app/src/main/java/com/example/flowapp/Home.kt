@@ -138,7 +138,9 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                 "Get a ticket for a branch or service",
                 Icons.Default.People,
                 Color(132, 180, 243, 255),
-                onClick = {}
+                onClick = {
+                    onChangeTab(1)
+                }
             )
 
             HomeButton(
