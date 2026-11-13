@@ -136,7 +136,7 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                 "Join the queue",
                 "Get a ticket for a branch or service",
                 Icons.Default.People,
-                Color(132, 180, 243, 255),
+                Color(33, 150, 243, 100),
                 onClick = {
                     onChangeTab(1)
                 }
@@ -145,8 +145,8 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
             HomeButton(
                 "Make a payment",
                 "Pay your bill easily and securely",
-                Icons.Default.CalendarMonth,
-                Color(245, 245, 165, 255),
+                Icons.Default.CreditCard,
+                Color(33, 150, 243, 100),
                 onClick = { onChangeTab(2) }
             )
 
@@ -154,7 +154,7 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                 "View Services",
                 "Explore all available services",
                 Icons.Default.HomeRepairService,
-                Color(217, 165, 245, 255),
+                Color(33, 150, 243, 100),
                 onClick = {
                     MainActivity.instance.setContentView(R.layout.service)
                     val back = MainActivity.instance.findViewById<ImageButton>(R.id.service_back_button)
@@ -169,7 +169,7 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                 "Give Feedback",
                 "Share your thoughts and problems with us",
                 Icons.Default.Feedback,
-                Color(245, 165, 165, 255),
+                Color(33, 150, 243, 100),
                 {
                     MainActivity.instance.setContentView(R.layout.feedback)
                     val submit = MainActivity.instance.findViewById<Button>(R.id.feedback_submit_btn)
