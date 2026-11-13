@@ -1181,6 +1181,9 @@ fun String.hash256(): String {
     return MessageDigest.getInstance("SHA-256").digest(this.toByteArray()).toHexString()
 }
 
+fun serialize(data: Any): String {
+    return Json.encodeToString(data)
+}
 
 fun eprintln(text: String?) {
     System.err.println(text.toString())
