@@ -50,7 +50,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
-
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun Home(trn: String, onChangeTab: (Int) -> Unit) {
@@ -58,15 +58,23 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
     var savedCard by remember { mutableStateOf<String?>(null) }
     val scroll = rememberScrollState()
 
-    val customerCard = remember(trn) {
-        try {
-            Client().getAllCards().find { it.trn == trn }
-        }
-        catch (e: Exception) {
-            null
-        }
+    var balanceText by remember(trn) {
+        mutableStateOf("$0.00")
     }
-    val balanceText = customerCard?.let { "$%.2f".format(it.balance) } ?: "$0.00"
+
+    LaunchedEffect(trn) {
+        val customerCard = withContext(Dispatchers.IO) {
+            try {
+                Client().getAllCards().find { it.trn == trn }
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        balanceText = customerCard?.let {
+            "$%.2f".format(it.balance)
+        } ?: "$0.00"
+    }
 
     Box {
         Column(
@@ -101,6 +109,15 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
 
                             // Load account balance and receipt information.
                             MainActivity.instance.loadAccountBalance(trn)
+
+                            val refreshBtn = MainActivity.instance.findViewById<ImageButton>(
+                                R.id.refresh
+                            )
+
+                            refreshBtn.setOnClickListener {
+                                toast("Refreshed Accounts Page")
+                                MainActivity.instance.loadAccountBalance(trn)
+                            }
 
                             val back = MainActivity.instance.findViewById<ImageButton>(
                                 R.id.account_balance_back_button

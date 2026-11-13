@@ -1,10 +1,7 @@
 package com.example.flowapp
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.text.method.HideReturnsTransformationMethod
-import android.text.method.PasswordTransformationMethod
+import android.widget.ScrollView
 import android.util.Log
 import android.widget.*
 import androidx.activity.*
@@ -19,6 +16,8 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import android.graphics.Typeface
 
 class MainActivity : ComponentActivity() {
@@ -87,7 +86,7 @@ class MainActivity : ComponentActivity() {
 
     private fun showRegister() {
         setContentView(R.layout.register)
-
+        setupRegistrationScroll()
         val name: EditText = findViewById(R.id.name)
         val trn: EditText = findViewById(R.id.trn)
         val email: EditText = findViewById(R.id.reg_email)
@@ -364,7 +363,7 @@ class MainActivity : ComponentActivity() {
 
         // Display card information.
         if (card != null) {
-            cardNumber.text = "Card Number: ${card.lastFourDigits}"
+            cardNumber.text = "Card Number: Ending in ${card.lastFourDigits}"
 
             balance.text = "$%.2f".format(card.balance)
 
@@ -574,6 +573,34 @@ class MainActivity : ComponentActivity() {
         }
 
 
+    }
+
+    private fun setupRegistrationScroll() {
+        val scrollView = findViewById<ScrollView>(
+            R.id.registrationScrollView
+        ) ?: return
+
+        ViewCompat.setOnApplyWindowInsetsListener(scrollView) { view, insets ->
+
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+            )
+
+            val keyboard = insets.getInsets(
+                WindowInsetsCompat.Type.ime()
+            )
+
+            view.setPadding(
+                view.paddingLeft,
+                view.paddingTop,
+                view.paddingRight,
+                maxOf(systemBars.bottom, keyboard.bottom)
+            )
+
+            insets
+        }
+
+        ViewCompat.requestApplyInsets(scrollView)
     }
 
 
