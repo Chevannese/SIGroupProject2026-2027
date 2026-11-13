@@ -72,3 +72,51 @@ data class User(val trn: String, val email: String, val phone: String, val name:
         }
     }
 }
+
+enum class LoginCode {
+    OK,
+    NOT_FOUND,
+    ERROR
+}
+
+enum class UpdatePassword
+{
+    EMPTY_FIELD,
+    PASSWORD_SHORT,
+    PASSWORD_LONG,
+    PASSWORD_MISMATCH,
+    CODE_SHORT,
+    CODE_LONG,
+    INVALID_CODE,
+    OK,
+    INVALID_PASSWORD,
+    ERROR
+}
+
+enum class ChangeOldPassword {
+    EMPTY_FIELD,
+    PASSWORD_SHORT,
+    PASSWORD_LONG,
+    PASSWORD_MISMATCH,
+    SAME_PASSWORD,
+    OK,
+    INVALID_PASSWORD,
+    ERROR
+}
+
+enum class RegisterCode {
+    OK,
+    EMPTY_FIELD,
+    TRN_INVALID,
+    NAME_INVALID,
+    PHONE_INVALID,
+    PASSWORD_LONG,
+    PASSWORD_SHORT,
+    PASSWORD_MISMATCH,
+    EMAIL_INVALID,
+    TRN_EXISTS,
+    EMAIL_EXISTS,
+    PHONE_EXISTS,
+    ERROR,
+    PASSWORD_INVALID
+}
