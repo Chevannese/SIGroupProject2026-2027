@@ -61,11 +61,7 @@ fun ProfileItem(icon: ImageVector, title: String, value: String, menu: Boolean =
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Personal(
-    onBack: () -> Unit = {},
-    trn: String,
-    onPurchaseHistory: () -> Unit = {}
-) {
+fun Personal(onBack: () -> Unit = {}, trn: String) {
     var changePassword by remember { mutableStateOf(false) }
     var changePhone by remember { mutableStateOf(false) }
     var showAddCard by remember { mutableStateOf(false) }
@@ -76,12 +72,12 @@ fun Personal(
     }
     var savedCard by remember { mutableStateOf(client.cards(trn)) }
     var paymentMethodClick =
-    if (savedCard == null) {
-        { showAddCard = true }
-    }
-    else {
-        { showSavedCard = true }
-    }
+        if (savedCard == null) {
+            { showAddCard = true }
+        }
+        else {
+            { showSavedCard = true }
+        }
     if (user == null) {
         user = User.default()
     }
@@ -158,10 +154,7 @@ fun Personal(
                 icon = Icons.Default.Payments,
                 title = "Purchase History",
                 value = "View past purchases",
-                menu = true,
-                onClick = {
-                    onPurchaseHistory()
-                }
+                onClick = {}
             )
 
             HorizontalDivider(
@@ -283,7 +276,7 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
             OutlinedTextField(
                 value = newPassword,
                 onValueChange = {
-                    text -> newPassword = text
+                        text -> newPassword = text
                     passwordsMatch = confirmPassword == newPassword
                     password8Chars = newPassword.length >= 8
                     passwordContainsLNS = newPassword.any { it.isLetter() } && newPassword.any { it.isDigit() } && newPassword.any { it == '!' || it == '@' || it == '#' || it == '$' || it == '%' || it == '^' || it == '&' || it == '*' }
@@ -330,7 +323,7 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
             OutlinedTextField(
                 value = currentPassword,
                 onValueChange = {
-                    text -> confirmPassword = text
+                        text -> confirmPassword = text
                     passwordsMatch = confirmPassword == newPassword
                 },
                 placeholder = { Text(text = "Confirm Password") },

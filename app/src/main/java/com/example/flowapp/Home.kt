@@ -116,7 +116,6 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
 
                             refreshBtn.setOnClickListener {
                                 toast("Refreshed Accounts Page")
-                                MainActivity.instance.loadAccountBalance(trn)
                             }
 
                             val back = MainActivity.instance.findViewById<ImageButton>(
