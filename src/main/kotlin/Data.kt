@@ -61,6 +61,13 @@ data class PaymentCard(
 @Serializable
 data class User(val trn: String, val email: String, val phone: String, val name: String, val password: String)
 
+data class QueueSnapshot(
+    val customerTicket: Ticket?,
+    val nowServing: Ticket?,
+    val nextInLine: Ticket?,
+    val waitingCount: Int,
+    val customersAhead: Int
+)
 enum class LoginCode {
     OK,
     NOT_FOUND,
