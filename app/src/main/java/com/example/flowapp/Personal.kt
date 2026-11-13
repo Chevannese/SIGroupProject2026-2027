@@ -381,7 +381,7 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                             confirmPassword = ""
                         }
                         ChangeOldPassword.ERROR -> Toast.makeText(MainActivity.instance.applicationContext, "An error occurred", Toast.LENGTH_SHORT).show()
-                        else -> {}
+                        
                     }
 
                     enableButton = true

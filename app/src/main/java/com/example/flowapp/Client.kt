@@ -18,7 +18,13 @@ import java.util.Locale
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 
-
+data class QueueSnapshot(
+    val customerTicket: Ticket?,
+    val nowServing: Ticket?,
+    val nextInLine: Ticket?,
+    val waitingCount: Int,
+    val customersAhead: Int
+)
 enum class LoginCode {
     OK,
     NOT_FOUND,
@@ -1086,6 +1092,77 @@ class Client() {
         startNextTicket(ticket.branch)
 
         return true
+    }
+
+    fun getQueueSnapshot(trn: String): QueueSnapshot {
+
+        val tickets = getAllTickets(context)
+
+        // Find the customer's active ticket.
+        val customerTicket = tickets.find {
+            it.custID == trn &&
+                    (it.ticketStatus == "Waiting" ||
+                            it.ticketStatus == "Being Served")
+        }
+
+        // No active ticket.
+        if (customerTicket == null) {
+            return QueueSnapshot(
+                customerTicket = null,
+                nowServing = null,
+                nextInLine = null,
+                waitingCount = 0,
+                customersAhead = 0
+            )
+        }
+
+        val branch = customerTicket.branch
+
+        // Get the current ticket being served.
+        val nowServing = tickets.find {
+            it.branch == branch &&
+                    it.ticketStatus == "Being Served"
+        }
+
+        // Find the next waiting ticket.
+        val nextInLine = tickets
+            .filter {
+                it.branch == branch &&
+                        it.ticketStatus == "Waiting"
+            }
+            .minByOrNull { it.created }
+
+        // Count all customers waiting at this branch.
+        val waitingCount = tickets.count {
+            it.branch == branch &&
+                    it.ticketStatus == "Waiting"
+        }
+
+        // Count customers ahead of the signed-in customer.
+        val customersAhead = if (
+            customerTicket.ticketStatus == "Being Served"
+        ) {
+            0
+        } else {
+            tickets.count {
+                it.branch == branch &&
+                        (
+                                it.ticketStatus == "Being Served" ||
+                                        (
+                                                it.ticketStatus == "Waiting" &&
+                                                        it.created.isBefore(customerTicket.created)
+                                                )
+                                )
+            }
+        }
+
+        return QueueSnapshot(
+            customerTicket = customerTicket,
+            nowServing = nowServing,
+            nextInLine = nextInLine,
+            waitingCount = waitingCount,
+            customersAhead = customersAhead
+        )
     }
 
 

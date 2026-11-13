@@ -1,5 +1,6 @@
 package com.example.flowapp
 
+import android.R
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -11,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.theme.FlowAppTheme
-
+import androidx.compose.material.icons.filled.People
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Main(onLogoutClick: () -> Unit, trn: String, startTab: Int = 0) {
@@ -33,7 +34,7 @@ fun Main(onLogoutClick: () -> Unit, trn: String, startTab: Int = 0) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Flow App")
+                    Text("Flow App" )
                 },
                 actions = {
                     IconButton(onClick = { showProfile = true }) {
@@ -66,14 +67,40 @@ fun Main(onLogoutClick: () -> Unit, trn: String, startTab: Int = 0) {
                     icon = { Icon( imageVector = Icons.Default.Wallet, contentDescription = "Payments") },
                     label = { Text("Payments") }
                 )
+                NavigationBarItem(
+                    selected = tab == 3,
+                    onClick = { tab = 3 },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.People,
+                            contentDescription = "Waiting"
+                        )
+                    },
+                    label = { Text("Waiting") }
+                )
             }
         }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (tab) {
-                0 -> Home(trn = trn, onChangeTab = { tab = it })
+                0 -> Home(
+                    trn = trn,
+                    onChangeTab = { tab = it }
+                )
+
                 1 -> Queues(trn = trn)
-                2 -> Payments(trn = trn, padding = innerPadding)
+
+                2 -> Payments(
+                    trn = trn,
+                    padding = innerPadding
+                )
+
+                3 -> Waiting(
+                    trn = trn,
+                    onProceedToPayment = {
+                        tab = 2
+                    }
+                )
             }
         }
 
