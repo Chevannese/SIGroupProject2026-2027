@@ -50,7 +50,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-
+        android:layout_marginBottom="20dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -65,6 +65,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+
             android:layout_gravity="center"
             android:layout_marginStart="12dp"
             android:orientation="vertical">
@@ -94,6 +95,7 @@
                 android:layout_marginTop="15dp"
                 android:layout_marginBottom="10dp"
                 android:text="@string/accountStatus"
+                android:layout_marginStart="30dp"
                 android:textColor="@color/green"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -130,44 +132,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:layout_gravity="center"
         android:text="@string/transactions"
         android:textColor="@color/dark_blue"
         android:textSize="20sp"
         android:textStyle="bold" />
-    <!-- Filter buttons in one evenly spaced row -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/incomingBtn"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:layout_marginEnd="5dp"
-            android:text="@string/incoming"
-            style="?android:attr/buttonBarButtonStyle"
-            />
-
-        <Button
-            android:id="@+id/outgoingBtn"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:layout_marginEnd="5dp"
-            style="?android:attr/buttonBarButtonStyle"
-            android:text="@string/outgoing" />
-
-        <Button
-            android:id="@+id/amountBtn"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            style="?android:attr/buttonBarButtonStyle"
-            android:text="@string/amount" />
-    </LinearLayout>
 
     <!-- Payment History List -->
     <ScrollView

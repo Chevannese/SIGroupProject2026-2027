@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.room3.common)
     implementation(libs.androidx.room3.runtime)
+    implementation(libs.androidx.ui.graphics)
     implementation(libs.firebase.annotations)
     implementation(libs.material)
     testImplementation(libs.junit)

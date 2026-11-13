@@ -14,6 +14,12 @@ import com.google.android.material.textfield.TextInputEditText
 import java.io.File
 import java.security.SecureRandom
 import java.util.Locale
+import android.graphics.Color
+import android.view.View
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.graphics.Typeface
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -332,32 +338,244 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    fun loadAccountBalance(trn: String) {
+        val client = Client()
 
-
-class PhoneDashWatcher : TextWatcher {
-    private var isFormatting = false
-
-    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-    override fun afterTextChanged(s: Editable?) {
-        if (isFormatting || s == null) return
-        isFormatting = true
-
-        val digits = s.toString().filter { it.isDigit() }.take(10)
-        val formatted = when {
-            digits.length > 6 -> "${digits.substring(0, 3)}-${
-                digits.substring(
-                    3,
-                    6
-                )
-            }-${digits.substring(6)}"
-
-            digits.length > 3 -> "${digits.substring(0, 3)}-${digits.substring(3)}"
-            else -> digits
+        // Retrieve the customer's payment card.
+        val card = client.getAllCards().find {
+            it.trn == trn
         }
 
-        s.replace(0, s.length, formatted)
-        isFormatting = false
+        // Retrieve all receipts belonging to the customer.
+        val receipts = client.getCustomerReceipts(trn)
+
+        // Find the views.
+        val cardNumber = findViewById<TextView>(R.id.cardNumTextField)
+        val balance = findViewById<TextView>(R.id.amount)
+        val accountStatus = findViewById<TextView>(R.id.accountStatus)
+
+        val paymentList = findViewById<LinearLayout>(
+            R.id.paymentListContainer
+        )
+
+        val noPayments = findViewById<TextView>(
+            R.id.noPaymentsText
+        )
+
+        // Display card information.
+        if (card != null) {
+            cardNumber.text = "Card Number: ${card.lastFourDigits}"
+
+            balance.text = "$%.2f".format(card.balance)
+
+            accountStatus.text = "Active"
+        }
+        else {
+            cardNumber.text = "No Card Linked"
+            balance.text = "$0.00"
+            accountStatus.text = "No Card Available"
+        }
+
+        // Clear previous receipt information.
+        paymentList.removeAllViews()
+
+        // Display an empty message if there are no receipts.
+        if (receipts.isEmpty()) {
+            paymentList.addView(noPayments)
+            noPayments.visibility = View.VISIBLE
+            return
+        }
+
+        noPayments.visibility = View.GONE
+
+        // Display every customer receipt.
+        for (receipt in receipts) {
+
+            val receiptLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(16, 16, 16, 16)
+                setBackgroundColor(Color.rgb(240, 243, 248))
+            }
+
+            val receiptTitle = TextView(this).apply {
+                text = "Receipt #${receipt.receiptNo}"
+                textSize = 18f
+                setTextColor(Color.rgb(20, 50, 90))
+                setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+
+            val receiptDetails = TextView(this).apply {
+                text = """
+                Ticket Number: ${receipt.ticketNo}
+                Payment Method: ${receipt.paymentMethod}
+                Payment Status: ${receipt.paymentStatus}
+
+                Service Cost: $${"%.2f".format(receipt.cost)}
+                GCT (15%): $${"%.2f".format(receipt.surcharge)}
+                Subtotal: $${"%.2f".format(receipt.subTotal)}
+
+                Total Paid: $${"%.2f".format(receipt.totalPaid)}
+                Amount Due: $${"%.2f".format(
+                    (receipt.subTotal - receipt.totalPaid).coerceAtLeast(0.0)
+                )}
+            """.trimIndent()
+
+                textSize = 14f
+                setTextColor(Color.DKGRAY)
+            }
+
+            receiptLayout.addView(receiptTitle)
+
+            val divider = View(this).apply {
+                setBackgroundColor(Color.LTGRAY)
+            }
+
+            receiptLayout.addView(
+                divider,
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    2
+                ).apply {
+                    topMargin = 12
+                    bottomMargin = 12
+                }
+            )
+
+            receiptLayout.addView(receiptDetails)
+
+            paymentList.addView(
+                receiptLayout,
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    bottomMargin = 12
+                }
+            )
+        }
+
+
+        fun loadAccountBalance(trn: String) {
+            val client = Client()
+
+            // Retrieve the customer's payment card.
+            val card = client.getAllCards().find {
+                it.trn == trn
+            }
+
+            // Retrieve all receipts belonging to the customer.
+            val receipts = client.getCustomerReceipts(trn)
+
+            // Find the views.
+            val cardNumber = findViewById<TextView>(R.id.cardNumTextField)
+            val balance = findViewById<TextView>(R.id.amount)
+            val accountStatus = findViewById<TextView>(R.id.accountStatus)
+
+            val paymentList = findViewById<LinearLayout>(
+                R.id.paymentListContainer
+            )
+
+            val noPayments = findViewById<TextView>(
+                R.id.noPaymentsText
+            )
+
+            // Display card information.
+            if (card != null) {
+                cardNumber.text = "**** **** **** ${card.lastFourDigits}"
+
+                balance.text = "$%.2f".format(card.balance)
+
+                accountStatus.text = "Active"
+            }
+            else {
+                cardNumber.text = "No Card Linked"
+                balance.text = "$0.00"
+                accountStatus.text = "No Card Available"
+            }
+
+            // Clear previous receipt information.
+            paymentList.removeAllViews()
+
+            // Display an empty message if there are no receipts.
+            if (receipts.isEmpty()) {
+                paymentList.addView(noPayments)
+                noPayments.visibility = View.VISIBLE
+                return
+            }
+
+            noPayments.visibility = View.GONE
+
+            // Display every customer receipt.
+            for (receipt in receipts) {
+
+                val receiptLayout = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(16, 16, 16, 16)
+                    setBackgroundColor(Color.rgb(240, 243, 248))
+                }
+
+                val receiptTitle = TextView(this).apply {
+                    text = "Receipt #${receipt.receiptNo}"
+                    textSize = 18f
+                    setTextColor(Color.rgb(20, 50, 90))
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                }
+
+                val receiptDetails = TextView(this).apply {
+                    text =
+                        """
+                        Ticket Number: ${receipt.ticketNo}
+                        Payment Method: ${receipt.paymentMethod}
+                        Payment Status: ${receipt.paymentStatus}
+        
+                        Service Cost: $${"%.2f".format(receipt.cost)}
+                        GCT (15%): $${"%.2f".format(receipt.surcharge)}
+                        Subtotal: $${"%.2f".format(receipt.subTotal)}
+        
+                        Total Paid: $${"%.2f".format(receipt.totalPaid)}
+                        Amount Due: $${"%.2f".format(
+                                (receipt.subTotal - receipt.totalPaid).coerceAtLeast(0.0)
+                    )}
+            """.trimIndent()
+
+                    textSize = 14f
+                    setTextColor(Color.DKGRAY)
+                }
+
+                receiptLayout.addView(receiptTitle)
+
+                val divider = View(this).apply {
+                    setBackgroundColor(Color.LTGRAY)
+                }
+
+                receiptLayout.addView(
+                    divider,
+                    LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        2
+                    ).apply {
+                        topMargin = 12
+                        bottomMargin = 12
+                    }
+                )
+
+                receiptLayout.addView(receiptDetails)
+
+                paymentList.addView(
+                    receiptLayout,
+                    LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        bottomMargin = 12
+                    }
+                )
+            }
+        }
+
+
     }
-} }
+
+
+
+}

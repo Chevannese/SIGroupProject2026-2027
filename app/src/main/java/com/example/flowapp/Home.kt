@@ -98,12 +98,17 @@ fun Home(trn: String, onChangeTab: (Int) -> Unit) {
                     IconButton(
                         onClick = {
                             MainActivity.instance.setContentView(R.layout.account_balance_page)
-                            val back = MainActivity.instance.findViewById<ImageButton>(R.id.account_balance_back_button)
+
+                            // Load account balance and receipt information.
+                            MainActivity.instance.loadAccountBalance(trn)
+
+                            val back = MainActivity.instance.findViewById<ImageButton>(
+                                R.id.account_balance_back_button
+                            )
 
                             back.setOnClickListener {
                                 MainActivity.instance.showMain(trn)
                             }
-
                         }
                     ) {
                         Icon(imageVector = Icons.Default.ChevronRight, contentDescription = "Go to account balance page")
