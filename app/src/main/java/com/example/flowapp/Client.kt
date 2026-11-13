@@ -1153,6 +1153,73 @@ class Client() {
 
         return false
     }
+
+
+    enum class ChangePhoneResult {
+        EMPTY_FIELD,
+        INVALID_PHONE,
+        SAME_PHONE,
+        OK,
+        ERROR
+    }
+
+    fun changePhone(trn: String, newPhone: String): ChangePhoneResult {
+
+        if (newPhone.isBlank()) {
+            return ChangePhoneResult.EMPTY_FIELD
+        }
+
+        // Validate a 10-digit Jamaican phone number.
+        if (!newPhone.matches(Regex("\\d{10}"))) {
+            return ChangePhoneResult.INVALID_PHONE
+        }
+
+        return try {
+            val file = File(context.filesDir, "users.txt")
+
+            if (!file.exists()) {
+                return ChangePhoneResult.ERROR
+            }
+
+            val users = file.readLines()
+
+            val updatedUsers = users.map { line ->
+
+                val attributes = line.split(",")
+
+                if (attributes.size == 5 && attributes[0] == trn) {
+
+                    if (attributes[2] == newPhone) {
+                        return ChangePhoneResult.SAME_PHONE
+                    }
+
+                    attributes.toMutableList().apply {
+                        this[2] = newPhone
+                    }.joinToString(",")
+
+                } else {
+                    line
+                }
+            }
+
+            // Confirm that the customer was found.
+            if (updatedUsers == users) {
+                return ChangePhoneResult.ERROR
+            }
+
+            file.writeText(updatedUsers.joinToString("\n"))
+
+            if (updatedUsers.isNotEmpty()) {
+                file.appendText("\n")
+            }
+
+            ChangePhoneResult.OK
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ChangePhoneResult.ERROR
+        }
+    }
 }
 
 // so like if you have a password variable, to get the hash you type password.hash256()

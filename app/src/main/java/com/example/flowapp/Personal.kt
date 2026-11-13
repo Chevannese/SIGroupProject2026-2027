@@ -63,10 +63,13 @@ fun ProfileItem(icon: ImageVector, title: String, value: String, menu: Boolean =
 @Composable
 fun Personal(onBack: () -> Unit = {}, trn: String) {
     var changePassword by remember { mutableStateOf(false) }
+    var changePhone by remember { mutableStateOf(false) }
     var showAddCard by remember { mutableStateOf(false) }
     var showSavedCard by remember { mutableStateOf(false) }
     val client = Client()
-    var user = client.user(trn)
+    var user by remember(trn) {
+        mutableStateOf(client.user(trn) ?: User.default())
+    }
     var savedCard by remember { mutableStateOf(client.cards(trn)) }
     var paymentMethodClick =
     if (savedCard == null) {
@@ -118,7 +121,10 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
                 icon = Icons.Default.Phone,
                 title = "Phone",
                 value = user.phone,
-                onClick = {}
+                menu = true,
+                onClick = {
+                    changePhone = true
+                }
             )
 
             HorizontalDivider(
@@ -167,6 +173,16 @@ fun Personal(onBack: () -> Unit = {}, trn: String) {
 
     if (changePassword) {
         ChangePassword( onBack = { changePassword = false }, trn)
+    }
+    if (changePhone) {
+        ChangePhone(
+            onBack = {
+                changePhone = false
+                user = client.user(trn) ?: User.default()
+            },
+            trn = trn,
+            currentPhone = user.phone
+        )
     }
     if (showAddCard) {
         AddCard(
@@ -351,6 +367,7 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                     val client = Client()
                     val response = client.changePassword(trn, currentPassword, newPassword, confirmPassword)
 
+
                     when (response) {
                         ChangeOldPassword.EMPTY_FIELD -> Toast.makeText(MainActivity.instance.applicationContext, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                         ChangeOldPassword.PASSWORD_SHORT -> Toast.makeText(MainActivity.instance.applicationContext, "Password should not be less than 8 characters", Toast.LENGTH_SHORT).show()
@@ -371,6 +388,127 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                 }
             ) {
                 Text("Change Password")
+            }
+        }
+    }
+}
+
+@Composable
+fun ChangePhone(
+    onBack: () -> Unit = {},
+    trn: String,
+    currentPhone: String
+) {
+    var newPhone by remember(currentPhone) {
+        mutableStateOf(currentPhone)
+    }
+
+    var enableButton by remember {
+        mutableStateOf(true)
+    }
+
+    BackBar(title = "Change Phone Number", onBack) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            OutlinedTextField(
+                value = currentPhone,
+                onValueChange = {},
+                label = { Text("Current Phone Number") },
+                readOnly = true,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Phone
+                )
+            )
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            OutlinedTextField(
+                value = newPhone,
+                onValueChange = { input ->
+                    newPhone = input.filter { it.isDigit() }.take(10)
+                },
+                label = { Text("New Phone Number") },
+                placeholder = { Text("Enter 10-digit phone number") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Phone,
+                    imeAction = ImeAction.Done
+                ),
+                supportingText = {
+                    Text("${newPhone.length}/10 digits")
+                }
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                enabled = enableButton,
+                onClick = {
+
+                    enableButton = false
+
+                    val response = Client().changePhone(
+                        trn = trn,
+                        newPhone = newPhone
+                    )
+
+                    when (response) {
+
+                        Client.ChangePhoneResult.EMPTY_FIELD -> {
+                            Toast.makeText(
+                                MainActivity.instance.applicationContext,
+                                "Please enter a phone number",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        Client.ChangePhoneResult.INVALID_PHONE -> {
+                            Toast.makeText(
+                                MainActivity.instance.applicationContext,
+                                "Phone number must contain exactly 10 digits",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        Client.ChangePhoneResult.SAME_PHONE -> {
+                            Toast.makeText(
+                                MainActivity.instance.applicationContext,
+                                "This is already your phone number",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        Client.ChangePhoneResult.OK -> {
+                            Toast.makeText(
+                                MainActivity.instance.applicationContext,
+                                "Phone number successfully updated",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            onBack()
+                        }
+
+                        Client.ChangePhoneResult.ERROR -> {
+                            Toast.makeText(
+                                MainActivity.instance.applicationContext,
+                                "An error occurred while updating your phone number",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
+                    enableButton = true
+                }
+            ) {
+                Text("Update Phone Number")
             }
         }
     }
