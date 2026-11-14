@@ -71,6 +71,14 @@ class Client() {
         }
     }
 
+    enum class ChangePhoneResult {
+        EMPTY_FIELD,
+        INVALID_PHONE,
+        SAME_PHONE,
+        OK,
+        ERROR
+    }
+
     public suspend fun changePassword(
         trn: String,
         oldPassword: String,
