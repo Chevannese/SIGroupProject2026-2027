@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.example.flowapp.ui.icons.id_card
 import com.example.flowapp.ui.theme.FlowAppTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
@@ -70,11 +71,16 @@ fun Personal(
     var changePhone by remember { mutableStateOf(false) }
     var showAddCard by remember { mutableStateOf(false) }
     var showSavedCard by remember { mutableStateOf(false) }
-    val client = Client()
-    var user by remember(trn) {
-        mutableStateOf(client.user(trn) ?: User.default())
+    val scope = rememberCoroutineScope()
+    var user by remember(trn) { mutableStateOf(User.default()) }
+    var savedCard by remember(trn) { mutableStateOf<String?>(null) }
+
+    // Load the profile and saved card off the UI thread.
+    LaunchedEffect(trn) {
+        val client = connectClient() ?: return@LaunchedEffect
+        user = client.user(trn) ?: User.default()
+        savedCard = client.cards(trn)
     }
-    var savedCard by remember { mutableStateOf(client.cards(trn)) }
     var paymentMethodClick =
         if (savedCard == null) {
             { showAddCard = true }
@@ -185,7 +191,9 @@ fun Personal(
         ChangePhone(
             onBack = {
                 changePhone = false
-                user = client.user(trn) ?: User.default()
+                scope.launch {
+                    user = connectClient()?.user(trn) ?: User.default()
+                }
             },
             trn = trn,
             currentPhone = user.phone
@@ -194,7 +202,7 @@ fun Personal(
     if (showAddCard) {
         AddCard(
             onBack = { showAddCard = false },
-            onAdd = { savedCard = client.cards(trn) },
+            onAdd = { scope.launch { savedCard = connectClient()?.cards(trn) } },
             trn = trn
         )
     }
@@ -207,15 +215,23 @@ fun Personal(
 
                 TextButton(
                     onClick = {
-                        val client = Client()
-                        val response = client.removeCard(trn)
-                        when (response) {
-                            true -> toast("Card successfully remove")
-                            false -> toast("ERROR: Card could not be removed")
-                        }
+                        scope.launch {
+                            val client = connectClient()
 
-                        showSavedCard = false
-                        savedCard = null
+                            // removeCard isn't in the Client.kt provided, so it is kept on the IO
+                            // dispatcher in case it isn't a suspend function yet.
+                            val response = client != null && withContext(Dispatchers.IO) {
+                                client.removeCard(trn)
+                            }
+
+                            when (response) {
+                                true -> toast("Card successfully remove")
+                                false -> toast("ERROR: Card could not be removed")
+                            }
+
+                            showSavedCard = false
+                            savedCard = null
+                        }
                     }
                 ) {
                     Text("Remove Card")
@@ -247,6 +263,7 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
     var passwordHidden by remember { mutableStateOf(true) }
     var passwordHidden2 by remember { mutableStateOf(true) }
     var passwordHidden3 by remember { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
 
     BackBar(title = "Change Password", onBack) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -371,27 +388,30 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                 enabled = enableButton,
                 onClick = {
                     enableButton = false
-                    val client = Client()
-                    val response = client.changePassword(trn, currentPassword, newPassword, confirmPassword)
+
+                    scope.launch {
+                        val response = connectClient()?.changePassword(trn, currentPassword, newPassword, confirmPassword)
+                            ?: ChangeOldPassword.ERROR
 
 
-                    when (response) {
-                        ChangeOldPassword.EMPTY_FIELD -> Toast.makeText(MainActivity.instance.applicationContext, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                        ChangeOldPassword.PASSWORD_SHORT -> Toast.makeText(MainActivity.instance.applicationContext, "Password should not be less than 8 characters", Toast.LENGTH_SHORT).show()
-                        ChangeOldPassword.PASSWORD_LONG -> Toast.makeText(MainActivity.instance.applicationContext, "Password should not be greater than 30 characters", Toast.LENGTH_SHORT).show()
-                        ChangeOldPassword.SAME_PASSWORD -> Toast.makeText(MainActivity.instance.applicationContext, "Old password cannot be your new password", Toast.LENGTH_SHORT).show()
-                        ChangeOldPassword.INVALID_PASSWORD -> Toast.makeText(MainActivity.instance.applicationContext, "Invalid password\nPassword must contain letters, numbers and a special character", Toast.LENGTH_SHORT).show()
-                        ChangeOldPassword.PASSWORD_MISMATCH -> Toast.makeText(MainActivity.instance.applicationContext, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                        ChangeOldPassword.OK -> {
-                            currentPassword = ""
-                            newPassword = ""
-                            confirmPassword = ""
+                        when (response) {
+                            ChangeOldPassword.EMPTY_FIELD -> Toast.makeText(MainActivity.instance.applicationContext, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                            ChangeOldPassword.PASSWORD_SHORT -> Toast.makeText(MainActivity.instance.applicationContext, "Password should not be less than 8 characters", Toast.LENGTH_SHORT).show()
+                            ChangeOldPassword.PASSWORD_LONG -> Toast.makeText(MainActivity.instance.applicationContext, "Password should not be greater than 30 characters", Toast.LENGTH_SHORT).show()
+                            ChangeOldPassword.SAME_PASSWORD -> Toast.makeText(MainActivity.instance.applicationContext, "Old password cannot be your new password", Toast.LENGTH_SHORT).show()
+                            ChangeOldPassword.INVALID_PASSWORD -> Toast.makeText(MainActivity.instance.applicationContext, "Invalid password\nPassword must contain letters, numbers and a special character", Toast.LENGTH_SHORT).show()
+                            ChangeOldPassword.PASSWORD_MISMATCH -> Toast.makeText(MainActivity.instance.applicationContext, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                            ChangeOldPassword.OK -> {
+                                currentPassword = ""
+                                newPassword = ""
+                                confirmPassword = ""
+                            }
+                            ChangeOldPassword.ERROR -> Toast.makeText(MainActivity.instance.applicationContext, "An error occurred", Toast.LENGTH_SHORT).show()
+
                         }
-                        ChangeOldPassword.ERROR -> Toast.makeText(MainActivity.instance.applicationContext, "An error occurred", Toast.LENGTH_SHORT).show()
 
+                        enableButton = true
                     }
-
-                    enableButton = true
                 }
             ) {
                 Text("Change Password")
@@ -413,6 +433,8 @@ fun ChangePhone(
     var enableButton by remember {
         mutableStateOf(true)
     }
+
+    val scope = rememberCoroutineScope()
 
     BackBar(title = "Change Phone Number", onBack) {
 
@@ -459,60 +481,72 @@ fun ChangePhone(
             Button(
                 enabled = enableButton,
                 onClick = {
-
                     enableButton = false
 
-                    val response = Client().changePhone(
-                        trn = trn,
-                        newPhone = newPhone
-                    )
+                    scope.launch {
+                        val client = connectClient()
 
-                    when (response) {
-
-                        Client.ChangePhoneResult.EMPTY_FIELD -> {
-                            Toast.makeText(
-                                MainActivity.instance.applicationContext,
-                                "Please enter a phone number",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        // changePhone isn't in the Client.kt provided, so it is kept on the IO
+                        // dispatcher in case it isn't a suspend function yet.
+                        val response = if (client == null) {
+                            Client.ChangePhoneResult.ERROR
+                        } else {
+                            withContext(Dispatchers.IO) {
+                                client.changePhone(
+                                    trn = trn,
+                                    newPhone = newPhone
+                                )
+                            }
                         }
 
-                        Client.ChangePhoneResult.INVALID_PHONE -> {
-                            Toast.makeText(
-                                MainActivity.instance.applicationContext,
-                                "Phone number must contain exactly 10 digits",
-                                Toast.LENGTH_SHORT
-                            ).show()
+
+                        when (response) {
+
+                            Client.ChangePhoneResult.EMPTY_FIELD -> {
+                                Toast.makeText(
+                                    MainActivity.instance.applicationContext,
+                                    "Please enter a phone number",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            Client.ChangePhoneResult.INVALID_PHONE -> {
+                                Toast.makeText(
+                                    MainActivity.instance.applicationContext,
+                                    "Phone number must contain exactly 10 digits",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            Client.ChangePhoneResult.SAME_PHONE -> {
+                                Toast.makeText(
+                                    MainActivity.instance.applicationContext,
+                                    "This is already your phone number",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            Client.ChangePhoneResult.OK -> {
+                                Toast.makeText(
+                                    MainActivity.instance.applicationContext,
+                                    "Phone number successfully updated",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                                onBack()
+                            }
+
+                            Client.ChangePhoneResult.ERROR -> {
+                                Toast.makeText(
+                                    MainActivity.instance.applicationContext,
+                                    "An error occurred while updating your phone number",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
 
-                        Client.ChangePhoneResult.SAME_PHONE -> {
-                            Toast.makeText(
-                                MainActivity.instance.applicationContext,
-                                "This is already your phone number",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-
-                        Client.ChangePhoneResult.OK -> {
-                            Toast.makeText(
-                                MainActivity.instance.applicationContext,
-                                "Phone number successfully updated",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            onBack()
-                        }
-
-                        Client.ChangePhoneResult.ERROR -> {
-                            Toast.makeText(
-                                MainActivity.instance.applicationContext,
-                                "An error occurred while updating your phone number",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        enableButton = true
                     }
-
-                    enableButton = true
                 }
             ) {
                 Text("Update Phone Number")

@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -260,14 +261,25 @@ fun Payments(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Pay(ticket: Ticket, receipt: Receipt, hasCard: Boolean, onDismissRequest: () -> Unit) {
-    val client = remember { Client() }
+    // Created lazily so the socket opens on the IO thread, never during composition.
+    val client by remember { lazy { Client() } }
     val scroll = rememberScrollState()
 
     // Retrieve the customer's card using their TRN.
-    val customerCard = remember(ticket.custID) {
-        client.getAllCards().find {
-            it.trn == ticket.custID
+    var customerCard by remember(ticket.custID) { mutableStateOf<PaymentCard?>(null) }
+    var cardLoaded by remember(ticket.custID) { mutableStateOf(false) }
+
+    LaunchedEffect(ticket.custID) {
+        customerCard = try {
+            withContext(Dispatchers.IO) {
+                client.getAllCards().find { it.trn == ticket.custID }
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            null
         }
+        cardLoaded = true
     }
 
     var processing by remember { mutableIntStateOf(2) }
@@ -643,7 +655,7 @@ fun Pay(ticket: Ticket, receipt: Receipt, hasCard: Boolean, onDismissRequest: ()
                         Text("Make Payment")
                     }
                 }
-                else if (customerCard == null || !hasCard) {
+                else if (!hasCard || (cardLoaded && customerCard == null)) {
                     Text(
                         text = "A payment card is required before making a payment.",
                         color = MaterialTheme.colorScheme.error

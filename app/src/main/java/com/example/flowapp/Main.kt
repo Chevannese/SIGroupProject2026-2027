@@ -21,14 +21,16 @@ fun Main(onLogoutClick: () -> Unit, trn: String, startTab: Int = 0) {
     var showProfile by remember { mutableStateOf(false) }
     var showDetailedProfile by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
-    val client = Client()
-    val user = client.user(trn)
+    var name by remember(trn) { mutableStateOf("Unknown") }
 
-    Log.d("USERINFO", user.toString())
-    var name = "Unknown"
+    // Load the user's name off the UI thread.
+    LaunchedEffect(trn) {
+        val user = connectClient()?.user(trn)
+        Log.d("USERINFO", user.toString())
 
-    if (user != null) {
-        name = user.name
+        if (user != null) {
+            name = user.name
+        }
     }
 
     Scaffold(

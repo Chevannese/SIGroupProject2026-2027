@@ -1,5 +1,6 @@
 package com.example.flowapp
 
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
@@ -41,6 +42,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import com.example.flowapp.ui.theme.flowColors
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,4 +130,22 @@ fun BackBar(title: String, onBack: () -> Unit, content: @Composable () -> Unit =
 
 fun toast(text: String) {
     Toast.makeText(MainActivity.instance.applicationContext, text, Toast.LENGTH_SHORT).show()
+}
+
+/**
+ * Opens a [Client] off the main thread.
+ *
+ * The Client constructor opens a socket, which Android forbids on the UI thread, so call this
+ * from inside a coroutine (rememberCoroutineScope, LaunchedEffect or lifecycleScope) instead of
+ * writing `Client()` directly. Returns null if the server can't be reached.
+ */
+suspend fun connectClient(): Client? = withContext(Dispatchers.IO) {
+    try {
+        Client()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Log.d("ERROR", e.message.toString())
+        null
+    }
 }

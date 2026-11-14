@@ -34,8 +34,8 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.flowapp.ui.theme.FlowAppTheme
 import kotlinx.coroutines.launch
+import com.example.flowapp.ui.theme.FlowAppTheme
 
 @Composable
 fun AddCard(onBack: () -> Unit = {}, onAdd: () -> Unit = {}, trn: String) {
@@ -43,6 +43,7 @@ fun AddCard(onBack: () -> Unit = {}, onAdd: () -> Unit = {}, trn: String) {
     var expDate by remember { mutableStateOf("") }
     var cvv by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+    var saving by remember { mutableStateOf(false) }
 
     var validCardNumber by remember { mutableStateOf(false) }
     val validExpiry = expDate.length == 4 && run {
@@ -143,25 +144,23 @@ fun AddCard(onBack: () -> Unit = {}, onAdd: () -> Unit = {}, trn: String) {
                 Spacer(Modifier.height(20.dp))
                 Button(
                     onClick = {
-                        val client = Client()
-                        var response: Boolean? = null
-
                         scope.launch {
-                            response = client.addCard(trn, ccNumber.takeLast(4))
-                        }
+                            saving = true
+                            val response = connectClient()?.addCard(trn, ccNumber.takeLast(4)) ?: false
+                            saving = false
 
-                        when (response) {
-                            false -> toast("Error adding card")
-                            true -> {
-                                toast("Card added")
-                                onBack()
-                                onAdd()
+                            when (response) {
+                                false -> toast("Error adding card")
+                                true -> {
+                                    toast("Card added")
+                                    onBack()
+                                    onAdd()
+                                }
                             }
-                            null -> toast("ERROR")
                         }
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth(),
-                    enabled = validCardNumber && validExpiry && cvv.length == 3
+                    enabled = validCardNumber && validExpiry && cvv.length == 3 && !saving
                 ) {
                     Text("Add Card")
                 }

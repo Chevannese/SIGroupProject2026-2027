@@ -113,6 +113,7 @@ fun QueueTab(
     var branch by rememberSaveable { mutableStateOf(branches[0]) }
     var showCard by rememberSaveable { mutableStateOf(false) }
     var showAddCard by rememberSaveable { mutableStateOf(false) }
+    var requesting by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column {
@@ -138,45 +139,57 @@ fun QueueTab(
 
             Button(
                 onClick = {
-                    val client = Client()
+                    coroutineScope.launch {
+                        requesting = true
 
-                    // Check for an existing active ticket.
-                    if (client.hasActiveTicket(trn)) {
-                        toast("You already have an active ticket!")
-                    } else {
+                        try {
+                            val client = connectClient()
 
-                        // Check whether the customer has a saved payment method.
-                        val card = client.cards(trn)
+                            if (client == null) {
+                                toast("Unable to reach the server")
+                                return@launch
+                            }
 
-                        if (card.isNullOrBlank()) {
-                            showCard = true
-                        } else {
-
-                            val newTicket = client.createTicket(
-                                trn = trn,
-                                service = service,
-                                branch = branch
-                            )
-
-                            if (newTicket == null) {
+                            // Check for an existing active ticket.
+                            if (client.hasActiveTicket(trn)) {
                                 toast("You already have an active ticket!")
                             } else {
 
-                                // Reload the ticket to get its latest status.
-                                coroutineScope.launch {
-                                    val updatedTicket = withContext(Dispatchers.IO) {
-                                        client.getTicket(newTicket.ticketNo)
-                                    }
+                                // Check whether the customer has a saved payment method.
+                                val card = client.cards(trn)
 
-                                    if (updatedTicket != null) {
-                                        onTicketCreated(updatedTicket)
-                                        toast("Ticket created successfully!")
+                                if (card.isNullOrBlank()) {
+                                    showCard = true
+                                } else {
+
+                                    val newTicket = client.createTicket(
+                                        trn = trn,
+                                        service = service,
+                                        branch = branch
+                                    )
+
+                                    if (newTicket == null) {
+                                        toast("You already have an active ticket!")
+                                    } else {
+
+                                        // Reload the ticket to get its latest status.
+                                        val updatedTicket = withContext(Dispatchers.IO) {
+                                            client.getTicket(newTicket.ticketNo)
+                                        }
+
+                                        if (updatedTicket != null) {
+                                            onTicketCreated(updatedTicket)
+                                            toast("Ticket created successfully!")
+                                        }
                                     }
                                 }
                             }
+                        } finally {
+                            requesting = false
                         }
                     }
                 },
+                enabled = !requesting,
                 modifier = Modifier
                     .scale(1.2f)
                     .align(Alignment.CenterHorizontally)

@@ -17,6 +17,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flowapp.ui.theme.FlowAppTheme
+import android.util.Log
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -26,7 +28,8 @@ fun Waiting(
     trn: String,
     onProceedToPayment: () -> Unit
 ) {
-    val client = remember { Client() }
+    // Created lazily so the socket opens on the IO thread inside refreshQueue(), not during composition.
+    val client by remember { lazy { Client() } }
 
     var queueInfo by remember {
         mutableStateOf<QueueSnapshot?>(null)
@@ -40,19 +43,26 @@ fun Waiting(
     suspend fun refreshQueue() {
         isRefreshing = true
 
-        queueInfo = withContext(Dispatchers.IO) {
-            val currentInfo = client.getQueueSnapshot(trn)
+        try {
+            queueInfo = withContext(Dispatchers.IO) {
+                val currentInfo = client.getQueueSnapshot(trn)
 
-            val branch = currentInfo.customerTicket?.branch
+                val branch = currentInfo.customerTicket?.branch
 
-            if (branch != null) {
-                client.updateQueue(branch)
+                if (branch != null) {
+                    client.updateQueue(branch)
+                }
+
+                client.getQueueSnapshot(trn)
             }
-
-            client.getQueueSnapshot(trn)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // Server unreachable: keep showing the last known queue.
+            Log.d("ERROR", e.message.toString())
+        } finally {
+            isRefreshing = false
         }
-
-        isRefreshing = false
     }
 
     // Load queue information when the page opens.

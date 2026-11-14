@@ -65,11 +65,11 @@ data class User(val trn: String, val email: String, val phone: String, val name:
     companion object {
         fun default(): User {
             return User(
-                trn = TODO(),
-                email = TODO(),
-                phone = TODO(),
-                name = TODO(),
-                password = TODO()
+                trn = "",
+                email = "",
+                phone = "",
+                name = "",
+                password = ""
             )
         }
     }
