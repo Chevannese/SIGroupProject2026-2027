@@ -44,16 +44,16 @@ fun Waiting(
         isRefreshing = true
 
         try {
-            queueInfo = withContext(Dispatchers.IO) {
+            scope.launch {
                 val currentInfo = client.getQueueSnapshot(trn)
 
-                val branch = currentInfo.customerTicket?.branch
+                val branch = currentInfo?.customerTicket?.branch
 
                 if (branch != null) {
                     client.updateQueue(branch)
                 }
 
-                client.getQueueSnapshot(trn)
+                queueInfo = client.getQueueSnapshot(trn)
             }
         } catch (e: CancellationException) {
             throw e

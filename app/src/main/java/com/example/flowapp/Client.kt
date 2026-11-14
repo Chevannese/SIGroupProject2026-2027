@@ -562,4 +562,36 @@ class Client() {
 
         return@withContext null
     }
+
+    public suspend fun getTicket(ticketNo: String): Ticket? = withContext(Dispatchers.IO) {
+        try {
+            writer.write("GETTICKET,$ticketNo\n")
+            writer.flush()
+
+            val response = reader.readLine()
+            return@withContext Json.decodeFromString(response)
+        } catch (e: IOException) {
+            Log.d("ERROR", e.message.toString())
+        } catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+        }
+
+        return@withContext null
+    }
+
+    suspend fun getQueueSnapshot(trn: String): QueueSnapshot? = withContext(Dispatchers.IO) {
+        try {
+            writer.write("GETQUEUESNAPSHOT,$trn\n")
+            writer.flush()
+
+            val response = reader.readLine()
+            return@withContext Json.decodeFromString(response)
+        } catch (e: IOException) {
+            Log.d("ERROR", e.message.toString())
+        } catch (e: Exception) {
+            Log.d("ERROR", e.message.toString())
+        }
+
+        return@withContext null
+    }
 }
