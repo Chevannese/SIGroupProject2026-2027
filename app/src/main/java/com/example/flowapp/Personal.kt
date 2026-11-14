@@ -489,8 +489,6 @@ fun ChangePhone(
                         response = client.changePhone(trn, newPhone)
                     }
 
-
-
                         when (response) {
                             ChangePhoneResult.EMPTY_FIELD -> toast("Please enter a phone number")
                             ChangePhoneResult.INVALID_PHONE -> toast("Phone number must contain exactly 10 digits")
