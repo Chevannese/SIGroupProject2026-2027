@@ -83,11 +83,16 @@ fun handle_client(socket: Socket) {
                 "GETALLCARDS" -> writer.println(Json.encodeToString(Client().getAllCards()))
                 "MAKEPAYMENT" -> writer.println(Client().makePayment(parts[1], parts[2].toDouble(), parts[3]))
                 "GETALLTICKETS" -> writer.println(Json.encodeToString(Client().getAllTickets()))
+                "GETTICKET" -> writer.println(Json.encodeToString(Client().getTicket(parts[1])))
                 "GETCUSTOMERTICKETS" -> writer.println(Json.encodeToString(Client().getCustomerTickets(parts[1])))
                 "HASACTIVETICKET" -> writer.println(Client().hasActiveTicket(parts[1]))
                 "CANCELTICKET" -> writer.println(Client().cancelTicket(parts[1]))
                 "ADDCARD" -> writer.println(Client().add_card(parts[1], parts[2]))
                 "CARDS" -> writer.println(Client().cards(parts[1]))
+                "MARKNOSHOW" -> writer.println(Client().markNoShow(parts[1]))
+                "REMOVECARD" -> writer.println(Client().removeCard(parts[1]))
+                "CHANGEPHONE" -> writer.println(Client().changePhone(parts[1], parts[2]))
+                "GETQUEUESNAPSHOT" -> writer.println(Json.encodeToString(Client().getQueueSnapshot(parts[1])))
                 else -> "ERR unknown request: ${parts[0]}"
             }
         }

@@ -907,6 +907,10 @@ class Client() {
         }
     }
 
+    fun getTicket(ticketNo: String): Ticket? {
+        return getAllTickets().firstOrNull { ticket -> ticket.ticketNo == ticketNo }
+    }
+
     // Retrieve tickets belonging to a specific customer
     fun getCustomerTickets(trn: String): List<Ticket> {
         val file = File("tickets.txt")
