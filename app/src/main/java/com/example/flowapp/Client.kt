@@ -555,13 +555,13 @@ class Client() {
         }
     }
 
-    public suspend fun changePhone(trn: String, newPhone: String): Boolean = withContext(Dispatchers.IO) {
+    public suspend fun changePhone(trn: String, newPhone: String): ChangePhoneResult = withContext(Dispatchers.IO) {
         try {
             writer.write("MARKNOSHOW,$trn,$newPhone\n")
             writer.flush()
 
             val response = reader.readLine()
-            return@withContext response.toBoolean()
+            return@withContext ChangePhoneResult.valueOf(response)
         } catch (e: IOException) {
             Log.d("ERROR", e.message.toString())
             return@withContext false

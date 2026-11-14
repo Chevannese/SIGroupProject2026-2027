@@ -482,71 +482,26 @@ fun ChangePhone(
                 enabled = enableButton,
                 onClick = {
                     enableButton = false
+                    var response: ChangePhoneResult? = null
 
                     scope.launch {
-                        val client = connectClient()
+                        val client = Client()
+                        response = client.changePhone(trn, newPhone)
+                    }
 
-                        // changePhone isn't in the Client.kt provided, so it is kept on the IO
-                        // dispatcher in case it isn't a suspend function yet.
-                        val response = if (client == null) {
-                            Client.ChangePhoneResult.ERROR
-                        } else {
-                            withContext(Dispatchers.IO) {
-                                client.changePhone(
-                                    trn = trn,
-                                    newPhone = newPhone
-                                )
-                            }
-                        }
 
 
                         when (response) {
-
-                            Client.ChangePhoneResult.EMPTY_FIELD -> {
-                                Toast.makeText(
-                                    MainActivity.instance.applicationContext,
-                                    "Please enter a phone number",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-                            Client.ChangePhoneResult.INVALID_PHONE -> {
-                                Toast.makeText(
-                                    MainActivity.instance.applicationContext,
-                                    "Phone number must contain exactly 10 digits",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-                            Client.ChangePhoneResult.SAME_PHONE -> {
-                                Toast.makeText(
-                                    MainActivity.instance.applicationContext,
-                                    "This is already your phone number",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-                            Client.ChangePhoneResult.OK -> {
-                                Toast.makeText(
-                                    MainActivity.instance.applicationContext,
-                                    "Phone number successfully updated",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-
-                                onBack()
-                            }
-
-                            Client.ChangePhoneResult.ERROR -> {
-                                Toast.makeText(
-                                    MainActivity.instance.applicationContext,
-                                    "An error occurred while updating your phone number",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                            ChangePhoneResult.EMPTY_FIELD -> toast("Please enter a phone number")
+                            ChangePhoneResult.INVALID_PHONE -> toast("Phone number must contain exactly 10 digits")
+                            ChangePhoneResult.SAME_PHONE -> toast("This is already your phone number")
+                            ChangePhoneResult.OK -> toast("Phone number successfully updated")
+                            ChangePhoneResult.ERROR -> toast("An error occurred while updating your phone number")
+                            null -> toast("NULL ERROR")
                         }
 
                         enableButton = true
-                    }
+
                 }
             ) {
                 Text("Update Phone Number")
