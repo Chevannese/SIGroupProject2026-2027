@@ -48,8 +48,8 @@ class Client() {
     private val reader = BufferedReader(InputStreamReader(socket.getInputStream()))
 
     private companion object {
-        const val SERVER_HOST = "10.0.2.2" // TODO: set to your server's address (10.0.2.2 = host machine from the Android emulator)
-        const val SERVER_PORT = 5000       // TODO: set to your server's port
+        const val SERVER_HOST = "162.246.3.9" // TODO: set to your server's address (10.0.2.2 = host machine from the Android emulator)
+        const val SERVER_PORT = 80       // TODO: set to your server's port
     }
 
     public suspend fun user(trn: String): User? = withContext(Dispatchers.IO) {
