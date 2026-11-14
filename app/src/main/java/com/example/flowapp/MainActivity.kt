@@ -116,9 +116,18 @@ class MainActivity : ComponentActivity() {
         register.setOnClickListener {
             register.isEnabled = false
 
+            var response: RegisterCode = RegisterCode.ERROR
             lifecycleScope.launch {
-                val response = connectClient()?.register(trn = trn.text.toString(), name = name.text.toString(), password = password.text.toString(), email = email.text.toString(), phone = phone.text.toString(), confirmPassword = confirmPassword.text.toString()) ?: RegisterCode.ERROR
+                response = connectClient()?.register(
+                    trn = trn.text.toString(),
+                    name = name.text.toString(),
+                    password = password.text.toString(),
+                    email = email.text.toString(),
+                    phone = phone.text.toString(),
+                    confirmPassword = confirmPassword.text.toString()
+                )!!
                 register.isEnabled = true
+            }
 
 
                 when (response) {
@@ -140,14 +149,12 @@ class MainActivity : ComponentActivity() {
                         showLogin()
                     }
                 }
-            }
+
         }
     }
 
 
     private fun showForgetPassPage() {
-
-
         setContentView(R.layout.forget_pass_page)
 
         val email: EditText = findViewById(R.id.email)
@@ -173,8 +180,7 @@ class MainActivity : ComponentActivity() {
 
             lifecycleScope.launch {
                 try {
-                    val client = connectClient()
-                        ?: throw IOException("Unable to reach the server")
+                    val client = Client()
 
                     val response = client.checkEmailAddress(emailString)
 
