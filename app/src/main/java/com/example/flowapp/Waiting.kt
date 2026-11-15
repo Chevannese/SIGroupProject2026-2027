@@ -22,20 +22,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun Waiting(
-    trn: String,
-    onProceedToPayment: () -> Unit
-) {
+fun Waiting(trn: String, onProceedToPayment: () -> Unit) {
     val client = remember { Client() }
+    var queueInfo by remember { mutableStateOf<QueueSnapshot?>(null) }
+    var isRefreshing by remember { mutableStateOf(false) }
 
-    var queueInfo by remember {
-        mutableStateOf<QueueSnapshot?>(null)
-    }
-
-    var isRefreshing by remember {
-        mutableStateOf(false)
-    }
     val scope = rememberCoroutineScope()
+
     // Load and refresh queue information.
     suspend fun refreshQueue() {
         isRefreshing = true
@@ -60,11 +53,18 @@ fun Waiting(
         refreshQueue()
     }
 
+
     val customerTicket = queueInfo?.customerTicket
     val nowServing = queueInfo?.nowServing
     val nextInLine = queueInfo?.nextInLine
 
     val isAtFront = customerTicket?.ticketStatus == "Being Served"
+
+    LaunchedEffect(isAtFront) {
+        if (isAtFront) {
+            sendNotification("You are next in line", "You have been moved to the front of the queue")
+        }
+    }
 
 
     Column(
