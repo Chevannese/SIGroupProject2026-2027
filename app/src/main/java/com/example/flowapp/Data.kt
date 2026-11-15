@@ -45,3 +45,8 @@ data class User(val trn: String, val email: String, val phone: String, val name:
         }
     }
 }
+
+enum class NotificationType {
+    QUEUE,
+    GENERAL
+}

@@ -1,5 +1,9 @@
 package com.example.flowapp
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,6 +44,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.core.app.NotificationCompat
 import com.example.flowapp.ui.theme.flowColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,4 +131,21 @@ fun BackBar(title: String, onBack: () -> Unit, content: @Composable () -> Unit =
 
 fun toast(text: String) {
     Toast.makeText(MainActivity.instance.applicationContext, text, Toast.LENGTH_SHORT).show()
+}
+
+// you can just run it and it sends a notification
+fun sendNotification(title: String, message: String, channel: NotificationType = NotificationType.GENERAL, context: Context = MainActivity.instance.applicationContext) {
+    val id = when (channel) {
+        NotificationType.QUEUE -> queueNotificationChannelId
+        NotificationType.GENERAL -> generalNotificationChannelId
+    }
+    val notification = NotificationCompat.Builder(context, id)
+        .setSmallIcon(R.drawable.ic_launcher_foreground)
+        .setContentTitle(title)
+        .setContentText(message)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .setAutoCancel(true)
+        .build()
+
+    MainActivity.instance.notificationManager.notify(1, notification)
 }

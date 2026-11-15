@@ -1,5 +1,9 @@
 package com.example.flowapp
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.os.Bundle
 import android.widget.ScrollView
 import android.util.Log
@@ -20,19 +24,32 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import android.graphics.Typeface
 
+public const val queueNotificationChannelId = "queue_updates"
+public const val generalNotificationChannelId = "general"
+
 class MainActivity : ComponentActivity() {
+    lateinit var notificationManager : NotificationManager
+    lateinit var queueNotificationChannel : NotificationChannel
+    lateinit var generalNotificationChannel : NotificationChannel
+
     companion object {
         lateinit var instance: MainActivity
             private set
 
-        val isInitialized: Boolean
-            get() = ::instance.isInitialized
+        val isInitialized: Boolean get() = ::instance.isInitialized
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         instance = this
         enableEdgeToEdge()
+
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        queueNotificationChannel = NotificationChannel(queueNotificationChannelId, "Queue Updates", NotificationManager.IMPORTANCE_HIGH)
+        generalNotificationChannel = NotificationChannel(generalNotificationChannelId, "General", NotificationManager.IMPORTANCE_DEFAULT)
+
+        notificationManager.createNotificationChannel(queueNotificationChannel)
+        notificationManager.createNotificationChannel(generalNotificationChannel)
 
         // shows login when the app starts
         showLogin()
