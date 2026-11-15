@@ -1,17 +1,17 @@
-# Stage 1: Build the JAR
-FROM gradle:8.10-jdk21 AS build
+# Stage 1: Build the application distribution
+FROM gradle:8.14-jdk21 AS build
 WORKDIR /app
 COPY . .
-# Note: Change 'buildFatJar' to 'bootJar' if using Spring Boot
-# RUN chmod +x ./gradlew && ./gradlew buildFatJar --no-daemon
-RUN gradle buildFatJar --no-daemon
+RUN gradle installDist --no-daemon
 
-# Stage 2: Run the JAR
+# Stage 2: Run the application
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-# Copies the generated JAR (adjust path if your build folder differs)
-COPY --from=build /app/build/libs/*-all.jar app.jar
+# Copy the generated binaries and libraries from installDist
+COPY --from=build /app/build/install/* /app/
 
 EXPOSE 8080
-# -Xmx350m prevents OutOfMemory crashes on Render's 512MB limit
-ENTRYPOINT ["java", "-Xmx350m", "-jar", "app.jar"]
+# Set JVM memory limit for Render's 512MB free tier and run the startup script
+ENV JAVA_OPTS="-Xmx350m"
+CMD ["sh", "-c", "./bin/*"]
+
