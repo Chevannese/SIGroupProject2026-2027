@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.activity.compose.BackHandler
+import androidx.annotation.NonNull
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -189,4 +190,31 @@ suspend fun getNotifications(trn: String): List<Array<String>> = withContext(Dis
     }
 
     return@withContext notifications.toList()
+}
+
+suspend fun clearNotifications(trn: String): Boolean = withContext(Dispatchers.IO) {
+    try {
+        val file = File(MainActivity.instance.applicationContext.filesDir, "notifications.txt")
+        val updated = StringBuilder()
+
+        if (file.exists()) {
+            for (line in file.readLines()) {
+                if (!line.startsWith(trn)) {
+                    updated.appendLine(line)
+                }
+            }
+        }
+
+        file.writeText(updated.toString())
+
+        return@withContext true
+    }
+    catch (e: IOException) {
+        Log.d("ERROR", e.message.toString())
+    }
+    catch (e: Exception) {
+        Log.d("ERROR", e.message.toString())
+    }
+
+    return@withContext false
 }
