@@ -20,15 +20,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @Composable
 fun Notifications(onBack: () -> Unit, trn: String) {
     var notifications by remember { mutableStateOf(listOf<Array<String>>()) }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(trn) {
         notifications = getNotifications(trn)
@@ -64,7 +67,7 @@ fun Notifications(onBack: () -> Unit, trn: String) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton({ notifications = getNotifications(trn) }, Modifier.fillMaxWidth()) {
+            TextButton({ scope.launch { notifications = getNotifications(trn) } }, Modifier.fillMaxWidth()) {
                 Text("Refresh")
             }
         }
