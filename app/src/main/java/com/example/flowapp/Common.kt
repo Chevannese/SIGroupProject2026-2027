@@ -160,14 +160,14 @@ suspend fun sendNotification(trn: String, title: String, message: String, channe
     try {
         val file = File(MainActivity.instance.applicationContext.filesDir, "notifications.txt")
 
-        file.appendText("$trn\t$title$message\n")
+        file.appendText("$trn\t$title\t$message\n")
     }
     catch (e: IOException) {
         Log.d("ERROR", "Error saving notification")
     }
 }
 
-suspend fun getNotifications(trn: String): List<Array<String>> = withContext(Dispatchers.IO){
+suspend fun getNotifications(trn: String): List<Array<String>> = withContext(Dispatchers.IO) {
     val notifications = LinkedList<Array<String>>()
 
     try {
