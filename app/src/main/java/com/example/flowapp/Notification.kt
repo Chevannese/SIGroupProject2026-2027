@@ -111,9 +111,9 @@ fun Notifications(onBack: () -> Unit, trn: String) {
                     }
                 },
                 Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                colors = ButtonDefaults.buttonColors(containerColor = Color(231, 161, 161, 255))
             ) {
-                Text(dismissText)
+                Text(dismissText, color = Color.Red)
             }
         }
     }
