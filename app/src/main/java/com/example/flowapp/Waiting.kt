@@ -62,7 +62,8 @@ fun Waiting(trn: String, onProceedToPayment: () -> Unit) {
 
     LaunchedEffect(isAtFront) {
         if (isAtFront) {
-            sendNotification("You are next in line", "You have been moved to the front of the queue")
+            sendNotification(trn, "You are next in line", "You have been moved to the front of the queue",
+                NotificationType.QUEUE)
         }
     }
 
