@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.People
 fun Main(onLogoutClick: () -> Unit, trn: String, startTab: Int = 0) {
     var tab by remember { mutableIntStateOf(startTab) }
     var showProfile by remember { mutableStateOf(false) }
+    var showNotifications by remember { mutableStateOf(false) }
     var showDetailedProfile by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     val client = Client()
@@ -38,6 +39,13 @@ fun Main(onLogoutClick: () -> Unit, trn: String, startTab: Int = 0) {
                     Text("Flow App" )
                 },
                 actions = {
+                    IconButton(onClick = { showNotifications = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Profile",
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
                     IconButton(onClick = { showProfile = true }) {
                         Icon(
                             imageVector = Icons.Default.AccountCircle,
@@ -113,6 +121,9 @@ fun Main(onLogoutClick: () -> Unit, trn: String, startTab: Int = 0) {
                 name = name,
                 sheetState = sheetState
             )
+        }
+        else if (showNotifications) {
+            Notifications(onBack = { showNotifications = false }, trn)
         }
     }
 
