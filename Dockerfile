@@ -2,7 +2,10 @@
 FROM gradle:8.14-jdk21 AS build
 WORKDIR /app
 COPY . .
-RUN gradle installDist --no-daemon
+
+# Note: Change 'buildFatJar' to 'bootJar' if using Spring Boot
+RUN chmod +x ./gradlew && ./gradlew buildFatJar --no-daemon
+
 
 # Stage 2: Run the application
 FROM eclipse-temurin:21-jre-alpine
@@ -11,7 +14,8 @@ WORKDIR /app
 COPY --from=build /app/build/install/* /app/
 
 EXPOSE 8080
-# Set JVM memory limit for Render's 512MB free tier and run the startup script
-ENV JAVA_OPTS="-Xmx350m"
-CMD ["sh", "-c", "./bin/*"]
+
+# -Xmx350m prevents OutOfMemory crashes on Render's 512MB limit
+ENTRYPOINT ["java", "-Xmx350m", "-jar", "app.jar"]
+
 
