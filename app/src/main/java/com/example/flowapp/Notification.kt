@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,7 +28,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun Notifications(onBack: () -> Unit, trn: String) {
-    var notifications by remember { mutableStateOf(getNotifications(trn)) }
+    var notifications by remember { mutableStateOf(listOf<Array<String>>()) }
+
+    LaunchedEffect(trn) {
+        notifications = getNotifications(trn)
+    }
 
     BackBar("Notifications", onBack = onBack) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
