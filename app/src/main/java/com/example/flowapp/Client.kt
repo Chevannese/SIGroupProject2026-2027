@@ -53,6 +53,7 @@ enum class ChangeOldPassword {
     SAME_PASSWORD,
     OK,
     INVALID_PASSWORD,
+    INCORRECT_OLD_PASSWORD,
     ERROR
 }
 
@@ -138,51 +139,66 @@ class Client() {
         if (oldPassword.hash256() == newPassword.hash256()) {
             return ChangeOldPassword.SAME_PASSWORD
         }
-        if (newPassword.any { it.isLetter() } || !newPassword.any { it.isDigit() } || !newPassword.any { it == '!' || it == '@' || it == '#' || it == '$' || it == '%' || it == '^' || it == '&' || it == '*' }) {
+
+        // Validate password requirements
+        if (
+            !newPassword.any { it.isLetter() } ||
+            !newPassword.any { it.isDigit() } ||
+            !newPassword.any {
+                it in "!@#$%^&*"
+            }
+        ) {
             return ChangeOldPassword.INVALID_PASSWORD
         }
 
         try {
             val file = File(context.filesDir, "users.txt")
+
+            if (!file.exists()) {
+                return ChangeOldPassword.ERROR
+            }
+
             val updated = StringBuilder()
             var changed = false
 
-            if (file.exists()) {
-                for (line in file.readLines()) {
-                    val split = line.split(",")
+            for (line in file.readLines()) {
 
-                    if (split.size >= 5 &&
-                        split[0] == trn &&
-                        split[4] == oldPassword.hash256()
-                    ) {
-                        updated.appendLine(
-                            "%s,%s,%s,%s,%s".format(
-                                split[0],
-                                split[1],
-                                split[2],
-                                split[3],
-                                newPassword.hash256()
-                            )
-                        )
+                val split = line.split(",")
 
-                        changed = true
-                    } else {
-                        updated.appendLine(line)
-                    }
+                if (split.size >= 5 &&
+                    split[0] == trn &&
+                    split[4] == oldPassword.hash256()
+                ) {
+
+                    updated.appendLine(
+                        listOf(
+                            split[0],
+                            split[1],
+                            split[2],
+                            split[3],
+                            newPassword.hash256()
+                        ).joinToString(",")
+                    )
+
+                    changed = true
+
+                } else {
+                    updated.appendLine(line)
                 }
             }
 
-            if (changed) {
-                file.writeText(updated.toString())
-                return ChangeOldPassword.OK
+            if (!changed) {
+                return ChangeOldPassword.INCORRECT_OLD_PASSWORD
             }
 
+            file.writeText(updated.toString())
+
+            return ChangeOldPassword.OK
+
         } catch (e: Exception) {
-            Log.d("ERROR", e.message.toString())
+            Log.e("CHANGE_PASSWORD", "Password update failed", e)
             return ChangeOldPassword.ERROR
         }
-
-        return ChangeOldPassword.INVALID_PASSWORD
     }
 
     fun login(trn: String, password: String): LoginCode {

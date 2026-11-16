@@ -284,9 +284,11 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                 value = newPassword,
                 onValueChange = {
                         text -> newPassword = text
-                    passwordsMatch = confirmPassword == newPassword
-                    password8Chars = newPassword.length >= 8
-                    passwordContainsLNS = newPassword.any { it.isLetter() } && newPassword.any { it.isDigit() } && newPassword.any { it == '!' || it == '@' || it == '#' || it == '$' || it == '%' || it == '^' || it == '&' || it == '*' }
+                    passwordsMatch = confirmPassword == text
+                    password8Chars = text.length >= 8
+                    passwordContainsLNS = text.any { it.isLetter() } &&
+                            text.any { it.isDigit() } &&
+                            text.any { it in "!@#$%^&*" }
                 },
                 placeholder = { Text(text = "New Password") },
                 supportingText = {
@@ -329,9 +331,9 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
             Spacer(modifier = Modifier.height(15.dp))
             OutlinedTextField(
                 value = confirmPassword,
-                onValueChange = {
-                        text -> confirmPassword = text
-                    passwordsMatch = confirmPassword == newPassword
+                onValueChange = { text ->
+                    confirmPassword = text
+                    passwordsMatch = text == newPassword
                 },
                 placeholder = { Text(text = "Confirm Password") },
                 supportingText = {
@@ -382,7 +384,9 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
                         ChangeOldPassword.SAME_PASSWORD -> Toast.makeText(MainActivity.instance.applicationContext, "Old password cannot be your new password", Toast.LENGTH_SHORT).show()
                         ChangeOldPassword.INVALID_PASSWORD -> Toast.makeText(MainActivity.instance.applicationContext, "Invalid password\nPassword must contain letters, numbers and a special character", Toast.LENGTH_SHORT).show()
                         ChangeOldPassword.PASSWORD_MISMATCH -> Toast.makeText(MainActivity.instance.applicationContext, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                        ChangeOldPassword.OK -> {
+                        ChangeOldPassword.INCORRECT_OLD_PASSWORD -> Toast.makeText(MainActivity.instance.applicationContext, "Incorrect old password", Toast.LENGTH_SHORT).show()
+                        ChangeOldPassword.OK ->
+                            { Toast.makeText(MainActivity.instance.applicationContext, "Password changed successfully", Toast.LENGTH_SHORT).show()
                             currentPassword = ""
                             newPassword = ""
                             confirmPassword = ""
