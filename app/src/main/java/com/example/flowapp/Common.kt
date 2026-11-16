@@ -188,5 +188,5 @@ suspend fun getNotifications(trn: String): List<Array<String>> = withContext(Dis
         Log.d("ERROR", "Error saving notification")
     }
 
-    return notifications.toList()
+    return@withContext notifications.toList()
 }
