@@ -29,7 +29,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.flowapp.ui.theme.FlowAppTheme
 import com.example.flowapp.ui.theme.flowColors
 import kotlinx.coroutines.launch
 
@@ -111,10 +113,18 @@ fun Notifications(onBack: () -> Unit, trn: String) {
                     }
                 },
                 Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(239, 198, 198, 255))
+                colors = ButtonDefaults.buttonColors(containerColor = Color(234, 204, 204, 255))
             ) {
                 Text(dismissText, color = Color.Red)
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun NotificationsPreview() {
+    FlowAppTheme {
+        Notifications({}, "")
     }
 }
