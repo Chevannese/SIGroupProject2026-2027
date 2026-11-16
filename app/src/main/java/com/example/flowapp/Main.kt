@@ -122,9 +122,7 @@ fun Main(onLogoutClick: () -> Unit, trn: String, startTab: Int = 0) {
                 sheetState = sheetState
             )
         }
-        else if (showNotifications) {
-            Notifications(onBack = { showNotifications = false }, trn)
-        }
+
     }
 
 
@@ -161,6 +159,9 @@ fun Main(onLogoutClick: () -> Unit, trn: String, startTab: Int = 0) {
                 }
             }
         )
+    }
+    else if (showNotifications) {
+        Notifications(onBack = { showNotifications = false }, trn)
     }
 }
 
