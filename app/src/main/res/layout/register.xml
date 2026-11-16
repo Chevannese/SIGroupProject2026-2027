@@ -49,7 +49,7 @@
 
     <TextView
         android:text="@string/quickReg"
-        android:textColor="@color/dark_gray"
+        android:textColor="@color/black"
         android:textStyle="bold"
         android:id="@+id/quickReg"
         android:textSize="12sp"
