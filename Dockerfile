@@ -1,21 +1,18 @@
-# Stage 1: Build the application distribution
-FROM gradle:8.14-jdk21 AS build
+# Stage 1: build the distribution with the project's Gradle wrapper and JDK 25 (matches jvmToolchain(25))
+FROM eclipse-temurin:25-jdk AS build
 WORKDIR /app
 COPY . .
+RUN chmod +x ./gradlew && ./gradlew installDist --no-daemon
 
-# Note: Change 'buildFatJar' to 'bootJar' if using Spring Boot
-RUN chmod +x ./gradlew && ./gradlew buildFatJar --no-daemon
-
-
-# Stage 2: Run the application
-FROM eclipse-temurin:21-jre-alpine
+# Stage 2: run the app on a small JRE
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
-# Copy the generated binaries and libraries from installDist
-COPY --from=build /app/build/install/* /app/
+COPY --from=build /app/build/install/FlowServer/ ./
 
-EXPOSE 8080
+# Render's free tier has 512 MB of RAM
+ENV JAVA_OPTS="-Xmx350m"
 
-# -Xmx350m prevents OutOfMemory crashes on Render's 512MB limit
-ENTRYPOINT ["java", "-Xmx350m", "-jar", "app.jar"]
+# Documentation only: the server reads $PORT (set by Render) and falls back to 9000
+EXPOSE 9000
 
-
+CMD ["./bin/FlowServer"]

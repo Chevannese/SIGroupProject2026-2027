@@ -1,0 +1,13 @@
+.git
+.gradle
+.kotlin
+build
+out
+.idea
+*.iml
+users.txt
+cards.txt
+tickets.txt
+receipt_records.txt
+recovery_codes.txt
+feedback_*.txt

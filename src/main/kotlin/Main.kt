@@ -7,6 +7,7 @@ import kotlinx.serialization.encodeToString
 import java.io.File
 import java.io.IOException
 import java.io.PrintWriter
+import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketException
@@ -22,7 +23,8 @@ import kotlin.time.ExperimentalTime
 
 import kotlinx.serialization.json.Json
 
-const val PORT = 9000
+// Hosts such as Fly.io and Render set PORT; fall back to 8080 when it is not set
+val PORT: Int = System.getenv("PORT")?.toIntOrNull() ?: 8080
 const val IDLE_TIMEOUT_MS = 60_000
 const val MAX_CLIENTS = 64
 
@@ -34,7 +36,8 @@ fun main() {
 
 fun run_server() {
     val pool = Executors.newFixedThreadPool(MAX_CLIENTS)
-    val server = ServerSocket(PORT)
+    val server = ServerSocket()
+    server.bind(InetSocketAddress("0.0.0.0", PORT))
 
     Runtime.getRuntime().addShutdownHook(Thread {
         println("Shutting down...")
