@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
@@ -44,8 +45,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.input.ImeOptions
 import androidx.core.app.NotificationCompat
 import com.example.flowapp.ui.theme.flowColors
+import java.io.File
+import java.io.IOException
+import java.util.LinkedList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -134,7 +139,7 @@ fun toast(text: String) {
 }
 
 // you can just run it and it sends a notification
-fun sendNotification(title: String, message: String, channel: NotificationType = NotificationType.GENERAL, context: Context = MainActivity.instance.applicationContext) {
+fun sendNotification(trn: String, title: String, message: String, channel: NotificationType = NotificationType.GENERAL, context: Context = MainActivity.instance.applicationContext) {
     val id = when (channel) {
         NotificationType.QUEUE -> queueNotificationChannelId
         NotificationType.GENERAL -> generalNotificationChannelId
@@ -148,4 +153,37 @@ fun sendNotification(title: String, message: String, channel: NotificationType =
         .build()
 
     MainActivity.instance.notificationManager.notify(1, notification)
+
+    try {
+        val file = File(MainActivity.instance.applicationContext.filesDir, "notifications.txt")
+
+        file.appendText("$trn\t$title$message\n")
+    }
+    catch (e: IOException) {
+        Log.d("ERROR", "Error saving notification")
+    }
+}
+
+fun getNotifications(trn: String): List<Array<String>> {
+    val notifications = LinkedList<Array<String>>()
+
+    try {
+        val file = File(MainActivity.instance.applicationContext.filesDir, "notifications.txt")
+
+        if (file.exists()) {
+            for (line in file.readLines()) {
+                val split = line.split("\t")
+                if (split[0] == trn) {
+                    notifications.add(arrayOf(split[1], split[2]))
+                }
+            }
+        }
+
+
+    }
+    catch (e: IOException) {
+        Log.d("ERROR", "Error saving notification")
+    }
+
+    return notifications.toList()
 }
