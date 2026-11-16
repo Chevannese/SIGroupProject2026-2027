@@ -141,7 +141,7 @@ fun toast(text: String) {
 }
 
 // you can just run it and it sends a notification
-fun sendNotification(trn: String, title: String, message: String, channel: NotificationType = NotificationType.GENERAL, context: Context = MainActivity.instance.applicationContext) = withContext(
+suspend fun sendNotification(trn: String, title: String, message: String, channel: NotificationType = NotificationType.GENERAL, context: Context = MainActivity.instance.applicationContext) = withContext(
     Dispatchers.IO) {
     val id = when (channel) {
         NotificationType.QUEUE -> queueNotificationChannelId
@@ -167,7 +167,7 @@ fun sendNotification(trn: String, title: String, message: String, channel: Notif
     }
 }
 
-fun getNotifications(trn: String): List<Array<String>> {
+suspend fun getNotifications(trn: String): List<Array<String>> = withContext(Dispatchers.IO){
     val notifications = LinkedList<Array<String>>()
 
     try {
