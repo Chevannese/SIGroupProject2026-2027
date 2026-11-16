@@ -328,7 +328,7 @@ suspend fun getUser(trn: String): User = withContext(Dispatchers.IO) {
 
             Spacer(modifier = Modifier.height(15.dp))
             OutlinedTextField(
-                value = currentPassword,
+                value = confirmPassword,
                 onValueChange = {
                         text -> confirmPassword = text
                     passwordsMatch = confirmPassword == newPassword
