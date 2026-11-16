@@ -48,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.core.app.NotificationCompat
 import com.example.flowapp.ui.theme.flowColors
+import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.io.IOException
 import java.util.LinkedList
@@ -139,7 +140,8 @@ fun toast(text: String) {
 }
 
 // you can just run it and it sends a notification
-fun sendNotification(trn: String, title: String, message: String, channel: NotificationType = NotificationType.GENERAL, context: Context = MainActivity.instance.applicationContext) {
+fun sendNotification(trn: String, title: String, message: String, channel: NotificationType = NotificationType.GENERAL, context: Context = MainActivity.instance.applicationContext) = withContext(
+    Dispatchers.IO) {
     val id = when (channel) {
         NotificationType.QUEUE -> queueNotificationChannelId
         NotificationType.GENERAL -> generalNotificationChannelId
