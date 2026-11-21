@@ -152,7 +152,7 @@ fun QueueTab(
                             showCard = true
                         } else {
 
-                            val newTicket = client.createTicket(
+                            val newTicket = client.addToQueue(
                                 trn = trn,
                                 service = service,
                                 branch = branch

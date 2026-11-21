@@ -201,7 +201,7 @@ class Client() {
         }
     }
 
-    fun login(trn: String, password: String): LoginCode {
+    fun signIn(trn: String, password: String): LoginCode {
         try {
             val file = File(context.filesDir, "users.txt")
             Log.d("FILE", "File opened: " + file.path.toString())
@@ -232,7 +232,7 @@ class Client() {
 
     fun validate(
         trn: String = "123456789",
-        name: String = "Joe Mama",
+        name: String = "Mary Brown",
         password: String = "mypass123!",
         email: String = "thisisaperson12@gmail.com",
         phone: String = "8761234567",
@@ -254,13 +254,15 @@ class Client() {
             return RegisterCode.PASSWORD_LONG
         else if (password != confirmPassword)
             return RegisterCode.PASSWORD_MISMATCH
-        else if (!password.any { it.isLetter() } || !password.any { it.isDigit() } || !password.any { it == '!' || it == '@' || it == '#' || it == '$' || it == '%' || it == '^' || it == '&' || it == '*' }) {
+        else if (!password.any { it.isLetter() } || !password.any { it.isDigit() } ||
+            !password.any { it == '!' || it == '@' || it == '#' || it == '$' || it == '%' || it == '^'
+                    || it == '&' || it == '*' }) {
             return RegisterCode.PASSWORD_INVALID
         }
         else return null
     }
 
-    fun register(
+    fun addUser(
         trn: String,
         name: String,
         password: String,
@@ -268,8 +270,6 @@ class Client() {
         phone: String,
         confirmPassword: String
     ): RegisterCode {
-
-
         val validate = validate(trn, name, password, email, phone, confirmPassword)
         if (validate != null) {
             return validate
@@ -415,7 +415,7 @@ class Client() {
         }
     }
 
-    fun updatePassword(
+    fun resetPassword(
         email: String,
         verifyCode: String,
         password: String,
@@ -659,7 +659,7 @@ class Client() {
         }
     }
 
-    fun createTicket(
+    fun addToQueue(
         trn: String,
         service: String,
         branch: String
@@ -1187,7 +1187,7 @@ class Client() {
      * @param trn The TRN of the user
      * @param card The credit card number to add
      */
-    fun add_card(trn: String, card: String): Boolean {
+    fun add_cc_Details(trn: String, card: String): Boolean {
         try {
             val file = File(context.filesDir, "cards.txt")
             file.appendText("$trn,$card,5000\n")

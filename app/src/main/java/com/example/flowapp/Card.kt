@@ -145,7 +145,7 @@ fun AddCard(onBack: () -> Unit = {}, onAdd: () -> Unit = {}, trn: String) {
                 Button(
                     onClick = {
                         val client = Client()
-                        val response = client.add_card(trn, ccNumber.takeLast(4))
+                        val response = client.add_cc_Details(trn, ccNumber.takeLast(4))
 
                         when (response) {
                             false -> toast("Error adding card")

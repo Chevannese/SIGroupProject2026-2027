@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
             val password: EditText = findViewById(R.id.loginPassword)
             val client = Client()
 
-            val response = client.login(trn.text.toString(), password.text.toString())
+            val response = client.signIn(trn.text.toString(), password.text.toString())
 
             when (response) {
                 LoginCode.NOT_FOUND -> Toast.makeText(applicationContext, "TRN or password is incorrect", Toast.LENGTH_SHORT).show()
@@ -121,7 +121,7 @@ class MainActivity : ComponentActivity() {
             register.isEnabled = false;
 
             val client = Client()
-            val response = client.register(trn = trn.text.toString(), name = name.text.toString(), password = password.text.toString(), email = email.text.toString(), phone = phone.text.toString(), confirmPassword = confirmPassword.text.toString())
+            val response = client.addUser(trn = trn.text.toString(), name = name.text.toString(), password = password.text.toString(), email = email.text.toString(), phone = phone.text.toString(), confirmPassword = confirmPassword.text.toString())
             register.isEnabled = true;
 
             when (response) {
@@ -260,7 +260,7 @@ class MainActivity : ComponentActivity() {
         updatePassword.setOnClickListener {
             updatePassword.isEnabled = false
 
-            val response = client.updatePassword(
+            val response = client.resetPassword(
                 email = emailString,
                 verifyCode = verifyCode.text.toString(),
                 password = password.text.toString(),
@@ -464,124 +464,6 @@ class MainActivity : ComponentActivity() {
                 }
             )
         }
-
-
-        fun loadAccountBalance(trn: String) {
-            val client = Client()
-
-            // Retrieve the customer's payment card.
-            val card = client.getAllCards().find {
-                it.trn == trn
-            }
-
-            // Retrieve all receipts belonging to the customer.
-            val receipts = client.getCustomerReceipts(trn)
-
-            // Find the views.
-            val cardNumber = findViewById<TextView>(R.id.cardNumTextField)
-            val balance = findViewById<TextView>(R.id.amount)
-
-            val paymentList = findViewById<LinearLayout>(
-                R.id.paymentListContainer
-            )
-
-            val noPayments = findViewById<TextView>(
-                R.id.noPaymentsText
-            )
-
-            // Display card information.
-            if (card != null) {
-                cardNumber.text = "**** **** **** ${card.lastFourDigits}"
-
-                balance.text = "$%.2f".format(card.balance)
-
-            }
-            else {
-                cardNumber.text = "No Card Linked"
-                balance.text = "$0.00"
-            }
-
-            // Clear previous receipt information.
-            paymentList.removeAllViews()
-
-            // Display an empty message if there are no receipts.
-            if (receipts.isEmpty()) {
-                paymentList.addView(noPayments)
-                noPayments.visibility = View.VISIBLE
-                return
-            }
-
-            noPayments.visibility = View.GONE
-
-            // Display every customer receipt.
-            for (receipt in receipts) {
-
-                val receiptLayout = LinearLayout(this).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(16, 16, 16, 16)
-                    setBackgroundColor(Color.rgb(240, 243, 248))
-                }
-
-                val receiptTitle = TextView(this).apply {
-                    text = "Receipt #${receipt.receiptNo}"
-                    textSize = 18f
-                    setTextColor(Color.rgb(20, 50, 90))
-                    setTypeface(null, android.graphics.Typeface.BOLD)
-                }
-
-                val receiptDetails = TextView(this).apply {
-                    text =
-                        """
-                        Ticket Number: ${receipt.ticketNo}
-                        Payment Method: ${receipt.paymentMethod}
-                        Payment Status: ${receipt.paymentStatus}
-        
-                        Service Cost: $${"%.2f".format(receipt.cost)}
-                        GCT (15%): $${"%.2f".format(receipt.surcharge)}
-                        Subtotal: $${"%.2f".format(receipt.subTotal)}
-        
-                        Total Paid: $${"%.2f".format(receipt.totalPaid)}
-                        Amount Due: $${"%.2f".format(
-                                (receipt.subTotal - receipt.totalPaid).coerceAtLeast(0.0)
-                    )}
-            """.trimIndent()
-
-                    textSize = 14f
-                    setTextColor(Color.DKGRAY)
-                }
-
-                receiptLayout.addView(receiptTitle)
-
-                val divider = View(this).apply {
-                    setBackgroundColor(Color.LTGRAY)
-                }
-
-                receiptLayout.addView(
-                    divider,
-                    LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        2
-                    ).apply {
-                        topMargin = 12
-                        bottomMargin = 12
-                    }
-                )
-
-                receiptLayout.addView(receiptDetails)
-
-                paymentList.addView(
-                    receiptLayout,
-                    LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        bottomMargin = 12
-                    }
-                )
-            }
-        }
-
-
     }
 
     private fun setupRegistrationScroll() {
